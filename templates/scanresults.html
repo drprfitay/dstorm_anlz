@@ -1,0 +1,903 @@
+<html> 
+  <head>
+    <link rel="stylesheet" href="/static/bootstrap/css/bootstrap.css"/>
+    <link rel="stylesheet" href="/static/bootstrap/css/bootstrap-reboot.css"/>
+    <link rel="stylesheet" href="/static/bootstrap/css/bootstrap-grid.css"/>
+    <script src="/static/bootstrap/js/bootstrap.js"></script>
+    <script src="/static/scripts/utils.js"></script>
+    <style>
+      .nav-link
+      {
+          font-weight: 500;
+          color: #333;
+      }
+      .nav-link:hover
+      {
+          margin-right: 4px;
+          color: #999;
+      }
+      .side-icon {
+        color:#17a2b8;
+      }
+
+    </style>
+  </head>
+
+
+  <body style="background-color: #ffe6ff">       
+<nav style="background-color: #50216e; height:200px; width:100%;margin-bottom:0px;" class="navbar navbar-expand-md">
+      <a style="margin-left:20px;"href="#">
+      <img src="/static/images/dstormlogo2.png" height="100" width="350"
+        style="background-color: white;" class="img-thumbnail" alt="Thumbnail Image"/>
+      </a>
+    <div class="container">
+        <div class="collapse navbar-collapse" id="navbarCollapse">
+            <div style="margin: 0 auto;margin-left:10%;" class="navbar-nav">
+        <div class="btn-group">
+          <a style="font-color: white;font-weight:bold;" href="/" class="btn btn-secondary">
+            <i class="fa fa-home"></i> Home
+          </a>
+            <a style="font-color: white;font-weight:bold;" href="/upload_files" class="btn btn-secondary"> 
+              Manage experiment files 
+            </a>
+            <a style="font-color: white;font-weight:bold;" href="/runscan" class="btn btn-secondary active    "> 
+              Run scan
+            </a>
+            <a style="font-color: white;font-weight:bold;" href="/runprescan" class="btn btn-secondary"> 
+                Pre scan 
+            </a>
+        </div>
+      </div>
+    </div>
+    </div>    
+</nav>
+<div class="container-fluid">
+  <div class="row">
+    <nav style="height:100%;position:absolute;display:block;"; id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+      <div class="sidebar-sticky pt-3">
+        <ul class="nav flex-column">
+          <li class="nav-item active">
+            <a class="nav-link" onclick="generalClusterInformation()" href="#">
+              <svg class="side-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-layers"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+              General clusters information
+            </a>
+          </li>
+          <!--<li class="nav-item">
+            <a class="nav-link" onclick="generateProbeStats(0)" href="#">
+              <svg class="side-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-file"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><polyline points="13 2 13 9 20 9"></polyline></svg>
+              Probe 0 stats
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" onclick="generateProbeStats(1)" href="#">
+              <svg class="side-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-file"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><polyline points="13 2 13 9 20 9"></polyline></svg>
+              Probe 1 stats
+            </a>
+          </li> -->
+          <li class="nav-item">
+            <a class="nav-link" onclick="generatePlots(1)" href="#">
+              <svg class="side-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bar-chart-2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+              DB scan clusters
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" onclick="generatePlots(4)" href="#">
+              <svg class="side-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bar-chart-2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+              3D DB scan clusters
+            </a>
+          </li>          
+          <li class="nav-item">
+            <a class="nav-link" onclick="generatePlots(2)" href="#">
+              <svg class="side-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bar-chart-2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+              Probes visualization
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" onclick="generatePlots(3)" href="#">
+              <svg class="side-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bar-chart-2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+              K-dist
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" onclick="generatePlots(5)" href="#">
+              <svg class="side-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bar-chart-2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+              Number of points histogram
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" onclick="generatePlots(6)" href="#">
+              <svg class="side-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bar-chart-2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+              Major axis stdev histogram
+            </a>
+          </li>                              
+          <li class="nav-item">
+            <a class="nav-link" onclick="generatePlots(7)" href="#">
+              <svg class="side-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bar-chart-2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+              Minor axis stdev histogram
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" onclick="generatePlots(8)" href="#">
+              <svg class="side-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bar-chart-2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+              Density histogram
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" onclick="generatePlots(9)" href="#">
+              <svg class="side-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bar-chart-2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+              Polygon histogram
+            </a>
+          </li> 
+          <li class="nav-item">
+            <a class="nav-link" onclick="generatePlots(10)" href="#">
+              <svg class="side-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bar-chart-2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+              DBscan comparsions
+            </a>
+          </li>                              
+        </ul>
+      </div>
+    </nav>
+
+    <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4"><div class="chartjs-size-monitor" style="position: absolute; left: 0px; top: 0px; right: 0px; bottom: 0px; overflow: hidden; pointer-events: none; visibility: hidden; z-index: -1;"><div class="chartjs-size-monitor-expand" style="position:absolute;left:0;top:0;right:0;bottom:0;overflow:hidden;pointer-events:none;visibility:hidden;z-index:-1;"><div style="position:absolute;width:1000000px;height:1000000px;left:0;top:0"></div></div><div class="chartjs-size-monitor-shrink" style="position:absolute;left:0;top:0;right:0;bottom:0;overflow:hidden;pointer-events:none;visibility:hidden;z-index:-1;"><div style="position:absolute;width:200%;height:200%;left:0; top:0"></div></div></div>
+      <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2" id="main_content_title"> </h1>
+        <div class="btn-toolbar mb-2 mb-md-0">
+          <div class="btn-group mr-2">
+            <!-- <button type="button" onclick="openConfigScanParamsModal()" class="btn btn-sm btn-outline-secondary">Change params</button> -->
+            <button type="button" class="btn btn-sm btn-outline-secondary">Export</button>
+          </div>
+        </div>
+      </div>
+    
+      <div class="row card" style="background-color:white;">
+          
+
+      <div class ="col-lg-12" id="main-content">
+
+      </div>
+      </div>
+    </main>
+    <div class="modal fade" id="scanResModal" tabindex="-1" aria-labelledby="scanResModalLabel" aria-modal="true"
+        role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="scanResModalLabel">Scan complete</h5>
+                    <button type="button" class="close" aria-label="Close" onclick="closeScanSuccessModal()">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div id="scan_success_modal_body" class="modal-body">
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeScanSuccessModal()">See scan results</button>
+                </div>
+            </div>
+        </div>
+    </div>    
+    <div class="modal fade" id="configScanModal" tabindex="-1" aria-labelledby="scanResModalLabel" aria-modal="true"
+        role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title" id="scanResModalLabel">Configure scan</h1>
+                    <button type="button" class="close" aria-label="Close" onclick="closeConfigScanParamsModal()">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div id="config_scan_modal_body" class="modal-body">
+                <div class="row">
+                    <div class="col-md-4 mb-1">
+                    <span class="badge badge-info">Configure DB scan</span><br/>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <label for="cc-expiration">Min npoints</label>                        
+                    </div>
+                    <div class="col-md-4">
+                        <label for="cc-expiration">Epsilon</label>                        
+                    </div>
+                    <div class="col-md-4">
+                        <label for="cc-expiration">Min samples</label>                        
+                    </div>                                        
+                </div>
+                <div class="row">
+                    <div class ="col-md-4 mb-3">
+                        <input type="text" class="form-control" id="min_npoints">
+                    </div>
+                    <div class ="col-md-4 mb-3">
+                        <input type="text" class="form-control" id="dbscan_eps">
+                    </div>
+                    <div class ="col-md-4 mb-3">
+                        <input type="text" class="form-control" id="dbscan_min_samples">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <label for="cc-expiration">Colocalization distance</label>                        
+                    </div>
+                    <div class="col-md-4">
+                        <label for="cc-expiration">Colocalization neighbours</label>                        
+                    </div>
+                    <div class="col-md-4">
+                        <label for="cc-expiration">Workers</label>                        
+                    </div>                                        
+                </div>
+                <div class="row">
+                    <div class="col-md-4 mb-3">                        
+                        <input type="text" class="form-control" id="coloc_distance">
+                    </div>
+                    <div class="col-md-4 mb-3">                        
+                        <input type="text" class="form-control" id="coloc_neighbors">
+                    </div>
+                    <div class="col-md-4 mb-3">                        
+                        <input type="text" class="form-control" id="workers">
+                    </div>                                        
+                </div>
+                <div class="row">
+                    <div class="col-md-4 mb-1 mt-3">
+                    <span class="badge badge-info">Configure K-dist</span><br/>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <label for="cc-expiration">Num of neighbours</label>                        
+                    </div>
+                    <div class="col-md-4">
+                        <label for="cc-expiration">K-neighbour</label>                        
+                    </div>
+                    <div class="col-md-4">
+                        <label for="cc-expiration">Algorithm</label>                        
+                    </div>                                        
+                </div>
+                <div class="row">
+                    <div class="col-md-4 mb-1">                        
+                        <input type="text" class="form-control" id="n_neighbors">
+                    </div>
+                    <div class="col-md-4 mb-1">                        
+                        <input type="text" class="form-control" id="k">
+                    </div>
+                    <div class="col-md-4 mb-1">                        
+                        <input type="text" class="form-control" id="algorithm">
+                    </div>                                        
+                </div>          
+                <div class="row form-check">
+                    <div class="col-md-4 mb-3">
+                        <input type="checkbox" class="form-check-input" id="is_threeD">
+                        <label class="form-check-label" for="a">Is 3D K-dist</label>
+                    </div>
+                </div>                                             
+                </div>
+                <div class="row">
+                <div id="progress_bar" class="col-lg-11 ml-4 mb-3 mt-1" style="width:80%;height:20px;">
+                </div>
+                </div>
+                <div class="modal-footer">
+                    <div id="runscan_button">
+                      <div class="btn-group btn-group-sm" role="group" aria-label="First group">
+                      <button type="button" class="btn btn-secondary" onclick="closeConfigScanParamsModal()"> Save</button>
+                      <button type="button" class="btn btn-secondary" onclick="runScan()">Run new scan</button>
+                      </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>    
+    <div class="modal-backdrop fade show" id="backdrop" style="display: none;"></div>    
+  </div>
+</div>
+<script>
+(function () {
+   generalClusterInformation();
+})();
+
+function generalClusterInformation() {
+    var http_request = new XMLHttpRequest();
+    http_request.onreadystatechange = function() {        
+        if (http_request.readyState == 4  ) {
+
+            /// Fix sidebar height:
+            document.getElementById("sidebarMenu").style = "height:100%;position:absolute;display:block;";
+            document.getElementById("sidebarMenu").style = "height:100%;position:absolute;display:block;";
+            var jsonObj = JSON.parse(http_request.responseText);
+            var probe1_exists = false;
+
+            for (f of jsonObj.file_results) {
+              if (f.completed == false) {
+                continue;
+              }  
+              if (f.probe1_num_of_points > 0) {
+                probe1_exists = true;
+                break;
+              }
+            }
+
+            table_str = "<div class=\"table-responsive\">";
+            table_str += "<table class=\"table table-striped table-sm mt-5\">";
+            table_str += "<thead>";
+            table_str += "<tr>";
+            table_str += "<th> # </th>";
+            table_str += "<th>Filename</th>";
+            table_str += "<th>Scan chosen params</th>";
+            table_str += "<th>Num of clusters within probe 0</th>";
+            table_str += "<th>Num of points within probe 0</th>";
+            table_str += "<th>Num of points assigned to clusters within probe 0</th>";
+            table_str += "<th colspan='2'>Number of points</th>";
+            table_str += "<th colspan='2'>PCA major axis standard deviation </th>";
+            table_str += "<th colspan='2'>PCA minor axis standard deviation</th>";
+            table_str += "<th colspan='2'>PCA size</th>";
+            table_str += "<th colspan='2'>Polygon size</th>";
+            table_str += "</tr>";
+            table_str += "<tr>";
+            table_str += "<th> - </th>";
+            table_str += "<th> - </th>";
+            table_str += "<th> - </th>";            
+            table_str += "<th> - </th>";            
+            table_str += "<th> - </th>";
+            table_str += "<th> - </th>";            
+            table_str += "<th> Mean </th>";
+            table_str += "<th> Median </th>";            
+            table_str += "<th> Mean </th>";
+            table_str += "<th> Median </th>";   
+            table_str += "<th> Mean </th>";
+            table_str += "<th> Median </th>";   
+            table_str += "<th> Mean </th>";
+            table_str += "<th> Median </th>";   
+            table_str += "<th> Mean </th>";
+            table_str += "<th> Median </th>";            
+            //if (probe1_exists) {
+            //  table_str += "<th>Num of clusters within probe 1</th>";
+            //}
+
+            table_str += "</tr>";
+            table_str += "</thead>";
+            table_str += "<tbody>";
+
+            var idx = 1;
+            for (f of jsonObj.file_results) {
+
+              if (f.completed == false) {
+                continue;
+              }
+
+              table_str += "<tr>";
+              table_str += "<td>" + idx.toString() + "</td>";
+              table_str += "<td>" + f.titlename + "</td>";
+              if (f.hdbscan) {
+                table_str += "<td> (HDBscan)<br/> min npoints: <b>" + f.alg_param_1 + "</b>, min samples: <b>" +  f.alg_param_2;
+                if (f.alg_param_3 != null && f.alg_param_3 != -9999) {
+                  table_str += "</b>, epsilon: <b>" + f.alg_param_3;
+                }
+                table_str += "</b>, alg: <b>" + f.alg_param_4 + "</b>, alpha: <b>" + f.alg_param_5;
+
+                table_str  += "</b>"
+                if (f.noise_reduced) {
+                  table_str += " with noise reduction: <b>" + f.stddev_num + " sigma </b>"
+                } 
+
+                table_str += "</td>";
+              } else {
+                table_str += "<td> (DBscan)<br/> Epsilon: <b>" + f.alg_param_1 + "</b>, K: <b>" +  f.alg_param_2 + "</b>" 
+
+                if (f.noise_reduced) {
+                  table_str += " with noise reduction: <b>" + f.stddev_num + " sigma </b>"
+                } 
+
+                table_str += "</td>";
+              }
+
+              table_str += "<td>" + f.probe0_ngroups + "</td>";
+              table_str += "<td>" + f.probe0_num_of_points + "</td>";
+              table_str += "<td>" + f.probe_0.num_of_points["cluster_sum"] + "</td>";
+              table_str += "<td>" + f.probe_0.num_of_points["mean"] + " </td>";
+              table_str += "<td>" + f.probe_0.num_of_points["median"] + " </td>";            
+              table_str += "<td>" + f.probe_0.pca_major_axis_std["mean"] + " </td>";
+              table_str += "<td>" + f.probe_0.pca_major_axis_std["median"] + " </td>";   
+              table_str += "<td>" + f.probe_0.pca_minor_axis_std["mean"] + " </td>";
+              table_str += "<td>" + f.probe_0.pca_minor_axis_std["median"] + " </td>";   
+              table_str += "<td>" + f.probe_0.pca_size["mean"] + " </td>";
+              table_str += "<td>" + f.probe_0.pca_size["median"] + " </td>";
+              table_str += "<td>" + f.probe_0.polygon_size["mean"] + " </td>";
+              table_str += "<td>" + f.probe_0.polygon_size["median"] + " </td>";                   
+              table_str += "</tr>";
+
+              idx+=1;
+            }
+
+            table_str += "</tbody>";
+            table_str += "</table>";
+            table_str += "</div>";
+
+            document.getElementById("main-content").innerHTML = table_str;
+            document.getElementById("main_content_title").innerHTML = "General clusters information:";
+        }
+    };
+
+    http_request.open("GET", "/scanresults", true);
+    http_request.send()
+};
+
+function generateProbeStats(probe_num) {
+    var http_request = new XMLHttpRequest();
+    http_request.onreadystatechange = function() {        
+        if (http_request.readyState == 4  ) {
+
+            /// Fix sidebar height:
+            document.getElementById("sidebarMenu").style = "height:100%;position:absolute;display:block;";
+            var jsonObj = JSON.parse(http_request.responseText);
+            var probe1_exists = false;
+
+            document.getElementById("main_content_title").innerHTML = "Probe " + probe_num.toString() + " statistics:";
+
+            for (f of jsonObj.file_results) {
+              if (f.completed == false) {
+                continue;
+              }
+              if (f.probe1_num_of_points > 0) {
+                probe1_exists = true;
+                break;
+              }
+            }
+
+            if (probe_num == 1 && !probe1_exists) {
+               res_str = "<div class=\"alert alert-warning mt-3\" role=\"alert\">";
+               res_str += "<strong> No data found for probe 1 within this scan.</strong> Try scanning different experiment files"
+               res_str += "</div>";
+               document.getElementById("main-content").innerHTML = res_str;
+               return 
+            } 
+
+            table_str = "<div class=\"table-responsive\">";
+            table_str += "<table style=\"text-align:center\" class=\"table table-striped table-sm mt-5\">";
+            table_str += "<thead>";
+            table_str += "<tr>";
+            table_str += "<th> # </th>";
+            table_str += "<th>Filename</th>";
+
+            table_str += "<tbody>";
+
+            var idx = 1;
+            for (f of jsonObj.file_results) {
+              if (f.completed == false) {
+                continue;
+              }
+
+              if (probe_num == 1) {
+                var probe = f.probe_1;
+              } else {
+                var probe = f.probe_0;
+              }
+              table_str += "<tr>";
+              table_str += "<td>" + idx.toString() + "</td>";
+              table_str += "<td>" + f.titlename + "</td>";
+
+              table_str += "</tr>";
+              idx+=1;
+            }
+
+            table_str += "</tbody>";
+            table_str += "</table>";
+            table_str += "</div>";
+
+            document.getElementById("main-content").innerHTML = table_str;        
+        }
+    };
+
+    http_request.open("GET", "/scanresults", true);
+    http_request.send()
+};
+
+function generatePlots(plot_id) {
+    var http_request = new XMLHttpRequest();
+    http_request.onreadystatechange = function() {        
+        if (http_request.readyState == 4  ) {   
+
+            document.getElementById("sidebarMenu").style = "";
+            var jsonObj = JSON.parse(http_request.responseText);
+            var content = "";
+            var first = true;
+            content += "<div class=\"row mt-5\">";
+            content += "<div class=\"col-lg-2\"></div>";
+            content += "<div class=\"col-lg-8\">";
+            content += "<select onclick=\"embedPlot()\" class=\"custom-select mr-sm-2\" id=\"plot_select\">";
+            for (f of jsonObj.file_results) {
+              if (f.completed == false) {
+                continue;
+              }              
+              var html_url = ""
+
+              switch(plot_id) {
+                case 1:
+                  html_url = f.dbscan_html;
+                  document.getElementById("main_content_title").innerHTML = "DB Scan visualization:";
+
+                break;
+
+                case 2:
+                  html_url = f.probevis_html;
+                  document.getElementById("main_content_title").innerHTML = "Probe visualization:";
+
+                break;
+
+                case 3:
+                  html_url = f.kdist_html;
+                  document.getElementById("main_content_title").innerHTML = "K distance graph:";
+
+                break;  
+
+                case 4:
+                  html_url = f.threeD_dbscan_html;
+                  document.getElementById("main_content_title").innerHTML = "3D DBscan visualization";
+
+                break;
+
+                case 5:
+                  html_url = f.num_of_points_html;
+                  document.getElementById("main_content_title").innerHTML = "Number of points histogram:";
+
+                break;
+
+                case 6:
+                  html_url = f.major_axis_html;
+                  document.getElementById("main_content_title").innerHTML = "Major axis stddev histogram:";
+
+                break;
+
+                case 7:
+                  html_url = f.minor_axis_html;
+                  document.getElementById("main_content_title").innerHTML = "Minor axis stddev histogram:";
+
+                break;   
+
+                case 8:
+                  html_url = f.density_html;
+                  document.getElementById("main_content_title").innerHTML = "Density histogram:";
+
+                break;
+
+                case 9:
+                  html_url = f.pca_size_html;
+                  document.getElementById("main_content_title").innerHTML = "PCA size histogram:";
+
+                break;
+
+                case 10:
+                  html_url = f.dbscan_compare_html;
+                  document.getElementById("main_content_title").innerHTML = "DBscan comparsions:";
+
+                  break;
+
+                }
+                  if (first == true) {
+                    first = false;
+                    first_url = html_url;
+                  }
+
+                  if (html_url == null) {
+                    document.getElementById("sidebarMenu").style = "height:100%;position:absolute;display:block;";
+                    
+                    res_str = "<div class=\"alert alert-warning mt-3\" role=\"alert\">";
+                    res_str += "<strong> Plot not generated.</strong> Try re-scanning ";
+                    res_str += "</div>";
+                    document.getElementById("main-content").innerHTML = res_str;
+                    return; 
+                  }
+    
+              content += "<option value='" + html_url + "'>" + f.filename + "</option>";
+            }
+
+            content += "</select>";
+            content += "</div><div class=\"col-lg-2\"></div>";
+            content += "</div>";
+            if (plot_id >= 5 && plot_id <=9) {
+              content += "<div class=\"row mt-3\">";
+              content += "<div class=\"col-lg-2\"></div>";
+              content += "<div class=\"col-lg-8\">";   
+              content += "<span type=\"button\" class=\"badge badge-secondary\" onclick=\"embedPlot()\">Entire data histogram (all clusters measured) </span> &nbsp";
+              content += "<span type=\"button\" class=\"badge badge-secondary\" onclick=\"embedLower()\"> Lower half histogram (clusters up to median)</span> &nbsp";
+              content += "<span type=\"button\" class=\"badge badge-secondary\" onclick=\"embedUpper()\"> Upper half histogram (clusters above median)</span>";
+              content += "</div>";
+              content += "</div>";
+              content += "</div>"; 
+            }           
+            content += "<div id=\"embed_plot\">";
+            content += "</div>";
+
+            document.getElementById("main-content").innerHTML = content;
+
+
+            first_content = "<br><div class=\"embed-responsive embed-responsive-16by9\">";
+            first_content += "<iframe class=\"embed-responsive-item\" src=\"static/scan_results/" + first_url + "?rand='" + Math.round(Math.random() * 10000000)  +"'\" allowfullscreen></iframe>";   
+            first_content += "</div>";
+            document.getElementById("embed_plot").innerHTML = first_content;
+
+        }
+    };
+
+    http_request.open("GET", "/scanresults", true);
+    http_request.send()
+};
+
+function embedPlot() {
+            content = "<br><div class=\"embed-responsive embed-responsive-16by9\">";
+            content += "<iframe class=\"embed-responsive-item\" src=\"static/scan_results/" + document.getElementById("plot_select").value  + "?rand='" + Math.round(Math.random() * 10000000)  +"'\" allowfullscreen></iframe>";
+            content += "</div>";
+            document.getElementById("embed_plot").innerHTML = content;
+};
+
+String.prototype.reverse = function () {
+    return this.split('').reverse().join('');
+};
+
+String.prototype.replaceLast = function (what, replacement) {
+    return this.reverse().replace(new RegExp(what.reverse()), replacement.reverse()).reverse();
+};
+
+function embedLower() {
+            selected_url = document.getElementById("plot_select").value;
+            selected_url = selected_url.replaceLast("csv", "csv_lower_half");
+            content = "<br><div class=\"embed-responsive embed-responsive-16by9\">";
+            content += "<iframe class=\"embed-responsive-item\" src=\"static/scan_results/" + selected_url + "?rand='" + Math.round(Math.random() * 10000000)  +"'\" allowfullscreen></iframe>";
+            content += "</div>";
+            document.getElementById("embed_plot").innerHTML = content;
+
+};
+
+function embedUpper() {
+            selected_url = document.getElementById("plot_select").value;
+            selected_url = selected_url.replaceLast("csv", "csv_upper_half");
+            content = "<br><div class=\"embed-responsive embed-responsive-16by9\">";
+            content += "<iframe class=\"embed-responsive-item\" src=\"static/scan_results/" + selected_url + "?rand='" + Math.round(Math.random() * 10000000)  +"'\" allowfullscreen></iframe>";
+            content += "</div>";
+            document.getElementById("embed_plot").innerHTML = content;
+};
+function openConfigScanParamsModal() {
+    var http_request = new XMLHttpRequest();
+    http_request.onreadystatechange = function() {        
+        if (http_request.readyState == 4  ) {
+            document.getElementById("backdrop").style.display = "block";
+            document.getElementById("configScanModal").style.display = "block";
+            document.getElementById("configScanModal").className += "show";
+
+            var jsonObj = JSON.parse(http_request.responseText);
+            
+            if (jsonObj.scan_run) {
+              document.getElementById("coloc_distance").value = jsonObj.dbscan.coloc_distance;
+              document.getElementById("coloc_neighbors").value = jsonObj.dbscan.coloc_neighbors;
+              document.getElementById("dbscan_eps").value = jsonObj.dbscan.dbscan_eps;
+              document.getElementById("dbscan_min_samples").value = jsonObj.dbscan.dbscan_min_samples;
+              document.getElementById("min_npoints").value = jsonObj.dbscan.min_npoints;
+              document.getElementById("workers").value = jsonObj.dbscan.workers;
+              document.getElementById("algorithm").value = jsonObj["k-dist"]["algorithm"];
+              document.getElementById("is_threeD").checked = jsonObj["k-dist"]["is_3D"];
+              document.getElementById("k").value = jsonObj["k-dist"]["k"];
+              document.getElementById("n_neighbors").value = jsonObj["k-dist"]["n_neighbors"];
+          }
+        }
+
+    };
+
+    http_request.open("GET", "/lastscanparams", true);
+    http_request.send();
+};
+
+function closeConfigScanParamsModal() {
+    document.getElementById("backdrop").style.display = "none";
+    document.getElementById("configScanModal").style.display = "none";
+    document.getElementById("configScanModal").className += document.getElementById("configScanModal").className.replace("show", "");
+};
+
+function runScan() {
+    var get_files_request = new XMLHttpRequest();
+    get_files_request.onreadystatechange = function() {
+    if (get_files_request.readyState == 4  ) {   
+      var jsonObj = JSON.parse(get_files_request.responseText);
+
+      var http_request = new XMLHttpRequest();
+      http_request.onreadystatechange = function() {        
+          if (http_request.readyState == 4  ) {
+              pollScanResults();
+          }
+
+      };
+
+      http_request.open("POST", "/doscan", true);
+
+      http_request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+      var post_payload = "files="
+
+      var threedChecked = false;
+      for (f of jsonObj.file_results) {
+          if (f.completed == false) {
+            continue;
+          }        
+          post_payload += f.titlename + ";"
+
+          if (!threedChecked && f.threeD_dbscan_html != null) {
+            threedChecked = true;
+          }
+      }
+
+      if (threedChecked) {
+          post_payload += "&tdchecked=true";
+      } else {
+          post_payload += "&tdchecked=false";
+      }
+
+      post_payload += "&dbscan_coloc_distance=" + document.getElementById("coloc_distance").value + ";";
+      post_payload += "&dbscan_coloc_neighbors=" + document.getElementById("coloc_neighbors").value + ";";
+      post_payload += "&dbscan_dbscan_eps=" + document.getElementById("dbscan_eps").value + ";";
+      post_payload += "&dbscan_dbscan_min_samples=" + document.getElementById("dbscan_min_samples").value + ";";
+      post_payload += "&dbscan_min_npoints=" + document.getElementById("min_npoints").value + ";";
+      post_payload += "&dbscan_workers=" + document.getElementById("workers").value + ";";
+      post_payload += "&k-dist_algorithm=" + document.getElementById("algorithm").value + ";";
+      post_payload += "&k-dist_is_3D=" + document.getElementById("is_threeD").checked + ";";
+      post_payload += "&k-dist_k=" + document.getElementById("k").value + ";";
+      post_payload += "&k-dist_n_neighbors=" + document.getElementById("n_neighbors").value + ";";
+      post_payload += "&theme=redo" + ";";
+
+      append_str = "<div class=\"btn-group btn-group-sm\" role=\"group\" aria-label=\"First group\">";
+      append_str += "<button type=\"button\" class=\"btn btn-secondary\" disabled> Save</button>";
+      append_str += "<button class=\"btn btn-secondary\" type=\"button\" disabled>";
+      append_str += "<span class=\"spinner-border spinner-border-sm\" role=\"status\" aria-hidden=\"true\"></span>";
+      append_str += " Scan running </button>";;
+      append_str += "</div>";
+
+
+      document.getElementById("runscan_button").innerHTML = append_str;
+      http_request.send(post_payload);
+    }
+   };
+
+   get_files_request.open("GET", "/scanresults", true);
+   get_files_request.send()
+}
+
+function pollScanResults (){
+    var http_request = new XMLHttpRequest();
+
+    if( typeof pollScanResults.not_started_counter == 'undefined' ) {
+        pollScanResults.not_started_counter = 0;
+    }
+
+    if( typeof pollScanResults.retries_count == 'undefined' ) {
+        pollScanResults.retries_count = 0;
+    }
+    else {
+        pollScanResults.retries_count += 1
+    }
+    if (pollScanResults.retries_count >= 600) {
+        alert("Scan request timed out, try again later\n");
+        window.location.href = "/runscan";
+    }
+    http_request.onreadystatechange = function() {        
+        if (http_request.readyState == 4  ) {
+            var jsonObj = JSON.parse(http_request.responseText);
+
+            switch(jsonObj.status) {
+
+                case 1: // SCAN_NOT_STARTED
+                    if (pollScanResults.not_started_counter == 0) {
+                        pollScanResults.not_started_counter += 1;
+                        setTimeout(pollScanResults, 200);
+                        updateProgressBar(0);
+                    } else {
+                        alert("Scan not started!\n");
+                        window.location.href = "/runscan";
+                    }
+
+                break; 
+
+                case 2: // SCAN_FINISHED_SUCCESSFULLY
+                    updateProgressBar(100);
+                    closeConfigScanParamsModal();
+                    openScanSuccessModal();
+
+                break; 
+
+                case 3: // SCAN_FAILED
+                    alert("Scan failed, try again later\n");
+                    window.location.href = "/runscan";
+
+                break; 
+
+                case 4: // SCAN_RUNNING
+                    updateProgressBar(jsonObj.percentage);
+                    setTimeout(pollScanResults, 200);
+
+                break; 
+
+                case 5: // SCAN_GENERATING_PLOTS
+                    updateProgressBar(jsonObj.percentage);
+                    setTimeout(pollScanResults, 200);
+
+                break; 
+            }
+        }
+    };
+
+    http_request.open("GET", "/pollscan", true);
+    http_request.send();
+    setTimeout
+};
+
+function updateProgressBar(percentage)
+{
+    append_str = "<div class=\"progress\" style=\"width:100%; height:20px; display:block;\">";
+    append_str += "<div class=\"progress-bar progress-bar-striped progress-bar-animated bg-info\" role=\"progressbar\" aria-valuenow=\"";
+    append_str += percentage.toString() + "\"  aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: ";
+    append_str += percentage.toString() + "%; height:20px\"></div>";
+    append_str += "</div>"
+    document.getElementById("progress_bar").innerHTML = append_str;
+};
+
+
+function openScanSuccessModal() {
+    var http_request = new XMLHttpRequest();
+    http_request.onreadystatechange = function() {        
+        if (http_request.readyState == 4  ) {
+            document.getElementById("backdrop").style.display = "block";
+            document.getElementById("scanResModal").style.display = "block";
+            document.getElementById("scanResModal").className += "show";
+
+            var jsonObj = JSON.parse(http_request.responseText);
+
+            if(!jsonObj.errors) {
+                modal_body_str = "<div class=\"alert alert-success\">";
+                modal_body_str += "<strong>Scan completed without errors!</strong> These are the files scanned: </div>";
+            } else {
+                modal_body_str = "<div class=\"alert alert-warning\">";
+                modal_body_str += "<strong>Scan has completed with some errors</strong> some files may not have been scanned </div>";
+            }
+            modal_body_str += "<ul class=\"list-group\">";
+
+            var counter = 0;
+
+            for (f of jsonObj.file_results) {
+              if (f.completed == false) {
+                continue;
+              }              
+
+              modal_body_str += "<li class=\"list-group-item\">" + f.filename + "</li>";
+
+              counter += 1;
+              if (counter > 8 ) {
+                  break;
+              }
+            }
+
+            modal_body_str += "</ul>";
+            document.getElementById("scan_success_modal_body").innerHTML += modal_body_str;
+        }
+
+    };
+
+    http_request.open("GET", "/scanresults", true);
+    http_request.send()
+};
+
+function closeScanSuccessModal() {
+    document.getElementById("backdrop").style.display = "none";
+    document.getElementById("scanResModal").style.display = "none";
+    document.getElementById("scanResModal").className += document.getElementById("scanResModal").className.replace("show", "");
+    window.location.href = "/results"
+};
+
+// Get the modal
+var config_modal = document.getElementById('configScanModal');
+var scan_res_modal = document.getElementById('scanResModal');
+// When the user clicks anywhere outside of the modal, close it
+window.onclick = function (event) {
+    if (event.target == config_modal) {
+        closeConfigScanParamsModal();
+    } else if (event.target == scan_res_modal) {
+        closeScanSuccessModal()
+
+    }
+};
+
+</script>
+</body> 
+</html> 

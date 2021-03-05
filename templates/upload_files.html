@@ -1,0 +1,649 @@
+<html> 
+	<head>
+		<link rel="stylesheet" href="/static/bootstrap/css/bootstrap.css"/>
+		<link rel="stylesheet" href="/static/bootstrap/css/bootstrap-reboot.css"/>
+		<link rel="stylesheet" href="/static/bootstrap/css/bootstrap-grid.css"/>
+		<script src="/static/bootstrap/js/bootstrap.js"></script>
+	</head>
+
+	<body style="background-color: #ffe6ff" >       
+<nav style="background-color: #50216e; height:200px; width:100%" class="navbar navbar-expand-md mb-3">
+    	<a style="margin-left:20px;"href="#">
+    	<img src="/static/images/dstormlogo2.png" height="100" width="350"
+    		style="background-color: white;" class="img-thumbnail" alt="Thumbnail Image"/>
+    	</a>
+    <div class="container">
+        <div class="collapse navbar-collapse" id="navbarCollapse">
+            <div style="margin: 0 auto;margin-left:10%;" class="navbar-nav">
+				<div class="btn-group">
+					<a style="font-color: white;font-weight:bold;" href="/" class="btn btn-secondary">
+						<i class="fa fa-home"></i> Home
+					</a>
+    				<a style="font-color: white;font-weight:bold;" href="/" class="btn btn-secondary active"> 
+    					Manage experiment files 
+    				</a>
+    				<a style="font-color: white;font-weight:bold;" href="/runscan" class="btn btn-secondary"> 
+    					Run scan 
+    				</a>
+                    <a style="font-color: white;font-weight:bold;" href="/runprescan" class="btn btn-secondary"> 
+                        Pre scan 
+                    </a>
+				</div>
+			</div>
+		</div>
+    </div>    
+</nav>
+
+<div class="container">
+<div class="row card" style="display:block;margin:0 auto; width: 1220px;">
+<div id="select_files" style="display:block;margin:0 auto; width: 1120px;" >
+    <div class="row mb-3 mt-3">
+        <div>
+            <button type="button" class="btn btn-secondary" onclick="openUploadFileModal()">Upload files to this folder</button>
+            <button type="button" class="btn btn-success" onclick="openFolderCreateModal()">Create new folder from here</button>
+            <button type="button" class="btn btn-danger" onclick="deleteFolder()">Delete current folder </button>
+        </div>
+    </div>
+    <div class="row mb-3 mt-3">
+    <div class="input-group">
+    <div class="input-group-prepend">
+    <span class="input-group-text" id="basic-addon1"> Choose folder </span>
+    </div>
+        <select class="custom-select" onclick=search() id="folderselect">
+        </select>
+    </div>
+    </div>
+    <div class="row mb-3 mt-1">
+        <div class="input-group mb-3">
+          <div class="input-group-prepend">
+            <span class="input-group-text" id="basic-addon1"> Search </span>
+          </div>
+          <input id="search" oninput=search() type="text" class="form-control" placeholder="Enter experiment file name" aria-label="Username" aria-describedby="basic-addon1">
+        </div>
+    </div>
+
+    <div class="row mb-1">
+        <div class="col-lg-8">
+        <div class="row">
+            <div class="col-lg-6" id="first_files_text">
+            </div>
+            <div class="col-lg-6" id="second_files_text">
+            </div>
+        </div>        
+        </div>
+        <div class="col-lg-4">    
+             <h2> Files modifying: <span id="num_of_files_selected"> </span> </h2>  
+            <ul class="list-group mb-2 mt-3">
+            <div id="files_selected">
+            </div>
+          </ul>
+        <br/>
+        <div id="scan_options" style="visibility:hidden;">
+        <div id="runscan_button">
+        <div class="btn-group btn-group-sm" role="group" aria-label="First group">
+            <button type="button" class="btn btn-secondary" onclick="deleteFiles()">Delete files</button>
+            <!-- <button type="button" class="btn btn-secondary" onclick=""> Modify file name </button> -->
+            <button type="button" class="btn btn-secondary" onclick="resetFiles()">Reset</button>
+        </div>
+        </div>
+        </div>
+        </div>
+    </div>
+
+    <div class="row mb-3 mt-4" style="margin: 0 auto">
+        <div class="col-lg-4">
+        </div>
+        <div class="col-lg-4">
+        <center>
+        <nav aria-label="...">
+        <ul id="mpagination" class="pagination pagination-sm pagination-dark">
+        </ul>
+        </nav>
+        </center>
+        </div>
+        <div class="col-lg-4">
+        </div>
+    </div>
+
+    <div id="progress_bar" class="row mb-3 mt-1">
+    </div>
+</div>
+</div>
+    <div class="modal fade" id="uploadFileModal" tabindex="-1" aria-labelledby="uploadFileModalLabel" aria-modal="true"
+        role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="uploadFileModalLabel">Upload files</h5>
+                    <button type="button" class="close" aria-label="Close" onclick="closeUploadFileModal()">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div id="scan_success_modal_body" class="modal-body">
+                <div class="row">
+                    <div class="col-md-4 mb-1">
+                    <span class="badge badge-info">Note * Files uploaded would be created within currently selected folder</span><br/>
+                    </div>                 
+                </div>
+                <div class="row mt-2">
+                    <div class="col-md-12">
+                        <label for="cc-expiration">Select files:</label>                        
+                    </div>                                 
+                </div>     
+                <div class="row">
+                    <div class ="col-md-9 mb-3">
+                        <input id="ufiles" name="file[]" type="file" multiple=""/>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                    <button type="button" class="btn btn-secondary" onclick="uploadFiles()">upload</button>
+                    </div>
+                </div>                              
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeUploadFileModal()">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="folderCreateModal" tabindex="-1" aria-labelledby="folderCreateModalLabel" aria-modal="true"
+        role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="folderCreateModalLabel">Create folder</h5>
+                    <button type="button" class="close" aria-label="Close" onclick="closeFolderCreateModal()">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div id="scan_success_modal_body" class="modal-body">
+                <div class="row">
+                    <div class="col-md-4 mb-1">
+                    <span class="badge badge-info">Note * Folder would be created within currently selected folder</span><br/>
+                    </div>                 
+                </div>
+                <div class="row mt-2">
+                    <div class="col-md-12">
+                        <label for="cc-expiration">Folder name</label>                        
+                    </div>                                 
+                </div>     
+                <div class="row">
+                    <div class ="col-md-9 mb-3">
+                        <input type="text" class="form-control" id="folder_name">
+                    </div>
+                    <div class="col-md-3 mb-3">
+                    <button type="button" class="btn btn-secondary" onclick="createFolder()">Create</button>
+                    </div>
+                </div>                              
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeFolderCreateModal()">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="configScanModal" tabindex="-1" aria-labelledby="folderCreateModalLabel" aria-modal="true"
+        role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title" id="folderCreateModalLabel">Configure scan</h1>
+                    <button type="button" class="close" aria-label="Close" onclick="closeConfigScanParamsModal()">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div id="config_scan_modal_body" class="modal-body">
+                <div id="dbscanparams">
+                <div class="row">
+                    <div class="col-md-4 mb-1">
+                    <span class="badge badge-info">Configure DBscan</span><br/>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <label for="cc-expiration">Min npoints</label>                        
+                    </div>
+                    <div class="col-md-4">
+                        <label for="cc-expiration">Epsilon</label>                        
+                    </div>
+                    <div class="col-md-4">
+                        <label for="cc-expiration">Min samples</label>                        
+                    </div>                                        
+                </div>
+                <div class="row">
+                    <div class ="col-md-4 mb-3">
+                        <input type="text" class="form-control" id="min_npoints">
+                    </div>
+                    <div class ="col-md-4 mb-3">
+                        <input type="text" class="form-control" id="dbscan_eps">
+                    </div>
+                    <div class ="col-md-4 mb-3">
+                        <input type="text" class="form-control" id="dbscan_min_samples">
+                    </div>
+                </div>
+                </div> 
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick=""> Modify name</button>
+                </div>
+                <div class="modal-footer">
+                  
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop fade show" id="backdrop" style="display: none;"></div>
+
+    </div>
+</div>
+
+<script>
+
+
+(function () {
+    setFolders()
+    setExperimentFiles(dir="experimentfiles/", searchKey=null,pageNum=1);
+})();
+
+function uploadFiles() {
+    var http_request = new XMLHttpRequest();
+    http_request.onreadystatechange = function() {
+        var jsonObj = JSON.parse(http_request.responseText);
+        setFolders();
+        setExperimentFiles(dir="experimentfiles/", searchKey=null,pageNum=1);
+
+        if (jsonObj.res > 0) {
+            alert("Successfuly uploaded " + jsonObj.res + " files");
+            return;
+        } else {
+            alert("Unfortunately, couldn't upload files")
+            return;
+        }
+    };
+
+    var filedata = document.getElementById("ufiles");  
+    var formdata = new FormData();
+
+    for (var i = 0; i < filedata.files.length; i++) {                                 
+             formdata.append('file[]', filedata.files[i], filedata.files[i].name);
+        } 
+
+    formdata.append("current_folder", document.getElementById("folderselect").value)
+    var get_url = "/uploadfiles";
+
+    http_request.open("POST", get_url, true);
+    http_request.send(formdata);
+
+}
+function search() {
+    var search_text = document.getElementById("search").value;
+    var selected_folder = document.getElementById("folderselect").value;
+    if (search_text == "") {
+        search_text = null;
+    }
+    setExperimentFiles(folder=selected_folder, searchKey=search_text, pageNum=1);
+}
+
+function setFolders() {
+    var http_request = new XMLHttpRequest();
+    http_request.onreadystatechange = function() {
+        var jsonObj = JSON.parse(http_request.responseText);
+            folders_html = "";
+        for (f of jsonObj.folders) {
+            folders_html+= "<b><option value='" + f + "'>" + f + "</option></b>";
+        }
+
+        document.getElementById("folderselect").innerHTML = folders_html
+    };
+
+    var get_url = "/folders";
+
+    http_request.open("GET", get_url, true);
+    http_request.send();
+}
+
+function setExperimentFiles(dir=null, searchKey=null, pageNum=null) {
+    var http_request = new XMLHttpRequest();
+    http_request.onreadystatechange = function() {
+            
+    if (http_request.readyState == 4  ) {
+        var jsonObj = JSON.parse(http_request.responseText);
+        var dir = jsonObj.folder;
+        var files = jsonObj.exfiles;
+        var num_of_pages = jsonObj.total_files / 10;
+        var first_tab_experiment_files = "";
+        var second_tab_experiment_files = "";
+        var c = 0;
+        for (f of files) {
+                var fname = f
+            if (f.length > 40) {
+                fname = f.substring(0,40)
+            }
+            c += 1;
+            if (c > Math.floor(files.length / 2)) {
+                first_tab_experiment_files += "<button id=\"" + f + "\" ";
+                first_tab_experiment_files += "style=\"text-align:left;\" type=\"button\" class=\"btn btn-secondary btn-xs btn-block\" ";
+                first_tab_experiment_files += "onclick=\"addFile('" + dir + "','" + f + "')\">";
+                first_tab_experiment_files += "<span style=\"font-size:14px;font-weight:bold;\" class=\"badge badge-info\">";
+                first_tab_experiment_files +=  fname + "</span></button>";
+            } else {
+                second_tab_experiment_files += "<button id=\"" + f + "\" ";
+                second_tab_experiment_files += "style=\"text-align:left;\" type=\"button\" class=\"btn btn-secondary btn-xs btn-block\" ";
+                second_tab_experiment_files += "onclick=\"addFile('" + dir + "','" + f + "')\">";
+                second_tab_experiment_files += "<span style=\"font-size:14px;font-weight:bold;\" class=\"badge badge-info\">";
+                second_tab_experiment_files +=  fname + "</span></button>";
+            }
+        }
+        
+        document.getElementById("first_files_text").innerHTML = first_tab_experiment_files;
+        document.getElementById("second_files_text").innerHTML = second_tab_experiment_files;
+
+        // Handle pagination:
+        var searchkey_onclick_text = "null";
+        var dir_select = ""
+        if (jsonObj.folder != null){
+            dir_select = "folder='" + jsonObj.folder +"'"; 
+        } else {
+            dir_select ="folder='experimentfiles'/"
+        }
+        if (jsonObj.search_key != null) {
+            searchkey_onclick_text = ",searchKey='" + jsonObj.search_key + "'";
+        } else {
+            searchkey_onclick_text = ",searchKey=null";
+        }
+        var pages_str = "";
+        var num_of_pages = Math.floor(jsonObj.total_files / jsonObj.items_in_page) + 1;
+
+        if (num_of_pages >= 10) {
+            // 5 Pages backwards, 
+            var num_to_iterate = 5;
+            var p = jsonObj.requested_page - num_to_iterate;
+
+            if (p <= 0) {
+                num_to_iterate += (p - 1);
+                p = 1;
+            }
+
+            for (;p <= jsonObj.requested_page - 1; p++) {
+                pages_str += "<li class=\"page-item\"><a class=\"page-link\" href=\"#\""; 
+                pages_str += "onclick=\"setExperimentFiles(" + dir_select + searchkey_onclick_text
+                pages_str  += ",pageNum=" + p.toString() + ")\">";
+                pages_str += p.toString();
+                pages_str += "</a></li>";
+            }
+
+            pages_str += "<li class=\"page-item active\"><a class=\"page-link\" href=\"#\""; 
+            pages_str += "onclick=\"setExperimentFiles(" + dir_select + searchkey_onclick_text
+            pages_str  += ",pageNum=" + jsonObj.requested_page.toString() + ")\">";
+            pages_str += jsonObj.requested_page.toString();
+            pages_str += "</a></li>";
+
+            var p = jsonObj.requested_page + 1;
+
+            for(; p <= jsonObj.requested_page + 5 && p <= num_of_pages;p++) {
+                pages_str += "<li class=\"page-item\"><a class=\"page-link\" href=\"#\""; 
+                pages_str += "onclick=\"setExperimentFiles(" + dir_select + searchkey_onclick_text
+                pages_str  += ",pageNum=" + p.toString() + ")\">";
+                pages_str += p.toString();
+                pages_str += "</a></li>";
+            }
+        } else {
+
+            for (var p = 1; p <= num_of_pages; p++)
+            {
+                var is_active = "";
+                if (p == jsonObj.requested_page)
+                {
+                    is_active = "active";
+                }
+
+                pages_str += "<li class=\"page-item " + is_active + "\"><a class=\"page-link\" href=\"#\""; 
+                pages_str += "onclick=\"setExperimentFiles(" + dir_select + searchkey_onclick_text
+                pages_str  += ",pageNum=" + p.toString() + ")\">";
+                pages_str += p.toString();
+                pages_str += "</a></li>";
+            }
+        }
+
+        document.getElementById("mpagination").innerHTML = pages_str;
+
+    }
+    };
+    var get_url = "/exfiles";
+
+    if (pageNum != null && searchKey == null) {
+        get_url += "?pagenum=" + pageNum.toString();
+    } else if (pageNum == null && searchKey != null) {
+        get_url += "?searchkey=" + searchKey;
+    } else {
+        get_url += "?pagenum=" + pageNum.toString();
+        get_url += "&searchkey=" + searchKey;
+    }
+
+    if (dir != null){
+        get_url += "&folder=" + dir;
+    } else {
+        get_urk += "&folder=experimentfiles/"
+    }
+
+    http_request.open("GET", get_url, true);
+    http_request.send();
+};
+
+function addFile(dir, fileName) {
+    
+    if( typeof addFile.files == 'undefined') {
+        addFile.files = [];
+    }
+
+    file_exists = false;
+    for (f of addFile.files) {
+        if (f[1] == fileName) {
+            file_exists = true;
+            alert("File already selected for scan")
+            return;
+        }
+    }
+
+    var f = [[dir, fileName]];
+
+    if (!file_exists) {
+        addFile.files = f.concat(addFile.files);
+    }
+
+    renderSelectedFilesHTML();
+};
+
+function createFolder() {
+    var http_request = new XMLHttpRequest();
+    http_request.onreadystatechange = function() {
+        var jsonObj = JSON.parse(http_request.responseText);
+        
+        setFolders();
+        closeFolderCreateModal();
+
+        if (jsonObj.res) {
+            alert("Successfuly created a new folder");
+            return;
+        } else {
+            alert("Unfortunately, couldn't create a new folder, please try again")
+            return;
+        }
+    };
+
+    var get_url = "/createfolders";
+        document.getElementById("folderselect").value;
+
+    http_request.open("POST", get_url, true);
+    http_request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    var post_payload = "current_folder=" + document.getElementById("folderselect").value;
+    post_payload += "&new_folder=" + document.getElementById("folder_name").value;
+    http_request.send(post_payload);
+}
+
+function deleteFolder() {
+    if (!confirm("Are you sure you want to delete " + document.getElementById("folderselect").value + " ?")){
+        return;
+    }
+
+    var http_request = new XMLHttpRequest();
+    http_request.onreadystatechange = function() {
+        var jsonObj = JSON.parse(http_request.responseText);
+        
+        setFolders();
+        closeFolderCreateModal();
+        setExperimentFiles(dir="experimentfiles/", searchKey=null,pageNum=1);
+
+        if (jsonObj.res) {
+            alert("Successfuly deleted selected folder");
+            return;
+        } else {
+            alert("Unfortunately, couldn't delete selected folder, try again later")
+            return;
+        }
+    };
+
+    var get_url = "/deletefolder";
+
+    http_request.open("POST", get_url, true);
+    http_request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    var post_payload = "deleted_folder=" + document.getElementById("folderselect").value;
+    http_request.send(post_payload);
+}
+
+function deleteFiles() {
+    if (typeof addFile.files == 'undefined' || addFile.files.length == 0) {
+        alert("No files selected");
+        return;
+    }
+
+    if (!confirm("Are you sure you want to delete " + addFile.files.length + "files ?")){
+        return;
+    }
+
+    var http_request = new XMLHttpRequest();
+    http_request.onreadystatechange = function() {        
+        if (http_request.readyState == 4  ) {
+
+            var jsonObj = JSON.parse(http_request.responseText);
+            document.getElementById("search").value = "";
+            resetFiles();
+            setFolders();
+            setExperimentFiles(dir="experimentfiles/", searchKey=null,pageNum=1);
+
+            if (jsonObj.res) {
+                alert("Successfuly deleted selected files");
+                return;
+            } else {
+                alert("Some error has ocurred when attempting to delete selected files, try again later")
+                return;
+            }
+        }
+    };
+
+    http_request.open("POST", "/deletefiles", true);
+
+    http_request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    var post_payload = "files="
+
+    for (f of addFile.files) {
+        post_payload += f[0] + "/" + f[1] + ";"
+    }
+
+    http_request.send(post_payload);
+}
+
+function renderSelectedFilesHTML()
+{
+    var append_str = "";
+    var c = 0;
+
+    for (f of addFile.files) {
+        append_str += "<li class=\"list-group-item\">" + f[1] + "</li>";
+
+        c += 1;
+
+        if (c > 7) {
+            break;
+        }
+    }
+
+    document.getElementById("num_of_files_selected").innerHTML = "";
+
+    if (addFile.files.length > 0) {
+
+        document.getElementById("scan_options").style="visibility:visible";
+        document.getElementById("num_of_files_selected").innerHTML = "(" + (addFile.files.length).toString() + ")";
+    } else {
+        document.getElementById("scan_options").style="visibility:hidden";
+    }
+
+
+    document.getElementById("files_selected").innerHTML = append_str;
+}
+
+function resetFiles() {
+
+    if( typeof addFile.files != 'undefined') {
+        
+        addFile.files = [];
+    }
+
+    renderSelectedFilesHTML();
+}
+
+function openFolderCreateModal() {
+            document.getElementById("backdrop").style.display = "block";
+            document.getElementById("folderCreateModal").style.display = "block";
+            document.getElementById("folderCreateModal").className += "show";
+}
+
+function closeFolderCreateModal() {
+    document.getElementById("backdrop").style.display = "none";
+    document.getElementById("folderCreateModal").style.display = "none";
+    document.getElementById("folderCreateModal").className += document.getElementById("folderCreateModal").className.replace("show", "");
+}
+
+function openUploadFileModal() {
+    document.getElementById("backdrop").style.display = "block";
+    document.getElementById("uploadFileModal").style.display = "block";
+    document.getElementById("uploadFileModal").className += "show";
+}
+
+function closeUploadFileModal() {
+    document.getElementById("backdrop").style.display = "none";
+    document.getElementById("uploadFileModal").style.display = "none";
+    document.getElementById("uploadFileModal").className += document.getElementById("uploadFileModal").className.replace("show", "");
+}
+
+
+function openConfigScanParamsModal() {
+    document.getElementById("backdrop").style.display = "block";
+    document.getElementById("configScanModal").style.display = "block";
+    document.getElementById("configScanModal").className += "show";
+}
+
+function closeConfigScanParamsModal() {
+    document.getElementById("backdrop").style.display = "none";
+    document.getElementById("configScanModal").style.display = "none";
+    document.getElementById("configScanModal").className += document.getElementById("configScanModal").className.replace("show", "");
+}
+
+
+// Get the modal
+var config_modal = document.getElementById('configScanModal');
+var scan_res_modal = document.getElementById('folderCreateModal')
+var upload_file_modal = document.getElementById("uploadFileModal")
+// When the user clicks anywhere outside of the modal, close it
+window.onclick = function (event) {
+    if (event.target == config_modal) {
+        closeConfigScanParamsModal();
+    } else if (event.target == scan_res_modal) {
+        closeFolderCreateModal()
+    } else if (event.target == upload_file_modal) {
+        closeUploadFileModal()
+    }
+}
+
+</script>
+</body> 
+</html> 

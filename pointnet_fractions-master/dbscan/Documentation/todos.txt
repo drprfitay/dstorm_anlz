@@ -1,0 +1,6 @@
+TODOS:
+
+1) add four-coloured pictures of clusters 
+	and lonely points.
+2) add weights to final csv according to relative weights 
+	in points number (vs. now that we have relative to the number of clusters).

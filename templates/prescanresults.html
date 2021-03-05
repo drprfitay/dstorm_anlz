@@ -1,0 +1,211 @@
+<html> 
+  <head>
+    <link rel="stylesheet" href="/static/bootstrap/css/bootstrap.css"/>
+    <link rel="stylesheet" href="/static/bootstrap/css/bootstrap-reboot.css"/>
+    <link rel="stylesheet" href="/static/bootstrap/css/bootstrap-grid.css"/>
+    <script src="/static/bootstrap/js/bootstrap.js"></script>
+    <script src="/static/scripts/utils.js"></script>
+    <style>
+      .nav-link
+      {
+          font-weight: 500;
+          color: #333;
+      }
+      .nav-link:hover
+      {
+          margin-right: 4px;
+          color: #999;
+      }
+      .side-icon {
+        color:#17a2b8;
+      }
+
+    </style>
+  </head>
+
+
+  <body style="background-color: #ffe6ff">       
+<nav style="background-color: #50216e; height:200px; width:100%;margin-bottom:0px;" class="navbar navbar-expand-md">
+      <a style="margin-left:20px;"href="#">
+      <img src="/static/images/dstormlogo2.png" height="100" width="350"
+        style="background-color: white;" class="img-thumbnail" alt="Thumbnail Image"/>
+      </a>
+    <div class="container">
+        <div class="collapse navbar-collapse" id="navbarCollapse">
+            <div style="margin: 0 auto;margin-left:10%;" class="navbar-nav">
+        <div class="btn-group">
+          <a style="font-color: white;font-weight:bold;" href="/" class="btn btn-secondary">
+            <i class="fa fa-home"></i> Home
+          </a>
+            <a style="font-color: white;font-weight:bold;" href="/upload_files" class="btn btn-secondary"> 
+              Manage experiment files 
+            </a>
+            <a style="font-color: white;font-weight:bold;" href="/runscan" class="btn btn-secondary"> 
+              Run scan
+            </a>
+            <a style="font-color: white;font-weight:bold;" href="/runprescan" class="btn btn-secondary active"> 
+                Pre scan 
+            </a>
+        </div>
+      </div>
+    </div>
+    </div>    
+</nav>
+<div class="container-fluid">
+  <div class="row">
+    <nav style="height:100%;position:absolute;display:block;"; id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+      <div class="sidebar-sticky pt-3">
+        <ul class="nav flex-column">        
+          <li class="nav-item">
+            <a class="nav-link" onclick="generatePlots(2)" href="#">
+              <svg class="side-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bar-chart-2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+              Shir-dist
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" onclick="generatePlots(1)" href="#">
+              <svg class="side-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bar-chart-2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+              K-dist
+            </a>
+          </li>                              
+        </ul>
+      </div>
+    </nav>
+
+    <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4"><div class="chartjs-size-monitor" style="position: absolute; left: 0px; top: 0px; right: 0px; bottom: 0px; overflow: hidden; pointer-events: none; visibility: hidden; z-index: -1;"><div class="chartjs-size-monitor-expand" style="position:absolute;left:0;top:0;right:0;bottom:0;overflow:hidden;pointer-events:none;visibility:hidden;z-index:-1;"><div style="position:absolute;width:1000000px;height:1000000px;left:0;top:0"></div></div><div class="chartjs-size-monitor-shrink" style="position:absolute;left:0;top:0;right:0;bottom:0;overflow:hidden;pointer-events:none;visibility:hidden;z-index:-1;"><div style="position:absolute;width:200%;height:200%;left:0; top:0"></div></div></div>
+      <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2" id="main_content_title"> </h1>
+        <div class="btn-toolbar mb-2 mb-md-0">
+          <div class="btn-group mr-2">
+            <!-- <button type="button" onclick="openConfigScanParamsModal()" class="btn btn-sm btn-outline-secondary">Change params</button> -->
+            <button type="button" class="btn btn-sm btn-outline-secondary">Export</button>
+          </div>
+        </div>
+      </div>
+    
+      <div class="row card" style="background-color:white;">
+          
+
+      <div class ="col-lg-12" id="main-content">
+
+      </div>
+      </div>
+    </main>  
+</div>
+<script>
+(function () {
+   generatePlots(1);
+})();
+
+
+function generatePlots(plot_id) {
+    var http_request = new XMLHttpRequest();
+    http_request.onreadystatechange = function() {        
+        if (http_request.readyState == 4  ) {   
+
+            document.getElementById("sidebarMenu").style = "";
+            var jsonObj = JSON.parse(http_request.responseText);
+            var content = "";
+            var first = true;
+            content += "<div class=\"row mt-5\">";
+            content += "<div class=\"col-lg-2\"></div>";
+            content += "<div class=\"col-lg-8\">";
+            content += "<select onclick=\"embedPlot()\" class=\"custom-select mr-sm-2\" id=\"plot_select\">";
+            for (f of jsonObj.file_results) {
+              if (f.completed == false) {
+                continue;
+              }              
+              var html_url = ""
+
+              switch(plot_id) {
+                case 1:
+                  html_url = f.kdist_html;
+                  document.getElementById("main_content_title").innerHTML = "K distance graph:";
+
+                break;  
+
+                case 2:
+                  html_url = f.epsdist_html;
+                  document.getElementById("main_content_title").innerHTML = "Eps neighborhood graph:";
+
+                break;  
+                }
+                  if (first == true) {
+                    first = false;
+                    first_url = html_url;
+                  }
+
+                  if (html_url == null) {
+                    document.getElementById("sidebarMenu").style = "height:100%;position:absolute;display:block;";
+                    
+                    res_str = "<div class=\"alert alert-warning mt-3\" role=\"alert\">";
+                    res_str += "<strong> Plot not generated.</strong> Try re-scanning ";
+                    res_str += "</div>";
+                    document.getElementById("main-content").innerHTML = res_str;
+                    return; 
+                  }
+    
+              content += "<option value='" + html_url + "'>" + f.filename + "</option>";
+            }
+
+            content += "</select>";
+            content += "</div><div class=\"col-lg-2\"></div>";
+            content += "</div>";
+            if (plot_id >= 5 && plot_id <=9) {
+              content += "<div class=\"row mt-3\">";
+              content += "<div class=\"col-lg-2\"></div>";
+              content += "<div class=\"col-lg-8\">";   
+              content += "<span type=\"button\" class=\"badge badge-secondary\" onclick=\"embedPlot()\">Entire data histogram (all clusters measured) </span> &nbsp";
+              content += "<span type=\"button\" class=\"badge badge-secondary\" onclick=\"embedLower()\"> Lower half histogram (clusters up to median)</span> &nbsp";
+              content += "<span type=\"button\" class=\"badge badge-secondary\" onclick=\"embedUpper()\"> Upper half histogram (clusters above median)</span>";
+              content += "</div>";
+              content += "</div>";
+              content += "</div>"; 
+            }           
+            content += "<div id=\"embed_plot\">";
+            content += "</div>";
+
+            document.getElementById("main-content").innerHTML = content;
+
+
+            first_content = "<br><div class=\"embed-responsive embed-responsive-16by9\">";
+            first_content += "<iframe class=\"embed-responsive-item\" src=\"static/prescan_results/" + first_url + "?rand='" + Math.round(Math.random() * 10000000)  +"'\" allowfullscreen></iframe>";   
+            first_content += "</div>";
+            document.getElementById("embed_plot").innerHTML = first_content;
+
+        }
+    };
+
+    http_request.open("GET", "/prescanresults", true);
+    http_request.send()
+};
+
+function embedPlot() {
+            content = "<br><div class=\"embed-responsive embed-responsive-16by9\">";
+            content += "<iframe class=\"embed-responsive-item\" src=\"static/prescan_results/" + document.getElementById("plot_select").value  + "?rand='" + Math.round(Math.random() * 10000000)  +"'\" allowfullscreen></iframe>";
+            content += "</div>";
+            document.getElementById("embed_plot").innerHTML = content;
+};
+
+function embedLower() {
+            selected_url = document.getElementById("plot_select").value;
+            selected_url = selected_url.replace("csv", "csv_lower_half");
+            content = "<br><div class=\"embed-responsive embed-responsive-16by9\">";
+            content += "<iframe class=\"embed-responsive-item\" src=\"static/prescan_results/" + selected_url + "?rand='" + Math.round(Math.random() * 10000000)  +"'\" allowfullscreen></iframe>";
+            content += "</div>";
+            document.getElementById("embed_plot").innerHTML = content;
+
+};
+
+function embedUpper() {
+            selected_url = document.getElementById("plot_select").value;
+            selected_url = selected_url.replace("csv", "csv_upper_half");
+            content = "<br><div class=\"embed-responsive embed-responsive-16by9\">";
+            content += "<iframe class=\"embed-responsive-item\" src=\"static/prescan_results/" + selected_url + "?rand='" + Math.round(Math.random() * 10000000)  +"'\" allowfullscreen></iframe>";
+            content += "</div>";
+            document.getElementById("embed_plot").innerHTML = content;
+};
+
+</script>
+</body> 
+</html> 

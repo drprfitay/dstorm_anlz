@@ -1,0 +1,2594 @@
+#LyX 2.1 created this file. For more info see http://www.lyx.org/
+\lyxformat 474
+\begin_document
+\begin_header
+\textclass article
+\begin_preamble
+\date{}
+\end_preamble
+\use_default_options true
+\maintain_unincluded_children false
+\language american
+\language_package default
+\inputencoding auto
+\fontencoding global
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_math auto
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize default
+\spacing single
+\use_hyperref false
+\papersize default
+\use_geometry false
+\use_package amsmath 1
+\use_package amssymb 1
+\use_package cancel 1
+\use_package esint 1
+\use_package mathdots 1
+\use_package mathtools 1
+\use_package mhchem 1
+\use_package stackrel 1
+\use_package stmaryrd 1
+\use_package undertilde 1
+\cite_engine basic
+\cite_engine_type default
+\biblio_style plain
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\justification true
+\use_refstyle 1
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Standard
+\align center
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename C:/Users/guloo/Documents/GitHub/Retsulc/bigbig.ico
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Part*
+Retsulc - Get clusters!
+\end_layout
+
+\begin_layout Quote
+A clustering/clustering analysis program.
+ The program recieves as input several types of '.csv' files containing,
+ amongst other things, coordinates (2d or 3d).
+ The coordinates are used to find clutsters and output an entire analysis
+ based on that clustering.
+ 
+\end_layout
+
+\begin_layout Section*
+Main Window
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename C:/Users/guloo/Pictures/Screenshots/Screenshot (10)a.png
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Retsulc - Main Window
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section*
+Manual
+\end_layout
+
+\begin_layout Subsection*
+Procuring Samples
+\end_layout
+
+\begin_layout Standard
+TBD
+\end_layout
+
+\begin_layout Subsection*
+User Input
+\end_layout
+
+\begin_layout Standard
+The program recieves from the user the following paramters: 'Epsilon', 'Minimum
+ Neighbors', 'Mini Epsilon', Mini Minimum Neighbors', 'Data Type' and (upon
+ selecting 'GO!') a folder.
+ 
+\end_layout
+
+\begin_layout Subsubsection*
+Data Types
+\end_layout
+
+\begin_layout Standard
+The program can deal with several types of information:
+\end_layout
+
+\begin_layout Itemize
+2d
+\end_layout
+
+\begin_layout Itemize
+3d
+\end_layout
+
+\begin_layout Itemize
+raw_2d
+\end_layout
+
+\begin_layout Itemize
+raw_3d
+\end_layout
+
+\begin_layout Itemize
+old (hidden) 
+\end_layout
+
+\begin_layout Paragraph*
+2d
+\end_layout
+
+\begin_layout Standard
+This data type is used on Vutara generated files.
+ The program expects to find 
+\begin_inset Quotes eld
+\end_inset
+
+pairs
+\begin_inset Quotes erd
+\end_inset
+
+ of documents.
+ A pair consists of a 
+\begin_inset Quotes eld
+\end_inset
+
+green
+\begin_inset Quotes erd
+\end_inset
+
+ file and a 
+\begin_inset Quotes eld
+\end_inset
+
+red
+\begin_inset Quotes erd
+\end_inset
+
+ file, carrying the same name (the same sample).
+ Each of the files in the pair contains the coordinates of a specific protein.
+ 
+\end_layout
+
+\begin_layout Standard
+The '2d' causes all points in the program to have (x,y,0) coordinates.
+\end_layout
+
+\begin_layout Paragraph*
+3d
+\end_layout
+
+\begin_layout Standard
+This data type is used on Vutara generated files.
+ The program expects to find 
+\begin_inset Quotes eld
+\end_inset
+
+pairs
+\begin_inset Quotes erd
+\end_inset
+
+ of documents.
+ A pair consists of a 
+\begin_inset Quotes eld
+\end_inset
+
+green
+\begin_inset Quotes erd
+\end_inset
+
+ file and a 
+\begin_inset Quotes eld
+\end_inset
+
+red
+\begin_inset Quotes erd
+\end_inset
+
+ file, carrying the same name (the same sample).
+ Each of the files in the pair contains the coordinates of a specific protein.
+\end_layout
+
+\begin_layout Standard
+The '3d' causes all points in the program to have (x,y,z) coordinates, according
+ to the '.csv' file.
+\end_layout
+
+\begin_layout Paragraph*
+raw_2d
+\end_layout
+
+\begin_layout Standard
+This data type is used on 
+\begin_inset Quotes eld
+\end_inset
+
+old system
+\begin_inset Quotes erd
+\end_inset
+
+ generated files.
+ The program expects to find a single document that contains the coordinates
+ of two proteins, distinguished by a specific column in the file TBD.
+\end_layout
+
+\begin_layout Standard
+The '2d' causes all points in the program to have (x,y,0) coordinates.
+\end_layout
+
+\begin_layout Paragraph*
+raw_3d
+\end_layout
+
+\begin_layout Standard
+This data type is used on 
+\begin_inset Quotes eld
+\end_inset
+
+old system
+\begin_inset Quotes erd
+\end_inset
+
+ generated files.
+ The program expects to find a single document that contains the coordinates
+ of two proteins, distinguished by a specific column in the file TBD.
+\end_layout
+
+\begin_layout Standard
+The '3d' causes all points in the program to have (x,y,z) coordinates, according
+ to the '.csv' file.
+\end_layout
+
+\begin_layout Paragraph*
+old (hidden)
+\end_layout
+
+\begin_layout Standard
+This data type is used on 
+\begin_inset Quotes eld
+\end_inset
+
+very old
+\begin_inset Quotes erd
+\end_inset
+
+ files.
+ The files contain information regarding a single protein.
+ The test is partial and ment for validation of results comared to 
+\begin_inset Quotes eld
+\end_inset
+
+very old
+\begin_inset Quotes erd
+\end_inset
+
+ results.
+ It can be used by specifically writing 'old' in the 'Data Type' filed.
+\end_layout
+
+\begin_layout Subsubsection*
+Assumptions
+\end_layout
+
+\begin_layout Standard
+These are assumptions made by the program about the input:
+\end_layout
+
+\begin_layout Itemize
+Files carrying the same name (except 'color') are a pair.
+\end_layout
+
+\begin_layout Itemize
+The sample dimensions are 
+\begin_inset Formula $20\mu m\vartimes20\mu m$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Itemize
+If '3d'- A points with Z values higher than '500' and less than '-500' isn't
+ a valid point and is ignored
+\end_layout
+
+\begin_layout Subsection*
+File locating
+\end_layout
+
+\begin_layout Standard
+The program looks inside the given folder (and subfolders) for 'pairs' of
+ 'green' and 'red' files (explained above).
+ For each pair the program performes the following.
+\end_layout
+
+\begin_layout Subsection*
+Get to work
+\end_layout
+
+\begin_layout Standard
+An instance of a Sample object is created that will contain some Point objects
+ and Cluster objects that in turn also contain Point obects.
+ Each file in the pair is processed; Point object is created for each valid
+ point in the data set and assigned the appropriate color and position.
+ After this stage the Sample object contains lists of points, red poits,
+ green points.
+\end_layout
+
+\begin_layout Standard
+The points are arranged and fitted for the DBSCAN.
+\end_layout
+
+\begin_layout Subsubsection*
+DBSCAN
+\end_layout
+
+\begin_layout Standard
+The program uses DBSCAN as the clustering algorithm.
+ The algorihtm requires two parameters: 'epsilon' and 'minimum neighbors'
+ which were given by the user
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+Very small epsilons may cause problems
+\end_layout
+
+\end_inset
+
+.
+ A DBSCAN is performed on each color separatly and on the entire data set
+ (no distinction between green/red).
+ The DBSCAN returns a list of integers in the length of the relevant points'
+ set, each integer correspond to a point in the same index in the points'
+ list and constitute the number of the cluster that the points belongs to
+ or '-1' if no cluster is assigned.
+\end_layout
+
+\begin_layout Subsubsection*
+Build clusters
+\end_layout
+
+\begin_layout Standard
+The program 
+\begin_inset Quotes eld
+\end_inset
+
+builds
+\begin_inset Quotes erd
+\end_inset
+
+ green clusters, red clusters (and the non distinctive clusters) according
+ to the explanation above.
+ After this stage the Sample object contains three (3) clusters lists (red,
+ green, non-distinctive), where as each cluster contains it's relevant points
+ and color and each point is linked back to it's cluster.
+\end_layout
+
+\begin_layout Subsubsection*
+PCA (1st)
+\end_layout
+
+\begin_layout Standard
+For each cluster the program calculates center of mass, PCA (principal component
+s analysis)
+\end_layout
+
+\begin_layout Subsubsection*
+'Pre' results
+\begin_inset CommandInset label
+LatexCommand label
+name "sub:'Pre'-results"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+In this stage the program saves all the information about the single-colored
+ clusters and some general points information (% of clustered points, etc.),
+ all files in the output folder containing the suffix '_pre' are based upon
+ this stage.
+ 
+\end_layout
+
+\begin_layout Subsubsection*
+Colocalization
+\end_layout
+
+\begin_layout Standard
+Next the program defines a circular area around each cluster with the large
+ diameter (PCA analysis) as the radius and appends opposite-colored points
+ (green clulsters will get red points...) to the cluster.
+ The program than cleans outliers according to 
+\begin_inset Formula $2.5\ \sigma$
+\end_inset
+
+ from the center of mass.
+ The program verifies 'true appendage' by re-running the DBSCAN wth the
+ 'mini' parameters on the 'opposite-color- points in each cluster, if the
+ added points form a legit cluster they remain.
+ Each cluster is inspected for change of identity (if now most of the points
+ in a green cluster are red, than the cluster becomes red).
+ Another outliers analysis to clean 'bad' points.
+\end_layout
+
+\begin_layout Subsubsection*
+PCA (2nd)
+\end_layout
+
+\begin_layout Standard
+For each cluster the program calculates center of mass, PCA (principal component
+s analysis).
+ After the appendage the physical attributes of each cluster may change
+ s.a.
+ center of mass, size, etc.
+ 
+\end_layout
+
+\begin_layout Subsubsection*
+'Final' results
+\begin_inset CommandInset label
+LatexCommand label
+name "sub:'Final'-results"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The information is saved in this stage and all output files containing the
+ suffix '_final' are based upon this point.
+\end_layout
+
+\begin_layout Subsection*
+Output
+\end_layout
+
+\begin_layout Standard
+The program outputs a test folder (name&date) containing the following:
+\end_layout
+
+\begin_layout Itemize
+Analyses folder (name&date) for each 
+\begin_inset Quotes eld
+\end_inset
+
+pair
+\begin_inset Quotes erd
+\end_inset
+
+ located, containing:
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+\begin_inset Quotes eld
+\end_inset
+
+clusters_pre.csv
+\begin_inset Quotes erd
+\end_inset
+
+ 
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+A file containing all the clusters found during the 'pre' results phase
+ (see: 
+\begin_inset CommandInset ref
+LatexCommand nameref
+reference "sub:'Pre'-results"
+
+\end_inset
+
+).
+ Each row in the file contains the data of a cluster; it's dominant color,
+ numnber of points, number of green points, sphere score (0-1), angle x
+ (the angle of the large diameter to the base vector [1,0,0]), angle y (the
+ angle of the large doameter to the base vector [0,1,0]), size (in nm, see:
+\begin_inset CommandInset ref
+LatexCommand nameref
+reference "par:size"
+
+\end_inset
+
+ ), density (see:
+\begin_inset CommandInset ref
+LatexCommand nameref
+reference "par:Density"
+
+\end_inset
+
+) and colocalized (see:
+\begin_inset CommandInset ref
+LatexCommand nameref
+reference "par:Colocalized"
+
+\end_inset
+
+).
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename C:/Users/guloo/Pictures/Screenshots/Screenshot (12).png
+	scale 50
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+cluster_pre.csv example
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+\begin_inset Quotes eld
+\end_inset
+
+clusters_final.csv
+\begin_inset Quotes erd
+\end_inset
+
+ 
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+A file containing all the clusters at the final phase (after all the modificatio
+ns, appendages, cleanings, etc.).
+ Each row in the file contains the data of a cluster; it's dominant color,
+ numnber of points, number of green points, sphere score (0-1), angle x
+ (the angle of the large diameter to the base vector [1,0,0]), angle y (the
+ angle of the large doameter to the base vector [0,1,0]), size (in nm, see:
+\begin_inset CommandInset ref
+LatexCommand nameref
+reference "par:size"
+
+\end_inset
+
+ ), density (see:
+\begin_inset CommandInset ref
+LatexCommand nameref
+reference "par:Density"
+
+\end_inset
+
+) and colocalized (see:
+\begin_inset CommandInset ref
+LatexCommand nameref
+reference "par:Colocalized"
+
+\end_inset
+
+).
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+\begin_inset Quotes eld
+\end_inset
+
+clusters_all.csv
+\begin_inset Quotes erd
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+A file containing all the clusters found by DBSCAN without distinction between
+ the protein color.
+ Each row in the file contains the data of a cluster; it's dominant color,
+ numnber of points, number of green points, sphere score (0-1), angle x
+ (the angle of the large diameter to the base vector [1,0,0]), angle y (the
+ angle of the large doameter to the base vector [0,1,0]), size (in nm, see:
+\begin_inset CommandInset ref
+LatexCommand nameref
+reference "par:size"
+
+\end_inset
+
+ ), density (see:
+\begin_inset CommandInset ref
+LatexCommand nameref
+reference "par:Density"
+
+\end_inset
+
+) and colocalized (see:
+\begin_inset CommandInset ref
+LatexCommand nameref
+reference "par:Colocalized"
+
+\end_inset
+
+).
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+\begin_inset Quotes eld
+\end_inset
+
+kdist_COLOR.png
+\begin_inset Quotes erd
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+For each COLOR ('green'/'red'/ and for the sake of this paragraph 'all')
+ the program outputs a graph containing the k-distance for the 16th neighbor
+ (no special reason).
+ The 'all' kdist is for the entire set of legal points.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename D:/Neuro Lab/samples/dana_050815/050215/MI2_12months_Plac/test_2015-11-03_20-18-22_eps200_min16_2d/analysis_2015-02-05_39_MI2_12months_plac_asyn_red_vamp_cy3B_m6/kdist_red.png
+	scale 50
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+kdist example
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+\begin_inset Quotes eld
+\end_inset
+
+hist_COLOR_PHASE.png
+\begin_inset Quotes erd
+\end_inset
+
+ 
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+For each COLOR ('green'/'red') and for each PHASE ('pre'/'final'/'ALL')
+ the program outputs an histogram of the clusters in color COLOR and in
+ phase PHASE.
+ The height of each bar is the relative number of clusters with the same
+ 'basket size'.
+ The 'basket sizes' are selected automatically.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename D:/Neuro Lab/samples/dana_050815/050215/MI2_12months_Plac/test_2015-11-03_20-18-22_eps200_min16_2d/analysis_2015-02-05_39_MI2_12months_plac_asyn_red_vamp_cy3B_m3/hist_red_final.png
+	scale 50
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+histogram example
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+\begin_inset Quotes eld
+\end_inset
+
+rainbow_PHASE.png
+\begin_inset Quotes erd
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+The program outputs three 'rainbow' pics comprising the entire collection
+ of discovered clusters at phase PHASE ('pre'/'final'/'preALL'='all') of
+ the program.
+ Each cluster is colored randomly.
+ The triangles (
+\begin_inset Formula $\triangle)$
+\end_inset
+
+ are the 'red' protein and the circles (
+\begin_inset Formula $\circ)$
+\end_inset
+
+ are the 'green' protein.
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename D:/Neuro Lab/samples/dana_050815/050215/MI2_12months_Plac/test_2015-11-03_20-18-22_eps200_min16_2d/analysis_2015-02-05_39_MI2_12months_plac_asyn_red_vamp_cy3B_m4/rainbow_pre.png
+	scale 15
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+rainbow (pre) example
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename D:/Neuro Lab/samples/dana_050815/050215/MI2_12months_Plac/test_2015-11-03_20-18-22_eps200_min16_2d/analysis_2015-02-05_39_MI2_12months_plac_asyn_red_vamp_cy3B_m4/rainbow_final.png
+	scale 15
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+rainbow (final) example
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+\begin_inset Quotes eld
+\end_inset
+
+diameter_specific_appending.png
+\begin_inset Quotes erd
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+A picture showing all the appended points ('red') and the 'pre' clusters
+ ('blue').
+ Notice that here it is not possible to see which point is which protein.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename D:/Neuro Lab/samples/dana_050815/050215/MI2_12months_Plac/test_2015-11-03_20-18-22_eps200_min16_2d/analysis_2015-02-05_39_MI2_12months_plac_asyn_red_vamp_cy3B_m4/diameter_specific_appending.png
+	scale 15
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+appendage example
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+\begin_inset Quotes eld
+\end_inset
+
+outliers.png
+\begin_inset Quotes erd
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+A picture showing all the points ('red') removed by the outlier analysis
+ (see:
+\begin_inset CommandInset ref
+LatexCommand nameref
+reference "par:Outliers-Analysis"
+
+\end_inset
+
+) and the 'pre' clusters + appemded points ('blue').
+ Notice that here it is not possible to see which point is which protein.
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename D:/Neuro Lab/samples/dana_050815/050215/MI2_12months_Plac/test_2015-11-03_20-18-22_eps200_min16_2d/analysis_2015-02-05_39_MI2_12months_plac_asyn_red_vamp_cy3B_m4/outliers.png
+	scale 15
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+outliers example
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+\begin_inset Quotes eld
+\end_inset
+
+summary.txt
+\begin_inset Quotes erd
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+A text file containing some basic information about the sample.
+ It is here due to historical reasons but is smetimes comfortable to verify
+ correctness or just to look-up something.
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename C:/Users/guloo/Pictures/Screenshots/Screenshot (24).png
+	scale 45
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+outliers example
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+\begin_inset Quotes eld
+\end_inset
+
+pre
+\begin_inset Quotes erd
+\end_inset
+
+ summary .csv file
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+Each row in this file contains the averages and stds over all the sessions
+ (m'1', 'm2', etc.) of the data relevant to the phase 'pre'.
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\paragraph_spacing double
+\noindent
+\begin_inset Graphics
+	filename C:/Users/guloo/Pictures/Screenshots/Screenshot (13).png
+	scale 50
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Formula $\ $
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\paragraph_spacing double
+\noindent
+\begin_inset Graphics
+	filename C:/Users/guloo/Pictures/Screenshots/Screenshot (14).png
+	scale 50
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Formula $\ $
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\paragraph_spacing double
+\noindent
+\begin_inset Graphics
+	filename C:/Users/guloo/Pictures/Screenshots/Screenshot (15).png
+	scale 50
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Formula $\ $
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\paragraph_spacing double
+\noindent
+\begin_inset Graphics
+	filename C:/Users/guloo/Pictures/Screenshots/Screenshot (16).png
+	scale 50
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Formula $\ $
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\paragraph_spacing double
+\noindent
+\begin_inset Graphics
+	filename C:/Users/guloo/Pictures/Screenshots/Screenshot (17).png
+	scale 50
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Formula $\ $
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\paragraph_spacing double
+\noindent
+\begin_inset Graphics
+	filename C:/Users/guloo/Pictures/Screenshots/Screenshot (18).png
+	scale 50
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Formula $\ $
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\paragraph_spacing double
+\noindent
+\begin_inset Graphics
+	filename C:/Users/guloo/Pictures/Screenshots/Screenshot (19).png
+	scale 50
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Formula $\ $
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\paragraph_spacing double
+\noindent
+\begin_inset Graphics
+	filename C:/Users/guloo/Pictures/Screenshots/Screenshot (20).png
+	scale 50
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Formula $\ $
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\paragraph_spacing double
+\noindent
+\begin_inset Graphics
+	filename C:/Users/guloo/Pictures/Screenshots/Screenshot (21).png
+	scale 50
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Formula $\ $
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\paragraph_spacing double
+\noindent
+\begin_inset Graphics
+	filename C:/Users/guloo/Pictures/Screenshots/Screenshot (22).png
+	scale 50
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+pre_summary.csv example
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+\begin_inset Quotes eld
+\end_inset
+
+final
+\begin_inset Quotes erd
+\end_inset
+
+ summary .csv file
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+Each row in this file contains the averages and stds over all the sessions
+ (m'1', 'm2', etc.) of the data relevant to the phase 'final'.
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+\begin_inset Quotes eld
+\end_inset
+
+all
+\begin_inset Quotes erd
+\end_inset
+
+ summary .csv file
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+Each row in this file contains the averages and stds over all the sessions
+ (m'1', 'm2', etc.) of the data relevant to the phase 'all'.
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+\begin_inset Quotes eld
+\end_inset
+
+done
+\begin_inset Quotes erd
+\end_inset
+
+ file
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+A file (marker) letting me (and the program) know that the program has visited
+ this folder and already analyzed it (altough those are probably historical
+ reasons, please do not remove).
+\end_layout
+
+\end_deeper
+\begin_layout Section*
+Methods
+\end_layout
+
+\begin_layout Itemize
+The program is written in Python 3.4
+\end_layout
+
+\begin_layout Itemize
+Clustering algorithm - DBSCAN from 'scikit-learn'
+\end_layout
+
+\begin_layout Itemize
+GUI - Tkinter
+\end_layout
+
+\begin_layout Itemize
+Data manipulation & Statistics - Numpy
+\end_layout
+
+\begin_layout Itemize
+PCA - matplotlib.mlab
+\end_layout
+
+\begin_layout Subsubsection*
+PCA
+\end_layout
+
+\begin_layout Quotation
+\begin_inset Box Boxed
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+use_makebox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status collapsed
+
+\begin_layout Plain Layout
+Principal component analysis (PCA) is a statistical procedure that uses
+ an orthogonal transformation to convert a set of observations of possibly
+ correlated variables into a set of values of linearly uncorrelated variables
+ called principal components.
+ The number of principal components is less than or equal to the number
+ of original variables.
+ This transformation is defined in such a way that the first principal component
+ has the largest possible variance (that is, accounts for as much of the
+ variability in the data as possible), and each succeeding component in
+ turn has the highest variance possible under the constraint that it is
+ orthogonal to the preceding components.
+ The resulting vectors are an uncorrelated orthogonal basis set.
+ The principal components are orthogonal because they are the eigenvectors
+ of the covariance matrix, which is symmetric.
+ PCA is sensitive to the relative scaling of the original variables.
+ 
+\begin_inset CommandInset href
+LatexCommand href
+target "https://en.wikipedia.org/wiki/Principal_component_analysis"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The PCA used by the program is that of matplotlib.mlab library:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Box Boxed
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+use_makebox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Quote
+
+\series bold
+class matplotlib.mlab.PCA(a, standardize=True)
+\series default
+ 
+\end_layout
+
+\begin_layout Quote
+compute the SVD of a and store data for PCA.
+ Use project to project the data onto a reduced set of dimensions
+\end_layout
+
+\begin_layout Quote
+
+\series bold
+Inputs:
+\end_layout
+
+\begin_deeper
+\begin_layout Quote
+
+\shape italic
+a
+\shape default
+: a 
+\begin_inset Formula $numobservations\times numdims$
+\end_inset
+
+ array standardize: True if input data are to be standardized.
+ If False, only centering will be carried out.
+ 
+\end_layout
+
+\end_deeper
+\begin_layout Quote
+
+\series bold
+Attrs:
+\end_layout
+
+\begin_deeper
+\begin_layout Quote
+
+\shape italic
+a
+\shape default
+ a centered unit sigma version of input a
+\end_layout
+
+\begin_layout Quote
+
+\shape italic
+numrows, numcols
+\shape default
+: the dimensions of a
+\end_layout
+
+\begin_layout Quote
+
+\shape italic
+mu
+\shape default
+ : a numdims array of means of a.
+ This is the vector that points to the origin of PCA space.
+\end_layout
+
+\begin_layout Quote
+
+\shape italic
+sigma
+\shape default
+ : a numdims array of standard deviation of a
+\end_layout
+
+\begin_layout Quote
+
+\shape italic
+fracs
+\shape default
+ : the proportion of variance of each of the principal components
+\end_layout
+
+\begin_layout Quote
+
+\shape italic
+s
+\shape default
+ : the actual eigenvalues of the decomposition
+\end_layout
+
+\begin_layout Quote
+
+\shape italic
+Wt
+\shape default
+ : the weight vector for projecting a numdims point or array into PCA space
+\end_layout
+
+\begin_layout Quote
+
+\shape italic
+Y
+\shape default
+ : a projected into PCA space
+\end_layout
+
+\end_deeper
+\begin_layout Quote
+The factor loadings are in the Wt factor, i.e., the factor loadings for the
+ 1st principal component are given by Wt[0].
+ This row is also the 1st eigenvector.
+\end_layout
+
+\begin_layout Quote
+\begin_inset CommandInset href
+LatexCommand href
+target "http://matplotlib.org/api/mlab_api.html"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The program uses the PCA results in order to obtain: 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Box Boxed
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+use_makebox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Verse
+def pca_analysis(self, dim=3, sphere=True): # if sphere is True (default)
+ also updates the sphere score of the cluster.
+ 
+\end_layout
+
+\begin_deeper
+\begin_layout Verse
+if dim > 2: 
+\end_layout
+
+\begin_deeper
+\begin_layout Verse
+self.pca = PCA(np.array([x.point for x in self.points], dtype=np.float)) 
+\end_layout
+
+\end_deeper
+\begin_layout Verse
+else: 
+\end_layout
+
+\begin_deeper
+\begin_layout Verse
+self.pca = PCA(np.array([x.point for x in self.points], dtype=np.float), standardize=
+False)
+\end_layout
+
+\end_deeper
+\begin_layout Verse
+	self.center = self.pca.mu 
+\end_layout
+
+\begin_layout Verse
+	v1 = self.pca.Wt[0] 
+\end_layout
+
+\begin_layout Verse
+	self.angle_x = angle(v1, [1,0,0]) 
+\end_layout
+
+\begin_layout Verse
+	self.angle_y= angle(v1, [0,1,0]) 
+\end_layout
+
+\begin_layout Verse
+	self.angle_z = angle(v1, [0,0,1]) 
+\end_layout
+
+\begin_layout Verse
+	min_sig = float(self.pca.sigma[0])/self.pca.sigma[1] if self.pca.sigma[1] !=
+ 0 else np.nan 
+\end_layout
+
+\begin_layout Verse
+	if min_sig != np.nan and min_sig > 1: 
+\end_layout
+
+\begin_deeper
+\begin_layout Verse
+		min_sig = 1./min_sig 
+\end_layout
+
+\end_deeper
+\begin_layout Verse
+	if sphere: 
+\end_layout
+
+\begin_deeper
+\begin_layout Verse
+	self.shape_2d = min_sig 
+\end_layout
+
+\end_deeper
+\begin_layout Verse
+	self.large_diameter = max(self.pca.sigma[0],self.pca.sigma[1])*2 
+\end_layout
+
+\begin_layout Verse
+	self.size = math.sqrt(self.pca.sigma[0]*self.pca.sigma[1])
+\end_layout
+
+\end_deeper
+\end_inset
+
+
+\end_layout
+
+\begin_layout Paragraph*
+center of mass 
+\end_layout
+
+\begin_layout Standard
+Namely 
+\shape italic
+mu
+\end_layout
+
+\begin_layout Paragraph*
+self angles
+\end_layout
+
+\begin_layout Standard
+The angles with the axis are calculated by taking the angle between the
+ weights vector (Wt) and the axis's base vector ([1,0,0]/[0,1,0]/[0,0,1]).
+\end_layout
+
+\begin_layout Standard
+The angle is calculated by: 
+\begin_inset Formula $\arccos(v1\bullet v2)\times57.296$
+\end_inset
+
+ (back to angles instead of radians).
+\end_layout
+
+\begin_layout Paragraph*
+sphericity
+\end_layout
+
+\begin_layout Standard
+The sphericity is calculated by TBD
+\end_layout
+
+\begin_layout Paragraph*
+size
+\begin_inset CommandInset label
+LatexCommand label
+name "par:size"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The size is calculated by taking the first two (2) 
+\shape italic
+sigma
+\shape default
+ values (
+\begin_inset Formula $\sigma_{1},\sigma_{2}$
+\end_inset
+
+) from the PCA which represent the distance (from the center of a cluster)
+ of the directions with the most variance (most distance).
+ The size is the mean (geometric mean) radius of the cluster: 
+\begin_inset Formula $size=\frac{\sqrt{2\sigma_{1}\times2\sigma_{2}}}{2}=\frac{2\sqrt{\sigma_{1}\times\sigma_{2}}}{2}=\sqrt{\sigma_{1}\times\sigma_{2}}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsubsection*
+Other
+\end_layout
+
+\begin_layout Paragraph*
+Density
+\begin_inset CommandInset label
+LatexCommand label
+name "par:Density"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The density calculated of a cluster is the number of points of the cluster
+ divided by the cluster's size.
+ As such this estimator may recieve a value of more than 1 and is not a
+ 
+\begin_inset Quotes eld
+\end_inset
+
+real
+\begin_inset Quotes erd
+\end_inset
+
+ density.
+ 
+\end_layout
+
+\begin_layout Paragraph*
+Colocalized
+\begin_inset CommandInset label
+LatexCommand label
+name "par:Colocalized"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+This attribute of a cluster is calculated after the 'pre' part (see:
+\begin_inset CommandInset ref
+LatexCommand nameref
+reference "sub:'Pre'-results"
+
+\end_inset
+
+).
+ The program appends 
+\begin_inset Quotes eld
+\end_inset
+
+opposite-colored
+\begin_inset Quotes erd
+\end_inset
+
+ (e.g.
+ 
+\begin_inset Quotes eld
+\end_inset
+
+red
+\begin_inset Quotes erd
+\end_inset
+
+) points to a 
+\begin_inset Quotes eld
+\end_inset
+
+colored
+\begin_inset Quotes erd
+\end_inset
+
+ cluster (e.g.
+ 
+\begin_inset Quotes eld
+\end_inset
+
+green
+\begin_inset Quotes erd
+\end_inset
+
+) by searching new points in the area around the cluster's center of mass
+ and with a radius of the cluster's large diameter found in the 1st PCA
+ phase.
+ After the appending the program performes DBSCAN on the 
+\begin_inset Quotes eld
+\end_inset
+
+opposite-colored
+\begin_inset Quotes erd
+\end_inset
+
+ points of the cluster with the 
+\begin_inset Quotes eld
+\end_inset
+
+mini
+\begin_inset Quotes erd
+\end_inset
+
+ parameters in order to verify 
+\begin_inset Quotes eld
+\end_inset
+
+true
+\begin_inset Quotes erd
+\end_inset
+
+ colocalization.
+ If at leat one cluster is found in this scan that contains at least 10
+ points than the cluster is considered 
+\begin_inset Quotes eld
+\end_inset
+
+colocalized
+\begin_inset Quotes erd
+\end_inset
+
+ and recieves the calue '1' (otherwise '0').
+ 
+\end_layout
+
+\begin_layout Paragraph*
+Outliers Analysis
+\begin_inset CommandInset label
+LatexCommand label
+name "par:Outliers-Analysis"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+This analysis is performed for each cluster by calculating the average distance
+ (
+\begin_inset Formula $\mu$
+\end_inset
+
+) of a point in the cluster to the cluster's center of mass and the standard
+ deviation (
+\begin_inset Formula $\sigma$
+\end_inset
+
+) of that distance.
+ Every point found more distant than 
+\begin_inset Formula $2.5\sigma+\mu$
+\end_inset
+
+ from the center of the cluster is removed.
+ 
+\end_layout
+
+\begin_layout --Separator--
+
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename C:/Users/guloo/Documents/GitHub/Retsulc/blue_flower2.ico
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Part*
+Retlif - Filter clusters!
+\end_layout
+
+\begin_layout Quote
+Retlif is a complementary tool for Retsulc.
+ It provides filtering abilities for the clusters found in Retsulc.
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename C:/Users/guloo/Pictures/Screenshots/Screenshot (11)a.png
+	scale 50
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Retlif - Main Window
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section*
+Main Window
+\end_layout
+
+\begin_layout Standard
+In the main window the user can define filters.
+ The program currently supports the following filters:
+\end_layout
+
+\begin_layout Itemize
+color (green/red/both)
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+filter the clusters according to their color (the dominant protein)
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+#points
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+filter the cluster according to the number of points in each cluster(size
+ in terms of points)
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+#red points
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+filter the cluster according to the number of red points in each cluster
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+#green points
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+filter the cluster according to the number of green points in each cluster
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+density
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+filter the clusters according to the each cluster's density
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+colocalized (yes/no/all)
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+choose to filter non/colocalized clusters (reminder: colocalized means that
+ the cluster of X color has a sub-cluster of Y color, s.t.
+ X isn't Y)
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+size
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+filter by cluster size (reminder: size is defined as the average radius
+ of the cluster)
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+destination
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+choose where to save the filtered analysis
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+GO!
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+performes the analysis (same as in Retsulc) on the chosen, filtered (according
+ to the user's wishes), files and writes the results to a file called 
+\begin_inset Quotes eld
+\end_inset
+
+filtered_summary*time&date*.csv
+\begin_inset Quotes erd
+\end_inset
+
+ in the chosen destination folder.
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+Add File
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+opens a file browser to add another file to the analysis.
+ The chosen file will be added to the list-box (the white big frame)
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+Remove Selected
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+removes the highlighted file from the analysis.
+ The file will be removed from the list-box (the white big frame)
+\end_layout
+
+\end_deeper
+\begin_layout Part*
+mega - save time! 
+\end_layout
+
+\begin_layout Quote
+filter & analyze the data with a click of a button! (well, almost ☻)
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename C:/Users/guloo/Pictures/Screenshots/Screenshot (25).png
+	scale 50
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+mega - Main Window
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The mega tool is a shortcut.
+ It enables us to filter & analyze real quick a lot of data.
+ We noticed that once we have a good-enough idea of what to do wnd what
+ to look for in all of the data we would do a lot of drudgery (e.g.
+ sort all the clusters into four fixed sized beans, count all the XL clusters
+ points and add them to count C..., etc.).
+ the mega tool is very similar to the filter tool.
+ It only needs another argument; 'source', which is a pre calculated sample's
+ summary in a certain phase (pre/final).
+ Given the 'source' file it is then possible to calculate the entire sample
+ analysis.
+ It wasn't possible in the filter tool since it didn't get basic data about
+ the sample s.a.
+ number of points.
+ The mega tool outputs a special summary, giving out specific information
+ and in general a specific point of view we wanted about the data.
+ The output is two files; summary and a clusters files.
+ The clusters file is identical to the one outputed by the filter tool (...containe
+s the clusters that passed the filtration).
+ A summary file example is presented:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename C:/Users/guloo/Pictures/Screenshots/Screenshot (28).png
+	scale 50
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+mega - output example
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Part*
+Appendix A - Keep up with decisions
+\end_layout
+
+\begin_layout Quote
+It is important to keep up with the decisions we have made along the way
+ (mainly so we won't forget why we chose this & that).
+\end_layout
+
+\begin_layout Standard
+This appendix will list the specific parameters we have chosen and the rationali
+zation beyond them (if any).
+\end_layout
+
+\begin_layout Section*
+DBSCAN parameters
+\end_layout
+
+\begin_layout Standard
+The DBSCAN algorithm uses two key parameters: 'Epsilon' and 'Minimum neighbors'.
+\end_layout
+
+\begin_layout Subsection*
+Epsilon
+\end_layout
+
+\begin_layout Standard
+The Epsilon parameter is used by the DBSCAN algorithm to define a distance
+ or rather a radius for each point in the data set that constitute it's
+ search radius.
+ Within distance epsilon from each points DBSCAN looks for neighbors and
+ counts them.
+ We chose to use epsilon value of 200 nanometer.
+ We chose this value for various reasons:
+\end_layout
+
+\begin_layout Itemize
+k-nearest neighbor disribution
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+By graphing the kdist graphs we noticed that athough the proteins differ
+ in their breaking point (the 'knee' -like shape in the graph) it's around
+ 200-300 nanometer in a typical sample.
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+biologicaly
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+The 200 value still counts as a reasonable size of oligomres.
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+experience
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+We have tested a lot of different values and the results looks definitly
+ closer to what is possible to see from the microscope's pictures.
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+better safe than sorry
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+It occured to us that it is much easier to deal with false possitive clusters
+ (i.e.
+ filtration) than dealing with no clusters.
+\end_layout
+
+\end_deeper
+\begin_layout Subsection*
+Minimum Neighbors (Mn)
+\end_layout
+
+\begin_layout Standard
+The Mn parameter is a threshold during the nighbor-looking and counting
+ phase in the clustering algorithm.
+ This parameter defines a central point in a cluster and may be viewed as
+ a resriction on the size of the found clusters (no less than Mn).
+ We chose to use the Mn value of 16 neighbors.
+ Why? becuse:
+\end_layout
+
+\begin_layout Itemize
+Makes sense biologically
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+We expect that ....TBD
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+..TBD
+\end_layout
+
+\begin_layout Itemize
+..TBD
+\end_layout
+
+\begin_layout Section*
+Filtration parameters
+\end_layout
+
+\begin_layout Standard
+Our analyzes are based on a filtered data set.
+\end_layout
+
+\begin_layout Subsection*
+Density
+\end_layout
+
+\begin_layout Standard
+We have chosen to 'count' as clusters in our analysis only clusters that
+ have density greater than 0.0098.
+\end_layout
+
+\begin_layout Standard
+We noticed that sometimes large and homogenically spread protein forms a
+ giant cluster which strongly seems as an artifact of the test and looks
+ unlikley in a biological pov (point of view).
+ We started filtering out data by size of the clusters but we felt uncomfortable
+ discriminating only upon size.
+ So, we decided to filer by density.
+ The estimator for the filtration density value was chosen as to be 1.5
+\begin_inset Formula $\sigma$
+\end_inset
+
+ less than the average density of the clusters from the population of 20-300
+ (size).
+ 
+\end_layout
+
+\begin_layout Part*
+Appendix B - some results
+\end_layout
+
+\begin_layout Standard
+Let's take for example a pair of samples taken in 05/02/15.
+\end_layout
+
+\begin_layout Standard
+The samples consists of: 
+\end_layout
+
+\begin_layout Enumerate
+MI2_12month_Anle
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+Mice at the age of 12 months that have a truncated alpha-synuclein (aggresive
+ symptoms) that were treated three months (6 months - 9 months of age) with
+ ana anti-aggregate drug.
+ The smaple consists of 10 pairs of csv files (red&green or: alpha-synuclein/vam
+p).
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename C:/Users/guloo/Pictures/Screenshots/Screenshot (29).png
+	scale 50
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+csvs input - 050215 anle sample
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+MI2_12months_Plac
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+Same mice only that these received a placebo (and not the anti-aggregate).
+ This sample also consists of 10 pairs of csv files (although it doesn't
+ have to be the same number as the other condition).
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename C:/Users/guloo/Pictures/Screenshots/Screenshot (30).png
+	scale 50
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+csvs input - 050215 plac sample
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+Foreach of these samples the program outputs a folder containing the results:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename C:/Users/guloo/Pictures/Screenshots/Screenshot (31).png
+	scale 50
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+output - main output folder (marked)
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Inside the folder there is an analysis for each pair of input CSV files.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename C:/Users/guloo/Pictures/Screenshots/Screenshot (33).png
+	scale 50
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+output - inside the: main output folder
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Each 'analysis' folder looks like:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename C:/Users/guloo/Pictures/Screenshots/Screenshot (35).png
+	scale 50
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+output - inside 'analysis' output folder
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_body
+\end_document

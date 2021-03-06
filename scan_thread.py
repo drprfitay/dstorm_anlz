@@ -16,6 +16,10 @@ from external.datasets.dstorm_datasets import DstormDatasetDBSCAN
 from matplotlib import cm, colors
 from shutil import rmtree
 from scipy import spatial
+from csv import writer
+
+export_file = "data.csv"
+export_folder = "./static/export/"
 scan_results_folder = "./static/scan_results/"
 prescan_results_folder = "./static/prescan_results/"
 
@@ -119,6 +123,8 @@ class scanThread(threading.Thread):
         self.original_df = None
         self.clusters_df = None
         self.result_json = {}
+        self.temp_result_holder = None
+        self.export_csv_rows = None
         self.scan_progress_percentage = 0.0;
         self.genThreeD = False;
         self.theme = "ggplot2"
@@ -252,7 +258,7 @@ class scanThread(threading.Thread):
               hover_text += "Number of points: %d<br>" % df.loc[i]['num_of_points']
               hover_text += "Polygon size (flat_polygon): %f<br>" % df.loc[i]['polygon_size']
               hover_text += "Density (flat polygon): %f<br>" % df.loc[i]['polygon_density']
-              if df.loc[i]['reduced_polygon_density'] is not None: hover_text += "Density (dimension reduced): %f" %  df.loc[i]['reduced_polygon_density']
+              if df.loc[i]['reduced_polygon_density'] != -9999: hover_text += "Density (dimension reduced): %f" %  df.loc[i]['reduced_polygon_density']
 
               clstr = go.Scatter(x=x_val,
                                  y=y_val,
@@ -347,7 +353,7 @@ class scanThread(threading.Thread):
            (polygon_size, "Polygon Size", "poly_size", True),
            (polygon_density, "Polygon density", "poly_density", True)]
 
-          if reduced_polygon_density[0] is not None:
+          if reduced_polygon_density[0] != -9999:
             hists.append((reduced_polygon_density, "Reduced Polygon density", "reduced_poly_density", True))
 
 
@@ -625,6 +631,7 @@ class scanThread(threading.Thread):
     def generate_output_from_scan(self, conf, dataset_result):
       print("Generating ouptut of scan")
 
+      self.temp_result_holder = []
       dataset = dataset_result
       self.original_df = dataset.orig_df
       self.clusters_df = dataset.groups_df
@@ -693,12 +700,14 @@ class scanThread(threading.Thread):
                                                    'pca_major_axis_std': ['mean', 'median'],
                                                    'pca_minor_axis_std': ['mean', 'median'],
                                                    'pca_size': ['mean', 'median'],
-                                                   'polygon_size' : ['mean', 'median']}).reset_index()
+                                                   'polygon_size' : ['mean', 'median'],
+                                                   'polygon_density' : ['mean', 'median'],
+                                                   'reduced_polygon_density': ['mean', 'median']}).reset_index()
 
               file_res["probe_0"] = {"num_of_points":                                      
-                                          {"total":
+                                          {"total" :
                                               int(self.original_df.loc[i].probe0_num_of_points),
-                                           "cluster_sum":
+                                           "cluster_sum" :
                                               int(agg_df["num_of_points"]["sum"][0]\
                                                 if self.clusters_df is not None else 0),
                                            "mean" :    
@@ -734,6 +743,20 @@ class scanThread(threading.Thread):
                                                 if self.clusters_df is not None else 0),
                                            "median" :  
                                               "{:.4f}".format(float(agg_df["polygon_size"]["median"][0])\
+                                                if self.clusters_df is not None else 0)},
+                                     "polygon_density" : 
+                                          {"mean" :    
+                                              "{:.4f}".format(float(agg_df["polygon_density"]["mean"][0])\
+                                                if self.clusters_df is not None else 0),
+                                           "median" :  
+                                              "{:.4f}".format(float(agg_df["polygon_density"]["median"][0])\
+                                                if self.clusters_df is not None else 0)},
+                                     "reduced_polygon_density" : 
+                                          {"mean" :    
+                                              "{:.4f}".format(float(agg_df["reduced_polygon_density"]["mean"][0])\
+                                                if self.clusters_df is not None else 0),
+                                           "median" :  
+                                              "{:.4f}".format(float(agg_df["reduced_polygon_density"]["median"][0])\
                                                 if self.clusters_df is not None else 0)}}
 
 
@@ -787,11 +810,51 @@ class scanThread(threading.Thread):
             self.result_json["errors"] = 1      
             format_exception(be)
 
+          self.temp_result_holder.append(file_res)
           self.result_json["file_results"].append(file_res)
           self.result_json["file_results"].sort(key=lambda f: f["titlename"])
           self.scan_progress_percentage = self.counter / (len(self.original_df.index) * len(self.conf))
           self.counter += 1.0
       self.result_json["num_of_files"] += len(self.original_df.index)
+
+    def generate_export_csv_row(self, conf):
+      for file_res in self.temp_result_holder:
+        print("Exporting %s" % file_res["titlename"])
+
+        row = [file_res["titlename"],\
+               file_res["probe0_ngroups"],
+               file_res["probe_0"]["num_of_points"]["total"],
+               file_res["probe_0"]["num_of_points"]["cluster_sum"],
+               file_res["probe_0"]["num_of_points"]["mean"],
+               file_res["probe_0"]["num_of_points"]["median"],
+               file_res["probe_0"]["polygon_size"]["mean"],
+               file_res["probe_0"]["polygon_size"]["median"],
+               file_res["probe_0"]["polygon_density"]["mean"],
+               file_res["probe_0"]["polygon_density"]["median"],
+               file_res["probe_0"]["reduced_polygon_density"]["mean"],
+               file_res["probe_0"]["reduced_polygon_density"]["median"],
+               file_res["probe_0"]["pca_size"]["mean"],
+               file_res["probe_0"]["pca_size"]["median"],
+               file_res["probe_0"]["pca_major_axis_std"]["mean"],
+               file_res["probe_0"]["pca_major_axis_std"]["median"],
+               file_res["probe_0"]["pca_minor_axis_std"]["mean"],
+               file_res["probe_0"]["pca_minor_axis_std"]["median"],
+               "HDBscan" if conf["general"]["use_hdbscan"] else "DBScan",
+               "True" if conf["general"]["use_z"] else "False",
+               "True" if conf["general"]["noise_reduce"] else "False",
+               conf["general"]["stddev_num"] if conf["general"]["noise_reduce"] else "N/A",
+               conf["general"]["density_drop_threshold"] if conf["general"]["density_drop_threshold"] != 0.0 else "-",
+               "N/A",#conf["general"]["z_density_drop_threshold"] if conf["general"]["z_density_drop_threshold"] != 0.0 else "N/A",
+               conf["hdbscan"]["hdbscan_min_npoints"] if conf["general"]["use_hdbscan"] else "N/A",
+               conf["hdbscan"]["hdbscan_min_samples"] if conf["general"]["use_hdbscan"] else "N/A",
+               conf["hdbscan"]["hdbscan_eps"] if conf["hdbscan"]["hdbscan_eps"] != -9999 else "-",
+               conf["hdbscan"]["hdbscan_alpha"] if conf["general"]["use_hdbscan"] else "N/A",
+               conf["hdbscan"]["hdbscan_extracting_alg"] if conf["general"]["use_hdbscan"] else "N/A",
+               conf["dbscan"]["dbscan_min_samples"] if not conf["general"]["use_hdbscan"] else "N/A",               
+               conf["dbscan"]["dbscan_eps"] if not conf["general"]["use_hdbscan"] else "N/A",
+               conf["dbscan"]["min_npoints"] if not conf["general"]["use_hdbscan"] else "N/A"]
+
+        self.export_csv_rows.append(row)
 
     def scan_main(self):
         self.status = scanThread.scanStatus.SCAN_RUNNING
@@ -800,11 +863,46 @@ class scanThread(threading.Thread):
 
         rmtree(scan_results_folder, ignore_errors=True)
         os.mkdir(scan_results_folder)
+
+        rmtree(export_folder)
+        os.mkdir(export_folder)
         self.result_json["errors"] = 0
 
         if (len(self.conf) > 1):
           self.dbscan_compare_dict = {}
 
+        self.export_csv_rows = [["Filename",\
+                                "Number of clusters",
+                                "Number of localizations",
+                                "Number of localizations assigned to clusters",
+                                "Mean localizations per cluster",
+                                "Median localizations per cluster",
+                                "Polygon surronding flat cluster mean size (nm)",
+                                "Polygon surronding flat cluster median size (nm)",
+                                "Polygon mean density",
+                                "Polygon median density",
+                                "Reduced polygon (Including Z-Axis) mean density",
+                                "Reduced polygon (Including Z-Axis) median density",
+                                "PCA mean size",
+                                "PCA median size",
+                                "PCA major axis (per cluster) mean std",
+                                "PCA major axis (per cluster) median std",
+                                "PCA minor axis (per cluster) mean std",
+                                "PCA minor axis (per cluster) median std",
+                                "Algorithm used",
+                                "Z-Axis included"
+                                "Noise reduction",
+                                "Standard score for noise reduction",
+                                "Density threshold",
+                                "Z-axis included desnity threshold",
+                                "HDBscan Min num of points (K)",
+                                "HDBscan Min samples",
+                                "HDBscan Epsilon", 
+                                "HDBscan Alpha",
+                                "HDBscan Extracting alg",
+                                "DBscan Min samples (K)",
+                                "DBscan Epsilon",
+                                "DBscan Min Num of points"]]
           # run DBScan
         for conf in self.conf:
           self.prefix = make_prefix(conf)
@@ -850,12 +948,18 @@ class scanThread(threading.Thread):
             print("Completed storm scan, generating results.")
 
             self.generate_output_from_scan(conf, dataset)
+
+            self.generate_export_csv_row(conf)
+
           except BaseException as be:
             format_exception(be)
             self.result_json["errors"] = 2
             print("Fatal error here!\n")  
 
-
+        # generate csv
+        with open('%s/%s' % (export_folder, export_file), 'w', newline='') as file:
+            wrt = writer(file)
+            wrt.writerows(self.export_csv_rows)
 
         self.status = scanThread.scanStatus.SCAN_FINISHED_SUCCESSFULLY
 

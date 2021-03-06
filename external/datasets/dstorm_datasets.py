@@ -369,7 +369,7 @@ class _ColocDstormDataset(_DstormDataset):
                     groups_df_row['reduced_polygon_density'] = float((groups_df_row['num_of_points'] * 10)) / groups_df_row['reduced_polygon_size']
                 else:
                     groups_df_row['reduced_polygon_size'] = None
-                    groups_df_row['reduced_polygon_density'] = None
+                    groups_df_row['reduced_polygon_density'] = -9999
 
 
                 pca = PCA()

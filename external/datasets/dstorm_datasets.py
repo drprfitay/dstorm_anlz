@@ -354,7 +354,7 @@ class _ColocDstormDataset(_DstormDataset):
                 groups_df_row['convex_hull'] = xy_plane_pc[convex_hull.simplices]
                 corners = list(set(functools.reduce(lambda x,y: x+y, [[(a,b) for a,b in x] for x in xy_plane_pc[convex_hull.simplices]])))
                 groups_df_row['polygon_size'] = PolygonArea(PolygonSort(corners))
-                groups_df_row['polygon_density'] = float((groups_df_row['num_of_points'] * 10)) / groups_df_row['polygon_size']
+                groups_df_row['polygon_density'] = float((groups_df_row['num_of_points'] * 1000)) / groups_df_row['polygon_size']
 
                 if (self.density_drop_threshold > 0.0):
                     if (groups_df_row['polygon_density'] < self.density_drop_threshold):
@@ -366,7 +366,7 @@ class _ColocDstormDataset(_DstormDataset):
                     reduced_convex_hull = ConvexHull(reduced_cluster)
                     corners = list(set(functools.reduce(lambda x,y: x+y,[[(a.tolist()[0][0], a.tolist()[0][1]) for a in x] for x in reduced_cluster[reduced_convex_hull.simplices]])))
                     groups_df_row['reduced_polygon_size'] = PolygonArea(PolygonSort(corners))
-                    groups_df_row['reduced_polygon_density'] = float((groups_df_row['num_of_points'] * 10)) / groups_df_row['reduced_polygon_size']
+                    groups_df_row['reduced_polygon_density'] = float((groups_df_row['num_of_points'] * 1000)) / groups_df_row['reduced_polygon_size']
                 else:
                     groups_df_row['reduced_polygon_size'] = None
                     groups_df_row['reduced_polygon_density'] = -9999

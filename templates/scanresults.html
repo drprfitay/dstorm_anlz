@@ -143,7 +143,7 @@
         <h1 class="h2" id="main_content_title"> </h1>
         <div class="btn-toolbar mb-2 mb-md-0">
           <div class="btn-group mr-2">
-            <!-- <button type="button" onclick="openConfigScanParamsModal()" class="btn btn-sm btn-outline-secondary">Change params</button> -->
+            <!--<button type="button" onclick="openConfigScanParamsModal()" class="btn btn-sm btn-outline-secondary">View run parameters</button>-->
             <button type="button" class="btn btn-sm btn-outline-secondary">Export</button>
           </div>
         </div>
@@ -289,11 +289,34 @@
   </div>
 </div>
 <script>
+function findGetParameter(parameterName) {
+    var result = null,
+        tmp = [];
+    location.search
+        .substr(1)
+        .split("&")
+        .forEach(function (item) {
+          tmp = item.split("=");
+          if (tmp[0] === parameterName) result = decodeURIComponent(tmp[1]);
+        });
+    return result;
+}
+
 (function () {
-   generalClusterInformation();
+   if (findGetParameter("p") == "info") {
+   generalClusterInformationInternal();
+  } else if (parseInt(findGetParameter("pn")) != NaN) {
+    generatePlotsInternal(parseInt(findGetParameter("pn")));
+  }  else {
+    generatePlotsInternal(1)
+  }
 })();
 
 function generalClusterInformation() {
+  location.search="?p=info";
+}
+
+function generalClusterInformationInternal() {
     var http_request = new XMLHttpRequest();
     http_request.onreadystatechange = function() {        
         if (http_request.readyState == 4  ) {
@@ -488,8 +511,11 @@ function generateProbeStats(probe_num) {
     http_request.open("GET", "/scanresults", true);
     http_request.send()
 };
-
 function generatePlots(plot_id) {
+  location.search="?p=pl&pn=" + plot_id.toString();
+}
+
+function generatePlotsInternal(plot_id) {
     var http_request = new XMLHttpRequest();
     http_request.onreadystatechange = function() {        
         if (http_request.readyState == 4  ) {   
@@ -501,7 +527,7 @@ function generatePlots(plot_id) {
             content += "<div class=\"row mt-5\">";
             content += "<div class=\"col-lg-2\"></div>";
             content += "<div class=\"col-lg-8\">";
-            content += "<select onclick=\"embedPlot()\" class=\"custom-select mr-sm-2\" id=\"plot_select\">";
+            content += "<select onchange=\"embedPlot()\" class=\"custom-select mr-sm-2\" id=\"plot_select\">";
             for (f of jsonObj.file_results) {
               if (f.completed == false) {
                 continue;
@@ -584,8 +610,17 @@ function generatePlots(plot_id) {
                     document.getElementById("main-content").innerHTML = res_str;
                     return; 
                   }
-    
-              content += "<option value='" + html_url + "'>" + f.filename + "</option>";
+              
+              param_str = html_url.split("EEE")[0]
+              params = parseScanParams(param_str)
+              content += "<option value='" + html_url + "'> &nbsp&nbsp <b>" + f.titlename + "</b> &nbsp&nbsp&nbsp&nbsp";
+              content += " (Alg: " + params.alg + ", Z-Axis: " + params.zaxis +", Noise reduce: " + params.noisered;
+              if (params.alg == "HDBscan") { 
+                content += ", Minnpoints: " + params.specific.minnpoints + "....)";
+              } else {
+                content += ", Epsilon: " + params.specific.eps + "....)";
+              }
+              content += "</option>";
             }
 
             content += "</select>";
@@ -602,16 +637,18 @@ function generatePlots(plot_id) {
               content += "</div>";
               content += "</div>"; 
             }           
+            content += "<div class=\"row mt-2\"><div class=\"col-lg-2\"></div><div id=\"plot_params\" class=\"col-lg-8\">";
+            content += "</div></div>";
             content += "<div id=\"embed_plot\">";
             content += "</div>";
 
             document.getElementById("main-content").innerHTML = content;
 
-
-            first_content = "<br><div class=\"embed-responsive embed-responsive-16by9\">";
-            first_content += "<iframe class=\"embed-responsive-item\" src=\"static/scan_results/" + first_url + "?rand='" + Math.round(Math.random() * 10000000)  +"'\" allowfullscreen></iframe>";   
-            first_content += "</div>";
-            document.getElementById("embed_plot").innerHTML = first_content;
+            embedPlot();
+            // first_content = "<br><div class=\"embed-responsive embed-responsive-16by9\">";
+            // first_content += "<iframe class=\"embed-responsive-item\" src=\"static/scan_results/" + first_url + "?rand='" + Math.round(Math.random() * 10000000)  +"'\" allowfullscreen></iframe>";   
+            // first_content += "</div>";
+            // document.getElementById("embed_plot").innerHTML = first_content;
 
         }
     };
@@ -620,8 +657,89 @@ function generatePlots(plot_id) {
     http_request.send()
 };
 
+function parseScanParams(param_str) {
+  //var filename = "H_zT_nrT1.500000_ddt0.000000_zddt0.000000SSSalgleaf_mn50_ms1_eps-9999_alp1.0EEE"
+  var tmp = param_str.split("SSS");
+  var general = tmp[0];
+  var specific = tmp[1];
+  //specific = specific.split("EEE")[0];
+  general = general.split("_");
+  specific = specific.split("_");
+  var results = {}
+  results.specific = {}
+
+  tmp = general[1].slice(1,general[1].length);
+  if (tmp == "T") { results.zaxis = true; } else { results.zaxis = false; }
+
+  tmp = general[2].slice(2,3);
+  if (tmp == "T") { results.noisered = true; } else { results.noisered = false; }
+  if (tmp == "T") { results.stdscore = general[2].slice(3,general[2].length); }
+  
+  results.densitythreshold = general[3].slice(3,general[3].length);
+  results.zdensitythreshold = general[4].slice(4,general[4].length);
+
+  if (general[0] == "H") {
+    results.alg = "HDBscan";
+    results.specific.alg =  specific[0].slice(3,specific[0].length);
+    results.specific.minnpoints =  specific[1].slice(2,specific[1].length);
+    results.specific.minsamples =  specific[2].slice(2,specific[2].length);
+    results.specific.eps =  specific[3].slice(3,specific[3].length);
+    results.specific.alpha =  specific[4].slice(3,specific[4].length);
+  } else {
+    results.alg = "DBscan";
+    results.specific.minnpoints =  specific[0].slice(2,specific[0].length);
+    results.specific.eps =  specific[1].slice(3,specific[1].length);    
+    results.specific.minsamples =  specific[2].slice(2,specific[2].length);
+  }
+
+  return results;
+}
+
+function getParamsHTML(params) {
+  content = "";
+  var alg = "";
+  if (params.alg == "HDBscan") {alg = params.alg + " (" + params.specific.alg + ")";} else {alg = params.alg;}
+  content += "<span class=\"badge badge-info\">" + alg + "</span> ";
+  
+  if (params.zaxis) {
+    content += "<span class=\"badge badge-info\"> Z-Axis included </span> ";
+  }
+
+  if (params.noisered) {
+    content += "<span class=\"badge badge-info\"> Noise reduced (Std score:" + parseFloat(params.stdscore) + ") </span> ";
+  }
+
+  if (parseFloat(params.densitythreshold) != 0.0) {
+  content += "<span class=\"badge badge-info\"> Density threshold: " + parseFloat(params.densitythreshold) + "</span> ";
+  }
+
+  if (parseFloat(params.zdensitythreshold) != 0.0) {
+  content += "<span class=\"badge badge-info\"> Z Density threshold: " + parseFloat(params.zdensitythreshold) + "</span> ";
+  }
+  content += "<br/>"
+  if (params.alg == "HDBscan") {
+    content += "<span class=\"badge badge-info\"> Min npoints: " + params.specific.minnpoints + "</span> ";
+    content += "<span class=\"badge badge-info\"> Min samples: " + params.specific.minsamples + "</span> ";    
+    content += "<span class=\"badge badge-info\"> Epsilon: " + params.specific.eps + "</span> "; 
+    content += "<span class=\"badge badge-info\"> Alpha: " + parseFloat(params.specific.alpha) + "</span> ";    
+  } else {
+    content += "<span class=\"badge badge-info\"> Min samples: " + params.specific.minsamples + "</span> ";    
+    content += "<span class=\"badge badge-info\"> Epsilon: " + params.specific.eps + "</span> ";         
+    content += "<span class=\"badge badge-info\"> Min npoints: " + params.specific.minnpoints + "</span> ";
+  }
+
+  return content;
+
+}
+
 function embedPlot() {
-            content = "<br><div class=\"embed-responsive embed-responsive-16by9\">";
+            content = "";
+            content += getParamsHTML(parseScanParams(document.getElementById("plot_select").value.split("EEE")[0]));
+            content += "<br/> ";
+            document.getElementById("plot_params").innerHTML = content;
+
+            content = "";
+            content += "<br><div class=\"embed-responsive embed-responsive-16by9\">";
             content += "<iframe class=\"embed-responsive-item\" src=\"static/scan_results/" + document.getElementById("plot_select").value  + "?rand='" + Math.round(Math.random() * 10000000)  +"'\" allowfullscreen></iframe>";
             content += "</div>";
             document.getElementById("embed_plot").innerHTML = content;
@@ -636,9 +754,15 @@ String.prototype.replaceLast = function (what, replacement) {
 };
 
 function embedLower() {
+            content = "";
+            content += getParamsHTML(parseScanParams(document.getElementById("plot_select").value.split("EEE")[0]));
+            content += "<br/> ";
+            document.getElementById("plot_params").innerHTML = content;
+
             selected_url = document.getElementById("plot_select").value;
             selected_url = selected_url.replaceLast("csv", "csv_lower_half");
-            content = "<br><div class=\"embed-responsive embed-responsive-16by9\">";
+            content = "";
+            content += "<br><div class=\"embed-responsive embed-responsive-16by9\">";
             content += "<iframe class=\"embed-responsive-item\" src=\"static/scan_results/" + selected_url + "?rand='" + Math.round(Math.random() * 10000000)  +"'\" allowfullscreen></iframe>";
             content += "</div>";
             document.getElementById("embed_plot").innerHTML = content;
@@ -646,9 +770,15 @@ function embedLower() {
 };
 
 function embedUpper() {
+            content = "";
+            content += getParamsHTML(parseScanParams(document.getElementById("plot_select").value.split("EEE")[0]));
+            content += "<br/> ";
+            document.getElementById("plot_params").innerHTML = content;
+
             selected_url = document.getElementById("plot_select").value;
             selected_url = selected_url.replaceLast("csv", "csv_upper_half");
-            content = "<br><div class=\"embed-responsive embed-responsive-16by9\">";
+            content = "";
+            content += "<br><div class=\"embed-responsive embed-responsive-16by9\">";
             content += "<iframe class=\"embed-responsive-item\" src=\"static/scan_results/" + selected_url + "?rand='" + Math.round(Math.random() * 10000000)  +"'\" allowfullscreen></iframe>";
             content += "</div>";
             document.getElementById("embed_plot").innerHTML = content;

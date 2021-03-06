@@ -30,6 +30,30 @@ shuffle(clrsx)
 make_clr = lambda l: "#" +  "".join([hex(c)[2:] if c > 15 else '0' + hex(c)[2:] for c in l])
 color_palette = [make_clr(l) for l in clrsx]
 
+def make_prefix(conf):
+  strbool = lambda b: "T" if b else "F"
+  prefix_str = "%s_z%s_nr%s%f_ddt%f_zddt%fSSS" %\
+    ("H" if conf["general"]["use_hdbscan"] else "D",
+     strbool(conf["general"]["use_z"]),
+     strbool(conf["general"]["noise_reduce"]),
+     conf["general"]["stddev_num"],
+     conf["general"]["density_drop_threshold"],
+     0.0)#conf["general"]["z_density_drop_threshold"])
+
+  hdbscan_prefix = "alg%s_mn%d_ms%d_eps%d_alp%s" %\
+    (conf["hdbscan"]["hdbscan_extracting_alg"],
+     conf["hdbscan"]["hdbscan_min_npoints"],
+     conf["hdbscan"]["hdbscan_min_samples"],
+     conf["hdbscan"]["hdbscan_eps"],
+     conf["hdbscan"]["hdbscan_alpha"])
+
+  dbscan_prefix = "mn%d_eps%d_ms%d"  %\
+   (conf["dbscan"]["min_npoints"],
+    conf["dbscan"]["dbscan_eps"],
+    conf["dbscan"]["dbscan_min_samples"])
+
+  return prefix_str + (hdbscan_prefix if conf["general"]["use_hdbscan"] else dbscan_prefix) + "EEE"
+
 def format_exception(e):
   exc_type, exc_obj, exc_tb = sys.exc_info()
   fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
@@ -78,7 +102,8 @@ class scanThread(threading.Thread):
           "use_hdbscan": True,
           "noise_reduce": True,
           "stddev_num": 1.5,
-          "density_drop_threshold": 0.0}
+          "density_drop_threshold": 0.0,
+          "z_density_drop_threshold": 0.0}
     }
 
     default_prescan = {
@@ -268,14 +293,14 @@ class scanThread(threading.Thread):
             fname.replace(".", "_") + "_dbscan_plot.html"
 
           if self.genThreeD:
-            threed_fig.write_html(scan_results_folder + "3D_" + fig_name)
+            threed_fig.write_html(scan_results_folder + fig_name.replace("_dbscan", "_dbscan_3D"))
           fig.write_html(scan_results_folder + fig_name)
 
           if gen_compare_plot and conf_idx == (num_of_confs - 1):
             self.dbscan_compare_dict[fname].update_layout(template=self.theme[0], showlegend=False)
             self.dbscan_compare_dict[fname].write_html(scan_results_folder + compare_html)
 
-          return (fig_name, "3D_" + fig_name if self.genThreeD else None, compare_html)
+          return (fig_name, fig_name.replace("_dbscan", "_dbscan_3D") if self.genThreeD else None, compare_html)
         except BaseException as be:
           format_exception(be)
           raise(be)                   
@@ -782,37 +807,25 @@ class scanThread(threading.Thread):
 
           # run DBScan
         for conf in self.conf:
-          if conf["general"]["use_hdbscan"] is False:
-            self.prefix = "%s%s_%s_%s_%s" %\
-                              ("F%f_" % conf["general"]["density_drop_threshold"] if conf["general"]["density_drop_threshold"] > 0.0 else "",
-                                conf["dbscan"]["dbscan_eps"], 
-                               conf["dbscan"]["dbscan_min_samples"],
-                               "with_Z_" if conf["general"]["use_z"] else "", 
-                               ("NR%s_" % conf["general"]["stddev_num"]) if conf["general"]["noise_reduce"] else "")
-            self.histograms_title_prefix = "%s Eps(%d), K(%d)%s" % ("F%f" % conf["general"]["density_drop_threshold"] if conf["general"]["density_drop_threshold"] > 0.0 else "",
-                                                                  conf["dbscan"]["dbscan_eps"],\
-                                                                  conf["dbscan"]["dbscan_min_samples"],
-                                                                  (", NR STD(%s)" % conf["general"]["stddev_num"]) if\
-                                                                      conf["general"]["noise_reduce"] else "")         
-          else: 
-            self.prefix = "hdbscan_%s%s_%s_%s_%s%s_%s_%s" %\
-                              ("F%f_" % conf["general"]["density_drop_threshold"] if conf["general"]["density_drop_threshold"] > 0.0 else "",
-                                conf["hdbscan"]["hdbscan_extracting_alg"],
-                               conf["hdbscan"]["hdbscan_min_npoints"], 
-                               conf["hdbscan"]["hdbscan_min_samples"],
-                               conf["hdbscan"]["hdbscan_alpha"],
-                               ("_%d" % conf["hdbscan"]["hdbscan_eps"]) if conf["hdbscan"]["hdbscan_eps"] != -9999 else "",
-                               "with_Z_" if conf["general"]["use_z"] else "", 
-                               ("NR%s_" % conf["general"]["stddev_num"]) if conf["general"]["noise_reduce"] else "")
-            self.histograms_title_prefix = "%s N(%d), S(%d), Alg(%s), a(%s)%s%s" % ("F%f" % conf["general"]["density_drop_threshold"] if conf["general"]["density_drop_threshold"] > 0.0 else "",
-                                                                                  conf["hdbscan"]["hdbscan_min_npoints"],\
-                                                                                  conf["hdbscan"]["hdbscan_min_samples"],
-                                                                                  conf["hdbscan"]["hdbscan_extracting_alg"],
-                                                                                  conf["hdbscan"]["hdbscan_alpha"],
-                                                                                  (", Eps(%d)" % conf["hdbscan"]["hdbscan_eps"]) if\
-                                                                                    conf["hdbscan"]["hdbscan_eps"] != -9999 else "",
-                                                                                  (", NR STD(%s)" % conf["general"]["stddev_num"]) if\
-                                                                                    conf["general"]["noise_reduce"] else "")
+          self.prefix = make_prefix(conf)
+          self.histograms_title_prefix = ""
+          
+          # if conf["general"]["use_hdbscan"] is False:            
+          #   self.histograms_title_prefix = "%s Eps(%d), K(%d)%s" % ("F%f" % conf["general"]["density_drop_threshold"] if conf["general"]["density_drop_threshold"] > 0.0 else "",
+          #                                                         conf["dbscan"]["dbscan_eps"],\
+          #                                                         conf["dbscan"]["dbscan_min_samples"],
+          #                                                         (", NR STD(%s)" % conf["general"]["stddev_num"]) if\
+          #                                                             conf["general"]["noise_reduce"] else "")         
+          # else:             
+          #   self.histograms_title_prefix = "%s N(%d), S(%d), Alg(%s), a(%s)%s%s" % ("F%f" % conf["general"]["density_drop_threshold"] if conf["general"]["density_drop_threshold"] > 0.0 else "",
+          #                                                                         conf["hdbscan"]["hdbscan_min_npoints"],\
+          #                                                                         conf["hdbscan"]["hdbscan_min_samples"],
+          #                                                                         conf["hdbscan"]["hdbscan_extracting_alg"],
+          #                                                                         conf["hdbscan"]["hdbscan_alpha"],
+          #                                                                         (", Eps(%d)" % conf["hdbscan"]["hdbscan_eps"]) if\
+          #                                                                           conf["hdbscan"]["hdbscan_eps"] != -9999 else "",
+          #                                                                         (", NR STD(%s)" % conf["general"]["stddev_num"]) if\
+          #                                                                           conf["general"]["noise_reduce"] else "")
           try:
             dataset = DstormDatasetDBSCAN(root=self.ex_files, 
                                           min_npoints=conf["dbscan"]["min_npoints"], 

@@ -261,8 +261,8 @@ class scanThread(threading.Thread):
               hover_text = "Cluster #%d <br>" % i
               hover_text += "Number of points: %d<br>" % df.loc[i]['num_of_points']
               hover_text += "Polygon size (XY polygon): %f<br>" % df.loc[i]['polygon_size']
-              hover_text += "Polygon perimeter (XY polygon): %f<br>" % df.loc[i]["perimeter"]
-              hover_text += "Polygon radius (XY polygon): %f<br>" % df.loc[i]["polygon_radius"]
+              hover_text += "Polygon perimeter (XY polygon - nm): %f<br>" % df.loc[i]["perimeter"]
+              hover_text += "Polygon radius (XY polygon - nm): %f<br>" % df.loc[i]["polygon_radius"]
               hover_text += "Density (flat polygon): %f<br>" % df.loc[i]['polygon_density']
               if df.loc[i]['reduced_polygon_density'] != -9999: hover_text += "Density (dimension reduced): %f" %  df.loc[i]['reduced_polygon_density']
 

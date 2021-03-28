@@ -357,8 +357,10 @@ class _ColocDstormDataset(_DstormDataset):
 
                 convex_hull = ConvexHull(xy_plane_pc)
                 groups_df_row['convex_hull'] = xy_plane_pc[convex_hull.simplices]
+                groups_df_row["perimeter"] = sum([np.linalg.norm(p[0] - p[1]) for p in groups_df_row['convex_hull']])
                 corners = list(set(functools.reduce(lambda x,y: x+y, [[(a,b) for a,b in x] for x in xy_plane_pc[convex_hull.simplices]])))
                 groups_df_row['polygon_size'] = PolygonArea(PolygonSort(corners))
+                groups_df_row["polygon_radius"] = (2 * groups_df_row['polygon_size']) / groups_df_row["perimeter"]
                 groups_df_row['polygon_density'] = float((groups_df_row['num_of_points'] * 1000)) / groups_df_row['polygon_size']
 
                 if (self.density_drop_threshold > 0.0):
@@ -426,7 +428,7 @@ class _ColocDstormDataset(_DstormDataset):
         if (self.photon_count > 0.0):
             print("Dropping due to photon intensity filter (%f)" % self.photon_count)
             pc = pc.loc[pc["photon-count"] >= self.photon_count]
-            
+
         df_row = super(_ColocDstormDataset, self).process_pointcloud_df(pc)
         try:
             pc_probe0 = pc.query('probe == 0')

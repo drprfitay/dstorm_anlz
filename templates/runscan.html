@@ -141,7 +141,7 @@
     </div>
     <div class="modal fade" id="configScanModal" tabindex="-1" aria-labelledby="scanResModalLabel" aria-modal="true"
         role="dialog">
-        <div class="modal-dialog" role="document">
+        <div class="modal-dialog"  style="max-width:800px" role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     <h1 class="modal-title" id="scanResModalLabel">Configure scan</h1>
@@ -152,140 +152,154 @@
                 <div id="config_scan_modal_body" class="modal-body">
                 <div id="dbscanparams">
                 <div class="row">
-                    <div class="col-md-4 mb-1">
+                    <div class="col-md-3 mb-1">
                     <span class="badge badge-info">Configure DBscan</span><br/>
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <label for="cc-expiration">Min npoints</label>                        
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <label for="cc-expiration">Epsilon</label>                        
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <label for="cc-expiration">Min samples</label>                        
                     </div>                                        
                 </div>
                 <div class="row">
-                    <div class ="col-md-4 mb-3">
+                    <div class ="col-md-3 mb-3">
                         <input type="text" class="form-control" id="min_npoints">
                     </div>
-                    <div class ="col-md-4 mb-3">
+                    <div class ="col-md-3 mb-3">
                         <input type="text" class="form-control" id="dbscan_eps">
                     </div>
-                    <div class ="col-md-4 mb-3">
+                    <div class ="col-md-3 mb-3">
                         <input type="text" class="form-control" id="dbscan_min_samples">
                     </div>
                 </div>
                 </div>
                 <div id="hdbscanparams" style="visibility:hidden;display:none"> 
                 <div class="row">
-                    <div class="col-md-4 mb-1">
+                    <div class="col-md-3 mb-1">
                     <span class="badge badge-info">Configure HDBscan</span><br/>
                 </div>
                 </div>
                 <div class="row">
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <label for="cc-expiration">HDbscan min npoints</label>                        
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <label for="cc-expiration">HDbscan min samples</label>                        
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <label for="cc-expiration">HDbscan epsilon</label>                        
-                    </div>                                        
+                    </div>
+                    <div class="col-md-3">
+                        <label for="cc-expiration">HDbscan extracting alg</label>                        
+                    </div>                                                            
                 </div>
                 <div class="row">
-                    <div class="col-md-4 mb-1">                        
+                    <div class="col-md-3 mb-1">                        
                         <input type="text" class="form-control" id="hdbscan_min_npoints">
                     </div>
-                    <div class="col-md-4 mb-1">                        
+                    <div class="col-md-3 mb-1">                        
                         <input type="text" class="form-control" id="hdbscan_min_samples">
                     </div>
-                    <div class="col-md-4 mb-1">                        
+                    <div class="col-md-3 mb-1">                        
                         <input type="text" class="form-control" id="hdbscan_epsilon">
-                    </div>                                        
+                    </div>  
+                    <div class="col-md-3 mb-1">                        
+                        <input type="text" class="form-control" id="hdbscan_extracting_alg">
+                    </div>                                                          
                 </div>
                 <div class="row">
-                    <div class="col-md-4 mt-2">
-                        <label for="cc-expiration">HDbscan extracting alg</label>                        
-                    </div>
-                    <div class="col-md-4 mt-2">
+                    <div class="col-md-3 mt-2">
                         <label for="cc-expiration">HDbscan selection alpha</label>                        
                     </div>                                
-                    <div class="col-md-4 mt-2">
-                        <label for="cc-expiration">Drop cluster density threshold:</label>
-                    </div>
                 </div>
                 <div class="row">
-                    <div class="col-md-4 mb-1">                        
-                        <input type="text" class="form-control" id="hdbscan_extracting_alg">
-                    </div>
-                    <div class="col-md-4 mb-1">
+                    <div class="col-md-3 mb-1">
                         <input type="text" class="form-control" id="hdbscan_alpha">
                     </div>  
-                    <div class="col-md-4 mb-1">                        
-                        <input type="text" class="form-control" id="density_drop_threshold">
-                    </div>                                      
                 </div>                
                 </div>    
                 <div class="row">
-                    <div class="col-md-4 mb-1 mt-3">
-                    <span class="badge badge-info">Algorithm used / Data depth </span><br/>
+                    <div class="col-md-3 mb-1 mt-4">
+                    <span class="badge badge-info">General analysis configuration</span><br/>
                     </div>
                 </div>
-                <div class="row form-check">                                
-                    <div class="col-md-4 mb-3">
-                        <input type="checkbox" class="form-check-input" onclick="flipDbScanConf()" id="use_hdbscan">
-                        <label class="form-check-label" for="a">Use HDBScan</label>
+                <div class="row">                                
+                    <div class="col-md-3">
+                        <label for="cc-expiration">Flat cluster density threshold:</label>
                     </div>
-                    <div class="col-md-4 mb-3">
-                        <input type="checkbox" class="form-check-input" id="use_z">
-                        <label class="form-check-label" for="a">Use Z axis</label>
-                    </div> 
+                    <div class="col-md-3">
+                        <label for="cc-expiration">3D cluster density threshold:</label>
+                    </div>                        
+                    <div class="col-md-3">
+                        <label for="cc-expiration">Photon-count filter:</label>
+                    </div>  
                 </div>
                 <div class="row">
-                    <div class="col-md-4 mb-1 mt-3">
-                    <span class="badge badge-info">PCA noise reduction</span><br/>
+                    <div class="col-md-3 mb-3">                        
+                        <input type="text" class="form-control" id="density_drop_threshold">
                     </div>
+                    <div class="col-md-3 mb-3">                        
+                        <input type="text" class="form-control" id="threed_drop_threshold">
+                    </div>                           
+                    <div class="col-md-3 mb-3">
+                        <input type="text" class="form-control" id="photon_count">
+                    </div>
+                    <div class="col-md-3 mb-3">
+                    </div>                    
                 </div>
-                <div class="row form-check">
-                    <div class="col-md-4 mb-3">
-                        <input type="checkbox" class="form-check-input" onclick="flipStdDevNum()" id="noise_reduce">
-                        <label class="form-check-label" for="a">Reduce noise with PCA</label>
-                    </div>        
-                    <div class="col-md-7 mb-3">
+                <div class="row">
+                    <div class="col-md-3 mb-3">
                         <div id="stddevparam">
                         <label for="cc-expiration">Number of standard deviations</label>
                         <input type="text" class="form-control" id="stddev_num">
                         </div>
                     </div>
+                    <div class="col-md-3 mb-3 mt-3 pl-5">
+                        <input type="checkbox" class="form-check-input" onclick="flipStdDevNum()" id="noise_reduce">
+                        <label class="form-check-label" for="a">Reduce noise with PCA</label>
+                    </div>      
+                    <div class="col-md-2 mb-3 mt-3 ">
+                    </div>               
+                    <div class="col-md-2 mb-3 mt-3">
+                        <input type="checkbox" class="form-check-input" onclick="flipDbScanConf()" id="use_hdbscan">
+                        <label class="form-check-label" for="a">Use HDBScan</label>
+                    </div>
+                    <div class="col-md-2 mb-3 mt-3">
+                        <input type="checkbox" class="form-check-input" id="use_z">
+                        <label class="form-check-label" for="a">Use Z axis</label>
+                    </div>                     
+       
                 </div>                                           
                 <div class="row">
-                    <div class="col-md-4 mb-1 mt-3">
+                    <div class="col-md-3 mb-1 mt-3">
                     <span class="badge badge-info">Colocolization configuration</span><br/>
                     </div>
                 </div>                                             
                 <div class="row">
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <label for="cc-expiration">Colocalization distance</label>                        
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <label for="cc-expiration">Colocalization neighbours</label>                        
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <label for="cc-expiration">Workers</label>                        
                     </div>                                        
                 </div>
                 <div class="row">
-                    <div class="col-md-4 mb-3">                        
+                    <div class="col-md-3 mb-3">                        
                         <input type="text" class="form-control" id="coloc_distance">
                     </div>
-                    <div class="col-md-4 mb-3">                        
+                    <div class="col-md-3 mb-3">                        
                         <input type="text" class="form-control" id="coloc_neighbors">
                     </div>
-                    <div class="col-md-4 mb-3">                        
+                    <div class="col-md-3 mb-3">                        
                         <input type="text" class="form-control" id="workers">
                     </div>                                        
                 </div>
@@ -339,6 +353,8 @@ function addConfiguration()
     new_conf.push(document.getElementById("hdbscan_extracting_alg").value);
     new_conf.push(document.getElementById("hdbscan_alpha").value);
     new_conf.push(document.getElementById("density_drop_threshold").value);
+    new_conf.push(document.getElementById("threed_drop_threshold").value);
+    new_conf.push(document.getElementById("photon_count").value);
     new_conf.push(document.getElementById("selectTheme").value);
 
 
@@ -617,6 +633,8 @@ function runScan() {
     hdbscan_extracting_alg = "&hdbscan_extracting_alg=" + document.getElementById("hdbscan_extracting_alg").value   + ";" 
     hdbscan_alpha = "&hdbscan_alpha=" + document.getElementById("hdbscan_alpha").value   + ";" 
     density_drop_threshold = "&density_drop_threshold=" + document.getElementById("density_drop_threshold").value   + ";" 
+    threed_drop_threshold = "&threed_drop_threshold=" + document.getElementById("threed_drop_threshold").value   + ";" 
+    photon_count = "&photon_count=" + document.getElementById("photon_count").value   + ";" 
     
 //    k_dist_algorithm="&k-dist_algorithm=" + document.getElementById("algorithm").value + ";";
 //    k_dist_is_3D="&k-dist_is_3D=" + document.getElementById("is_threeD").checked;  + ";";
@@ -642,7 +660,9 @@ function runScan() {
             hdbscan_extracting_alg += conf[13] + ";"
             hdbscan_alpha += conf[14] + ";"
             density_drop_threshold  += conf[15] + ";"
-            theme += conf[16] + ";";
+            threed_drop_threshold  += conf[16] + ";"
+            photon_count  += conf[17] + ";"
+            theme += conf[18] + ";";
 //          k_dist_algorithm += conf[6] + ";";
 //          k_dist_is_3D += conf[7] + ";" 
 //          k_dist_k += conf[8] + ";";
@@ -665,7 +685,9 @@ function runScan() {
     post_payload += hdbscan_epsilon  
     post_payload += hdbscan_extracting_alg
     post_payload += hdbscan_alpha
-    post_payload += density_drop_threshold    
+    post_payload += density_drop_threshold
+    post_payload += threed_drop_threshold
+    post_payload += photon_count
     post_payload += theme;
 //  post_payload += k_dist_algorithm;
 //  post_payload += k_dist_is_3D;
@@ -839,7 +861,9 @@ function loadInitialScanParams() {
             document.getElementById("hdbscan_epsilon").value = jsonObj.hdbscan.hdbscan_eps;
             document.getElementById("hdbscan_extracting_alg").value = jsonObj.hdbscan.hdbscan_extracting_alg;
             document.getElementById("hdbscan_alpha").value = jsonObj.hdbscan.hdbscan_alpha;
-            document.getElementById("density_drop_threshold").value = jsonObj.general.density_drop_threshold;            
+            document.getElementById("density_drop_threshold").value = jsonObj.general.density_drop_threshold;
+            document.getElementById("threed_drop_threshold").value = jsonObj.general.threed_drop_threshold;
+            document.getElementById("photon_count").value = jsonObj.general.photon_count;
             document.getElementById("use_hdbscan").checked = jsonObj.general.use_hdbscan;        
             document.getElementById("use_z").checked = jsonObj.general.use_z;
             document.getElementById("noise_reduce").checked = jsonObj.general.noise_reduce;

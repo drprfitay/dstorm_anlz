@@ -36,13 +36,14 @@ color_palette = [make_clr(l) for l in clrsx]
 
 def make_prefix(conf):
   strbool = lambda b: "T" if b else "F"
-  prefix_str = "%s_z%s_nr%s%f_ddt%f_zddt%fSSS" %\
+  prefix_str = "%s_z%s_nr%s%f_ddt%f_zddt%f_pc%fSSS" %\
     ("H" if conf["general"]["use_hdbscan"] else "D",
      strbool(conf["general"]["use_z"]),
      strbool(conf["general"]["noise_reduce"]),
      conf["general"]["stddev_num"],
      conf["general"]["density_drop_threshold"],
-     0.0)#conf["general"]["z_density_drop_threshold"])
+     conf["general"]["threed_drop_threshold"],
+     conf["general"]["photon_count"])
 
   hdbscan_prefix = "alg%s_mn%d_ms%d_eps%d_alp%s" %\
     (conf["hdbscan"]["hdbscan_extracting_alg"],
@@ -106,8 +107,9 @@ class scanThread(threading.Thread):
           "use_hdbscan": True,
           "noise_reduce": True,
           "stddev_num": 1.5,
+          "photon_count" : 1000.0,
           "density_drop_threshold": 0.0,
-          "z_density_drop_threshold": 0.0}
+          "threed_drop_threshold": 0.0}
     }
 
     default_prescan = {
@@ -189,7 +191,7 @@ class scanThread(threading.Thread):
               for sconf in self.conf:
                 alg_title = "HDBScan" if sconf["general"]["use_hdbscan"] else "DBScan"
                 if (sconf["general"]["use_hdbscan"]):
-                  specific_title =  "  %sN(%d), S(%d), Alg(%s), a(%s)%s%s" % ("F(%f) " % sconf["general"]["density_drop_threshold"] if conf["general"]["density_drop_threshold"] > 0.0 else "",
+                  specific_title =  "  %sN(%d), S(%d), Alg(%s), a(%s)%s%sPC(%f)" % ("F(%f) " % sconf["general"]["density_drop_threshold"] if conf["general"]["density_drop_threshold"] > 0.0 else "",
                                                           sconf["hdbscan"]["hdbscan_min_npoints"],\
                                                                                    sconf["hdbscan"]["hdbscan_min_samples"],
                                                                                    sconf["hdbscan"]["hdbscan_extracting_alg"],
@@ -197,13 +199,15 @@ class scanThread(threading.Thread):
                                                                                       (", Eps(%d)" % sconf["hdbscan"]["hdbscan_eps"]) if\
                                                                                         sconf["hdbscan"]["hdbscan_eps"] != -9999 else "",
                                                                                       (", NR STD(%s)" % sconf["general"]["stddev_num"]) if\
-                                                                                      sconf["general"]["noise_reduce"] else "")
+                                                                                      sconf["general"]["noise_reduce"] else "",
+                                                                                      sconf["general"]["photon_count"])
                 else:
-                  specific_title = "  %sEps(%d), K(%d)%s" % ("F(%f) " % sconf["general"]["density_drop_threshold"] if conf["general"]["density_drop_threshold"] > 0.0 else "",
+                  specific_title = "  %sEps(%d), K(%d)%sPC(%f)" % ("F(%f) " % sconf["general"]["density_drop_threshold"] if conf["general"]["density_drop_threshold"] > 0.0 else "",
                                                           sconf["dbscan"]["dbscan_eps"],\
                                                           sconf["dbscan"]["dbscan_min_samples"],
                                                           (", NR STD(%s)" % sconf["general"]["stddev_num"]) if\
-                                                            sconf["general"]["noise_reduce"] else "")
+                                                            sconf["general"]["noise_reduce"] else "",
+                                                            sconf["general"]["photon_count"])
 
                 title = "%s: %s" % (alg_title, specific_title)
                 titles.append(title)
@@ -844,7 +848,7 @@ class scanThread(threading.Thread):
                "True" if conf["general"]["noise_reduce"] else "False",
                conf["general"]["stddev_num"] if conf["general"]["noise_reduce"] else "N/A",
                conf["general"]["density_drop_threshold"] if conf["general"]["density_drop_threshold"] != 0.0 else "-",
-               "N/A",#conf["general"]["z_density_drop_threshold"] if conf["general"]["z_density_drop_threshold"] != 0.0 else "N/A",
+               conf["general"]["threed_drop_threshold"] if conf["general"]["threed_drop_threshold"] != 0.0 else "-",
                conf["hdbscan"]["hdbscan_min_npoints"] if conf["general"]["use_hdbscan"] else "N/A",
                conf["hdbscan"]["hdbscan_min_samples"] if conf["general"]["use_hdbscan"] else "N/A",
                conf["hdbscan"]["hdbscan_eps"] if conf["hdbscan"]["hdbscan_eps"] != -9999 else "-",
@@ -941,7 +945,9 @@ class scanThread(threading.Thread):
                                           hdbscan_epsilon_threshold=conf["hdbscan"]["hdbscan_eps"],
                                           hdbscan_extracting_alg=conf["hdbscan"]["hdbscan_extracting_alg"],
                                           hdbscan_alpha=conf["hdbscan"]["hdbscan_alpha"],
-                                          density_drop_threshold=conf["general"]["density_drop_threshold"])
+                                          density_drop_threshold=conf["general"]["density_drop_threshold"],
+                                          z_density_drop_threshold=conf["general"]["threed_drop_threshold"],
+                                          photon_count=conf["general"]["photon_count"])
 
 
 

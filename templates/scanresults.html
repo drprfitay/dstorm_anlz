@@ -611,16 +611,21 @@ function generatePlotsInternal(plot_id) {
                     return; 
                   }
               
-              param_str = html_url.split("EEE")[0]
-              params = parseScanParams(param_str)
-              content += "<option value='" + html_url + "'> &nbsp&nbsp <b>" + f.titlename + "</b> &nbsp&nbsp&nbsp&nbsp";
-              content += " (Alg: " + params.alg + ", Z-Axis: " + params.zaxis +", Noise reduce: " + params.noisered;
-              if (params.alg == "HDBscan") { 
-                content += ", Minnpoints: " + params.specific.minnpoints + "....)";
+              if(html_url.search("compare") == -1) {
+                param_str = html_url.split("EEE")[0]
+                params = parseScanParams(param_str)
+                content += "<option value='" + html_url + "'> &nbsp&nbsp <b>" + f.titlename + "</b> &nbsp&nbsp&nbsp&nbsp";
+                content += " (Alg: " + params.alg + ", Z-Axis: " + params.zaxis +", Noise reduce: " + params.noisered;
+                if (params.alg == "HDBscan") { 
+                  content += ", Minnpoints: " + params.specific.minnpoints + "....)";
+                } else {
+                  content += ", Epsilon: " + params.specific.eps + "....)";
+                }
+                content += "</option>";
               } else {
-                content += ", Epsilon: " + params.specific.eps + "....)";
+                content += "<option value='" + html_url + "'> &nbsp&nbsp <b>" + f.titlename + "</b> &nbsp&nbsp&nbsp&nbsp";
+                content += "</option>";
               }
-              content += "</option>";
             }
 
             content += "</select>";
@@ -677,6 +682,7 @@ function parseScanParams(param_str) {
   
   results.densitythreshold = general[3].slice(3,general[3].length);
   results.zdensitythreshold = general[4].slice(4,general[4].length);
+  results.photoncount = general[5].slice(2,general[5].length);
 
   if (general[0] == "H") {
     results.alg = "HDBscan";
@@ -714,8 +720,13 @@ function getParamsHTML(params) {
   }
 
   if (parseFloat(params.zdensitythreshold) != 0.0) {
-  content += "<span class=\"badge badge-info\"> Z Density threshold: " + parseFloat(params.zdensitythreshold) + "</span> ";
+    content += "<span class=\"badge badge-info\"> Z Density threshold: " + parseFloat(params.zdensitythreshold) + "</span> ";
   }
+
+  if (parseFloat(params.photoncount) != 0.0) {
+    content += "<span class=\"badge badge-info\"> Photon count: " + parseFloat(params.photoncount) + "</span> ";
+  }
+
   content += "<br/>"
   if (params.alg == "HDBscan") {
     content += "<span class=\"badge badge-info\"> Min npoints: " + params.specific.minnpoints + "</span> ";
@@ -734,7 +745,9 @@ function getParamsHTML(params) {
 
 function embedPlot() {
             content = "";
-            content += getParamsHTML(parseScanParams(document.getElementById("plot_select").value.split("EEE")[0]));
+            if(document.getElementById("plot_select").value.search("compare") == -1) {
+              content += getParamsHTML(parseScanParams(document.getElementById("plot_select").value.split("EEE")[0]));
+            }
             content += "<br/> ";
             document.getElementById("plot_params").innerHTML = content;
 
@@ -755,7 +768,9 @@ String.prototype.replaceLast = function (what, replacement) {
 
 function embedLower() {
             content = "";
-            content += getParamsHTML(parseScanParams(document.getElementById("plot_select").value.split("EEE")[0]));
+            if(document.getElementById("plot_select").value.search("compare") == -1) {
+              content += getParamsHTML(parseScanParams(document.getElementById("plot_select").value.split("EEE")[0]));
+            }
             content += "<br/> ";
             document.getElementById("plot_params").innerHTML = content;
 
@@ -771,7 +786,9 @@ function embedLower() {
 
 function embedUpper() {
             content = "";
-            content += getParamsHTML(parseScanParams(document.getElementById("plot_select").value.split("EEE")[0]));
+            if(document.getElementById("plot_select").value.search("compare") == -1) {
+              content += getParamsHTML(parseScanParams(document.getElementById("plot_select").value.split("EEE")[0]));
+            }
             content += "<br/> ";
             document.getElementById("plot_params").innerHTML = content;
 

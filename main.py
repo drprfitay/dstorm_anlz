@@ -219,6 +219,8 @@ def doscan():
 			user_config["hdbscan"]["hdbscan_extracting_alg"] = "leaf"
 		user_config["hdbscan"]["hdbscan_alpha"] = 		   float(request.form["hdbscan_alpha"].split(";")[i])
 		user_config["general"]["density_drop_threshold"] = float(request.form["density_drop_threshold"].split(";")[i])
+		user_config["general"]["threed_drop_threshold"] =  float(request.form["threed_drop_threshold"].split(";")[i])
+		user_config["general"]["photon_count"] =           float(request.form["photon_count"].split(";")[i])
 		user_config["k-dist"]["is_3D"] =				   scanThread.default_configuration["k-dist"]["is_3D"]
 		user_config["k-dist"]["k"] = 					   scanThread.default_configuration["k-dist"]["k"]
 		user_config["k-dist"]["n_neighbors"] = 			   scanThread.default_configuration["k-dist"]["n_neighbors"]

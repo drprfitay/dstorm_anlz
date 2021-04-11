@@ -769,47 +769,47 @@ class scanThread(threading.Thread):
               # probe 1 information
               if file_res["probe1_num_of_points"] > 0:
                 if self.clusters_df is not None:
-                  q = "(filename == %s) and (probe == 1)" % self.original_df.loc[i].filename
+                  q = "(filename == \"%s\") and (probe == 1)" % self.original_df.loc[i].filename
                   df = self.clusters_df.query(q).copy()
                   agg_df = df.groupby('filename').agg({'num_of_points': ['sum', 'mean', 'median'],
                                                        'pca_major_axis_std': ['mean', 'median'],
                                                        'pca_minor_axis_std': ['mean', 'median'],
                                                        'pca_size': ['mean', 'median']}).reset_index()
 
-              file_res["probe_1"] = {"num_of_points" :                                      
-                                      {"total":
-                                          int(self.original_df.loc[i].probe0_num_of_points)\
-                                          if self.clusters_df is not None else 0,
-                                       "cluster_sum":
-                                          int(agg_df["num_of_points"]["sum"][0])\
-                                          if self.clusters_df is not None else 0,
-                                       "mean" :    
-                                          "{:.4f}".format(float(agg_df["num_of_points"]["mean"][0]))\
-                                          if self.clusters_df is not None else 0,
-                                       "median" :  
-                                          "{:.4f}".format(float(agg_df["num_of_points"]["median"][0]))}\
-                                          if self.clusters_df is not None else 0,
-                                     "pca_major_axis_std" : 
-                                          {"mean" :    
-                                              "{:.4f}".format(float(agg_df["pca_major_axis_std"]["mean"][0]))\
+                  file_res["probe_1"] = {"num_of_points" :                                      
+                                          {"total":
+                                              int(self.original_df.loc[i].probe0_num_of_points)\
+                                              if self.clusters_df is not None else 0,
+                                           "cluster_sum":
+                                              int(agg_df["num_of_points"]["sum"][0])\
+                                              if self.clusters_df is not None else 0,
+                                           "mean" :    
+                                              "{:.4f}".format(float(agg_df["num_of_points"]["mean"][0]))\
                                               if self.clusters_df is not None else 0,
                                            "median" :  
-                                              "{:.4f}".format(float(agg_df["pca_major_axis_std"]["median"][0]))}\
+                                              "{:.4f}".format(float(agg_df["num_of_points"]["median"][0]))}\
                                               if self.clusters_df is not None else 0,
-                                     "pca_minor_axis_std" : 
-                                          {"mean" :    
-                                              "{:.4f}".format(float(agg_df["pca_minor_axis_std"]["mean"][0]))\
-                                              if self.clusters_df is not None else 0,
-                                           "median" :  
-                                              "{:.4f}".format(float(agg_df["pca_minor_axis_std"]["median"][0]))}\
-                                              if self.clusters_df is not None else 0,
-                                     "pca_size" : 
-                                          {"mean" :    
-                                              "{:.4f}".format(float(agg_df["pca_size"]["mean"][0]))\
-                                              if self.clusters_df is not None else 0,
-                                           "median" :  
-                                              "{:.4f}".format(float(agg_df["pca_size"]["median"][0])\
-                                              if self.clusters_df is not None else 0)}}
+                                         "pca_major_axis_std" : 
+                                              {"mean" :    
+                                                  "{:.4f}".format(float(agg_df["pca_major_axis_std"]["mean"][0]))\
+                                                  if self.clusters_df is not None else 0,
+                                               "median" :  
+                                                  "{:.4f}".format(float(agg_df["pca_major_axis_std"]["median"][0]))}\
+                                                  if self.clusters_df is not None else 0,
+                                         "pca_minor_axis_std" : 
+                                              {"mean" :    
+                                                  "{:.4f}".format(float(agg_df["pca_minor_axis_std"]["mean"][0]))\
+                                                  if self.clusters_df is not None else 0,
+                                               "median" :  
+                                                  "{:.4f}".format(float(agg_df["pca_minor_axis_std"]["median"][0]))}\
+                                                  if self.clusters_df is not None else 0,
+                                         "pca_size" : 
+                                              {"mean" :    
+                                                  "{:.4f}".format(float(agg_df["pca_size"]["mean"][0]))\
+                                                  if self.clusters_df is not None else 0,
+                                               "median" :  
+                                                  "{:.4f}".format(float(agg_df["pca_size"]["median"][0])\
+                                                  if self.clusters_df is not None else 0)}}
             file_res["completed"] = True
           except BaseException as be:
             file_res["completed"] = False

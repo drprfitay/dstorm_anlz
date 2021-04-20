@@ -445,6 +445,9 @@ class _ColocDstormDataset(_DstormDataset):
                 df_row['probe0_groups_df'], df_row['probe0_ngroups'], df_row['probe0_max_npoints'],\
                  df_row['probe_0_unassigned'], probe0_acc_size = self.find_groups(pc_probe0)
 
+            if (df_row['probe0_ngroups'] == 0):
+                print("##################No groups found")
+
             if df_row['probe1_num_of_points'] > 0:
                 df_row['probe1_groups_df'], df_row['probe1_ngroups'], df_row['probe1_max_npoints'],\
                  df_row['probe_1_unassigned'], probe1_acc_size = self.find_groups(pc_probe1)

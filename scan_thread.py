@@ -671,7 +671,6 @@ class scanThread(threading.Thread):
             file_res["alg_param_5"] = conf["hdbscan"]["hdbscan_alpha"] if file_res["hdbscan"] else None
 
             # plots
-
             dbscan_res = self.generate_db_scan_plot_html(conf, i)
             file_res["dbscan_html"] = dbscan_res[0]
             file_res["threeD_dbscan_html"] = dbscan_res[1]

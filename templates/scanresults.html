@@ -347,11 +347,14 @@ function generalClusterInformationInternal() {
             table_str += "<th>Num of clusters within probe 0</th>";
             table_str += "<th>Num of points within probe 0</th>";
             table_str += "<th>Num of points assigned to clusters within probe 0</th>";
+            table_str += "<th>Total area (nm * nm)</th>";
+            table_str += "<th>Total cluster density</th>";
             table_str += "<th colspan='2'>Number of points</th>";
-            table_str += "<th colspan='2'>PCA major axis standard deviation </th>";
-            table_str += "<th colspan='2'>PCA minor axis standard deviation</th>";
-            table_str += "<th colspan='2'>PCA size</th>";
-            table_str += "<th colspan='2'>Polygon size</th>";
+            table_str += "<th colspan='2'>Polygon density </th>";
+            table_str += "<th colspan='2'>Polygon radius (nm)</th>";
+            table_str += "<th colspan='2'>Polygon perimeter (nm)</th>";
+            table_str += "<th colspan='2'>Polygon size (nm * nm)</th>";
+            table_str += "<th colspan='2'>Reduced Polygon density</th>";
             table_str += "</tr>";
             table_str += "<tr>";
             table_str += "<th> - </th>";
@@ -369,7 +372,11 @@ function generalClusterInformationInternal() {
             table_str += "<th> Mean </th>";
             table_str += "<th> Median </th>";   
             table_str += "<th> Mean </th>";
-            table_str += "<th> Median </th>";            
+            table_str += "<th> Median </th>";
+            table_str += "<th> Mean </th>";
+            table_str += "<th> Median </th>";
+            table_str += "<th> Mean </th>";
+            table_str += "<th> Median </th>";
             //if (probe1_exists) {
             //  table_str += "<th>Num of clusters within probe 1</th>";
             //}
@@ -414,16 +421,20 @@ function generalClusterInformationInternal() {
               table_str += "<td>" + f.probe0_ngroups + "</td>";
               table_str += "<td>" + f.probe0_num_of_points + "</td>";
               table_str += "<td>" + f.probe_0.num_of_points["cluster_sum"] + "</td>";
+              table_str += "<td>" + f.probe0_area + "</td>";
+              table_str += "<td>" + f.probe0_cluster_density + "</td>";
               table_str += "<td>" + f.probe_0.num_of_points["mean"] + " </td>";
               table_str += "<td>" + f.probe_0.num_of_points["median"] + " </td>";            
-              table_str += "<td>" + f.probe_0.pca_major_axis_std["mean"] + " </td>";
-              table_str += "<td>" + f.probe_0.pca_major_axis_std["median"] + " </td>";   
-              table_str += "<td>" + f.probe_0.pca_minor_axis_std["mean"] + " </td>";
-              table_str += "<td>" + f.probe_0.pca_minor_axis_std["median"] + " </td>";   
-              table_str += "<td>" + f.probe_0.pca_size["mean"] + " </td>";
-              table_str += "<td>" + f.probe_0.pca_size["median"] + " </td>";
+              table_str += "<td>" + f.probe_0.polygon_density["mean"] + " </td>";
+              table_str += "<td>" + f.probe_0.polygon_density["median"] + " </td>";   
+              table_str += "<td>" + f.probe_0.polygon_radius["mean"] + " </td>";
+              table_str += "<td>" + f.probe_0.polygon_radius["median"] + " </td>";   
+              table_str += "<td>" + f.probe_0.polygon_perimeter["mean"] + " </td>";
+              table_str += "<td>" + f.probe_0.polygon_perimeter["median"] + " </td>";  
               table_str += "<td>" + f.probe_0.polygon_size["mean"] + " </td>";
               table_str += "<td>" + f.probe_0.polygon_size["median"] + " </td>";                   
+              table_str += "<td>" + f.probe_0.reduced_polygon_density["mean"] + " </td>";
+              table_str += "<td>" + f.probe_0.reduced_polygon_density["median"] + " </td>";    
               table_str += "</tr>";
 
               idx+=1;

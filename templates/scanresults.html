@@ -125,9 +125,27 @@
           <li class="nav-item">
             <a class="nav-link" onclick="generatePlots(9)" href="#">
               <svg class="side-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bar-chart-2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
-              Polygon histogram
+              PCA Size histogram
             </a>
           </li> 
+          <li class="nav-item">
+            <a class="nav-link" onclick="generatePlots(11)" href="#">
+              <svg class="side-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bar-chart-2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+              Polygon size histogram (XY Plane)
+            </a>
+          </li> 
+          <li class="nav-item">
+            <a class="nav-link" onclick="generatePlots(12)" href="#">
+              <svg class="side-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bar-chart-2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+              Polygon perimeter histogram (XY Plane)
+            </a>
+          </li> 
+          <li class="nav-item">
+            <a class="nav-link" onclick="generatePlots(13)" href="#">
+              <svg class="side-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bar-chart-2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+              Polygon radius histogram (XY Plane)
+            </a>
+          </li>                               
           <li class="nav-item">
             <a class="nav-link" onclick="generatePlots(10)" href="#">
               <svg class="side-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bar-chart-2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
@@ -539,10 +557,15 @@ function generatePlotsInternal(plot_id) {
             content += "<div class=\"col-lg-2\"></div>";
             content += "<div class=\"col-lg-8\">";
             content += "<select onchange=\"embedPlot()\" class=\"custom-select mr-sm-2\" id=\"plot_select\">";
+
+            var all_null = true;
+
+
             for (f of jsonObj.file_results) {
               if (f.completed == false) {
                 continue;
-              }              
+              }
+
               var html_url = ""
 
               switch(plot_id) {
@@ -606,23 +629,36 @@ function generatePlotsInternal(plot_id) {
 
                   break;
 
-                }
-                  if (first == true) {
-                    first = false;
-                    first_url = html_url;
-                  }
+                case 11:
+                  html_url = f.poly_size_html;
+                  document.getElementById("main_content_title").innerHTML = "Polygon size:";
 
-                  if (html_url == null) {
-                    document.getElementById("sidebarMenu").style = "height:100%;position:absolute;display:block;";
-                    
-                    res_str = "<div class=\"alert alert-warning mt-3\" role=\"alert\">";
-                    res_str += "<strong> Plot not generated.</strong> Try re-scanning ";
-                    res_str += "</div>";
-                    document.getElementById("main-content").innerHTML = res_str;
-                    return; 
-                  }
+                  break;
+
+                case 12:
+                  html_url = f.poly_perimeter_html;
+                  document.getElementById("main_content_title").innerHTML = "Polygon perimeter:";
+
+                  break;
+
+                case 13:
+                  html_url = f.poly_radius_html;
+                  document.getElementById("main_content_title").innerHTML = "Polygon radius:";
+
+                  break;                                                      
+
+                }
+
+                if (html_url != null) {
+                  all_null = false;
+                }
+
+                if (first == true) {
+                  first = false;
+                  first_url = html_url;
+                }
               
-              if(html_url.search("compare") == -1) {
+              if(html_url != null && html_url.search("compare") == -1) {
                 param_str = html_url.split("EEE")[0]
                 params = parseScanParams(param_str)
                 content += "<option value='" + html_url + "'> &nbsp&nbsp <b>" + f.titlename + "</b> &nbsp&nbsp&nbsp&nbsp";
@@ -639,10 +675,21 @@ function generatePlotsInternal(plot_id) {
               }
             }
 
+            // In case all plots for all files returned from scan are null, no plots were generated
+            if (all_null) {
+              document.getElementById("sidebarMenu").style = "height:100%;position:absolute;display:block;";
+              
+              res_str = "<div class=\"alert alert-warning mt-3\" role=\"alert\">";
+              res_str += "<strong> Plot not generated.</strong> Try re-scanning ";
+              res_str += "</div>";
+              document.getElementById("main-content").innerHTML = res_str;
+              return; 
+            }            
+
             content += "</select>";
             content += "</div><div class=\"col-lg-2\"></div>";
             content += "</div>";
-            if (plot_id >= 5 && plot_id <=9) {
+            if ((plot_id >= 5 && plot_id <=9) || plot_id >= 10) {
               content += "<div class=\"row mt-3\">";
               content += "<div class=\"col-lg-2\"></div>";
               content += "<div class=\"col-lg-8\">";   
@@ -756,12 +803,20 @@ function getParamsHTML(params) {
 
 function embedPlot() {
             content = "";
-            if(document.getElementById("plot_select").value.search("compare") == -1) {
+            html_url = document.getElementById("plot_select").value
+            if(html_url != "null" && html_url.search("compare") == -1) {
               content += getParamsHTML(parseScanParams(document.getElementById("plot_select").value.split("EEE")[0]));
             }
             content += "<br/> ";
             document.getElementById("plot_params").innerHTML = content;
 
+            if (html_url == "null") {
+              res_str = "<div class=\"alert alert-warning mt-3\" role=\"alert\">";
+              res_str += "<strong> Plot not for this file.</strong>";
+              res_str += "</div>";
+              document.getElementById("embed_plot").innerHTML = res_str;
+              return;
+            }
             content = "";
             content += "<br><div class=\"embed-responsive embed-responsive-16by9\">";
             content += "<iframe class=\"embed-responsive-item\" src=\"static/scan_results/" + document.getElementById("plot_select").value  + "?rand='" + Math.round(Math.random() * 10000000)  +"'\" allowfullscreen></iframe>";
@@ -779,14 +834,23 @@ String.prototype.replaceLast = function (what, replacement) {
 
 function embedLower() {
             content = "";
-            if(document.getElementById("plot_select").value.search("compare") == -1) {
+            html_url = document.getElementById("plot_select").value
+            if(html_url != "null" && html_url.search("compare") == -1) {
               content += getParamsHTML(parseScanParams(document.getElementById("plot_select").value.split("EEE")[0]));
             }
             content += "<br/> ";
             document.getElementById("plot_params").innerHTML = content;
 
             selected_url = document.getElementById("plot_select").value;
+            if (selected_url == "null" || selected_url == null) {
+              res_str = "<div class=\"alert alert-warning mt-3\" role=\"alert\">";
+              res_str += "<strong> Plot not for this file.</strong>";
+              res_str += "</div>";
+              document.getElementById("embed_plot").innerHTML = res_str;
+              return;
+            }
             selected_url = selected_url.replaceLast("csv", "csv_lower_half");
+
             content = "";
             content += "<br><div class=\"embed-responsive embed-responsive-16by9\">";
             content += "<iframe class=\"embed-responsive-item\" src=\"static/scan_results/" + selected_url + "?rand='" + Math.round(Math.random() * 10000000)  +"'\" allowfullscreen></iframe>";
@@ -797,13 +861,22 @@ function embedLower() {
 
 function embedUpper() {
             content = "";
-            if(document.getElementById("plot_select").value.search("compare") == -1) {
+            html_url = document.getElementById("plot_select").value
+            if(html_url != "null" && html_url.search("compare") == -1) {
               content += getParamsHTML(parseScanParams(document.getElementById("plot_select").value.split("EEE")[0]));
             }
             content += "<br/> ";
             document.getElementById("plot_params").innerHTML = content;
 
             selected_url = document.getElementById("plot_select").value;
+            if (selected_url == "null" || selected_url == null) {
+              res_str = "<div class=\"alert alert-warning mt-3\" role=\"alert\">";
+              res_str += "<strong> Plot not for this file.</strong>";
+              res_str += "</div>";
+              document.getElementById("embed_plot").innerHTML = res_str;
+              return;
+            }
+
             selected_url = selected_url.replaceLast("csv", "csv_upper_half");
             content = "";
             content += "<br><div class=\"embed-responsive embed-responsive-16by9\">";

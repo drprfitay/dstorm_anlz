@@ -261,10 +261,8 @@ class scanThread(threading.Thread):
               hover_text = "Cluster #%d <br>" % i
               hover_text += "Number of points: %d<br>" % df.loc[i]['num_of_points']
               hover_text += "Polygon size (XY polygon): %f<br>" % df.loc[i]['polygon_size']
-              hover_text += "Polygon perimeter (XY polygon - nm): %f<br>" % df.loc[i]["perimeter"]
+              hover_text += "Polygon perimeter (XY polygon - nm): %f<br>" % df.loc[i]["polygon_perimeter"]
               hover_text += "Polygon radius (XY polygon - nm): %f<br>" % df.loc[i]["polygon_radius"]
-              hover_text += "Polygon perimeter (XY polygon): %f<br>" % df.loc[i]["polygon_perimeter"]
-              hover_text += "Polygon radius (XY polygon): %f<br>" % df.loc[i]["polygon_radius"]
               hover_text += "Density (flat polygon): %f<br>" % df.loc[i]['polygon_density']
               if df.loc[i]['reduced_polygon_density'] != -9999: hover_text += "Density (dimension reduced): %f" %  df.loc[i]['reduced_polygon_density']
 
@@ -351,6 +349,8 @@ class scanThread(threading.Thread):
           polygon_size = df.polygon_size.to_numpy()
           polygon_density = df.polygon_density.to_numpy()
           reduced_polygon_density = df.reduced_polygon_density.to_numpy()
+          polygon_perimeter = df.polygon_perimeter.to_numpy()
+          polygon_radius = df.polygon_radius.to_numpy()
 
           histnames = []
           hists = [(num_of_points, "Number of points in clusters", "num_of_pts", True),
@@ -359,7 +359,10 @@ class scanThread(threading.Thread):
            (density, "Density", "density", True),
            (pca_size, "PCA Size", "pca_size", True),
            (polygon_size, "Polygon Size", "poly_size", True),
-           (polygon_density, "Polygon density", "poly_density", True)]
+           (polygon_density, "Polygon Density", "poly_density", True),
+           (polygon_perimeter, "Polygon Perimeter", "poly_perim", True),
+           (polygon_radius, "Polygon Radius", "poly_radius", True)]
+
 
           if reduced_polygon_density[0] != -9999:
             hists.append((reduced_polygon_density, "Reduced Polygon density", "reduced_poly_density", True))
@@ -390,6 +393,7 @@ class scanThread(threading.Thread):
               print(a)        
               for data, data_prefix, yaxis_title in hist_data_and_halfs:
                 if len(data) == 0:
+                  fig_names.append(None)
                   continue
 
                 rs =[]
@@ -643,10 +647,10 @@ class scanThread(threading.Thread):
       dataset = dataset_result
       self.original_df = dataset.orig_df
       self.clusters_df = dataset.groups_df
+      self.result_json["num_of_files"] = 0 
       if self.clusters_df is not None:
         self.clusters_df['pca_major_axis_std'] = self.clusters_df['pca_std'].apply(lambda x: x[0])
         self.clusters_df['pca_minor_axis_std'] = self.clusters_df['pca_std'].apply(lambda x: x[1])
-        self.result_json["num_of_files"] = 0 
 
       for i in self.original_df.index:
           file_res = {}
@@ -672,32 +676,6 @@ class scanThread(threading.Thread):
             file_res["alg_param_4"] = conf["hdbscan"]["hdbscan_extracting_alg"] if file_res["hdbscan"] else None
             file_res["alg_param_5"] = conf["hdbscan"]["hdbscan_alpha"] if file_res["hdbscan"] else None
 
-            # plots
-            dbscan_res = self.generate_db_scan_plot_html(conf, i)
-            file_res["dbscan_html"] = dbscan_res[0]
-            file_res["threeD_dbscan_html"] = dbscan_res[1]
-            file_res["dbscan_compare_html"] = dbscan_res[2]
-                    
-            file_res["probevis_html"] = self.generate_probe_visualization_plot_html(conf, i)
-            file_res["kdist_html"] = self.generate_kdist_plot_html(conf, i)
-                    
-            histograms_res = self.generate_histograms_html(conf, i)
-            file_res["lower_half_num_of_points_html"] = histograms_res[0][0]
-            file_res["upper_halfnum_of_points_html"] = histograms_res[0][1]
-            file_res["num_of_points_html"] = histograms_res[0][2]
-            file_res["lower_half_major_axis_html"] = histograms_res[1][0]
-            file_res["upper_halfmajor_axis_html"] = histograms_res[1][1]
-            file_res["major_axis_html"] = histograms_res[1][2]
-            file_res["lower_half_minor_axis_html"] = histograms_res[2][0]
-            file_res["upper_halfminor_axis_html"] = histograms_res[2][1]
-            file_res["minor_axis_html"] = histograms_res[2][2]
-            file_res["lower_half_density_html"] = histograms_res[6][0]
-            file_res["upper_half_density_html"] = histograms_res[6][1]
-            file_res["density_html"] = histograms_res[6][2]
-            file_res["lower_half_pca_size_html"] = histograms_res[5][0]
-            file_res["upper_halfpca_size_html"] = histograms_res[5][1]
-            file_res["pca_size_html"] = histograms_res[5][2]
-
             if (file_res["probe1_num_of_points"] > 0):
                 file_res["probe1_ngroups"] = int(self.original_df.loc[i].probe1_ngroups)
 
@@ -715,120 +693,187 @@ class scanThread(threading.Thread):
                                                    'polygon_radius' : ['mean', 'median'],
                                                    'polygon_perimeter' : ['mean', 'median']}).reset_index()
 
-              file_res["probe_0"] = {"num_of_points":                                      
-                                          {"total" :
-                                              int(self.original_df.loc[i].probe0_num_of_points),
-                                           "cluster_sum" :
-                                              int(agg_df["num_of_points"]["sum"][0]\
-                                                if self.clusters_df is not None else 0),
-                                           "mean" :    
-                                              "{:.4f}".format(float(agg_df["num_of_points"]["mean"][0])\
-                                                if self.clusters_df is not None else 0),
-                                           "median" :  
-                                              "{:.4f}".format(float(agg_df["num_of_points"]["median"][0])\
-                                                if self.clusters_df is not None else 0)},
-                                     "pca_major_axis_std" : 
-                                          {"mean" :    
-                                              "{:.4f}".format(float(agg_df["pca_major_axis_std"]["mean"][0])\
-                                                if self.clusters_df is not None else 0),
-                                           "median" :  
-                                              "{:.4f}".format(float(agg_df["pca_major_axis_std"]["median"][0])\
-                                                if self.clusters_df is not None else 0)},
-                                     "pca_minor_axis_std" : 
-                                          {"mean" :    
-                                              "{:.4f}".format(float(agg_df["pca_minor_axis_std"]["mean"][0])\
-                                                if self.clusters_df is not None else 0),
-                                           "median" :  
-                                              "{:.4f}".format(float(agg_df["pca_minor_axis_std"]["median"][0])\
-                                                if self.clusters_df is not None else 0)},
-                                     "pca_size" : 
-                                          {"mean" :    
-                                              "{:.4f}".format(float(agg_df["pca_size"]["mean"][0])\
-                                                if self.clusters_df is not None else 0),
-                                           "median" :  
-                                              "{:.4f}".format(float(agg_df["pca_size"]["median"][0])\
-                                                if self.clusters_df is not None else 0)},
-                                     "polygon_size" : 
-                                          {"mean" :    
-                                              "{:.4f}".format(float(agg_df["polygon_size"]["mean"][0])\
-                                                if self.clusters_df is not None else 0),
-                                           "median" :  
-                                              "{:.4f}".format(float(agg_df["polygon_size"]["median"][0])\
-                                                if self.clusters_df is not None else 0)},
-                                     "polygon_density" : 
-                                          {"mean" :    
-                                              "{:.4f}".format(float(agg_df["polygon_density"]["mean"][0])\
-                                                if self.clusters_df is not None else 0),
-                                           "median" :  
-                                              "{:.4f}".format(float(agg_df["polygon_density"]["median"][0])\
-                                                if self.clusters_df is not None else 0)},
-                                     "reduced_polygon_density" : 
-                                          {"mean" :    
-                                              "{:.4f}".format(float(agg_df["reduced_polygon_density"]["mean"][0])\
-                                                if self.clusters_df is not None else 0),
-                                           "median" :  
-                                              "{:.4f}".format(float(agg_df["reduced_polygon_density"]["median"][0])\
-                                                if self.clusters_df is not None else 0)},
-                                     "polygon_perimeter" : 
-                                          {"mean" :    
-                                              "{:.4f}".format(float(agg_df["polygon_perimeter"]["mean"][0])\
-                                                if self.clusters_df is not None else 0),
-                                           "median" :  
-                                              "{:.4f}".format(float(agg_df["polygon_perimeter"]["median"][0])\
-                                                if self.clusters_df is not None else 0)},
-                                     "polygon_radius" : 
-                                          {"mean" :    
-                                              "{:.4f}".format(float(agg_df["polygon_radius"]["mean"][0])\
-                                                if self.clusters_df is not None else 0),
-                                           "median" :  
-                                              "{:.4f}".format(float(agg_df["polygon_radius"]["median"][0])\
-                                                if self.clusters_df is not None else 0)}}
-
+            file_res["probe_0"] = { "num_of_points":                                      
+                                        {"total" :
+                                            int(self.original_df.loc[i].probe0_num_of_points),
+                                         "cluster_sum" :
+                                            int(agg_df["num_of_points"]["sum"][0]\
+                                              if file_res["probe0_ngroups"] > 0 else 0),
+                                         "mean" :    
+                                            "{:.4f}".format(float(agg_df["num_of_points"]["mean"][0])\
+                                              if file_res["probe0_ngroups"] > 0 else 0),
+                                         "median" :  
+                                            "{:.4f}".format(float(agg_df["num_of_points"]["median"][0])\
+                                              if file_res["probe0_ngroups"] > 0 else 0)},
+                                   "pca_major_axis_std" : 
+                                        {"mean" :    
+                                            "{:.4f}".format(float(agg_df["pca_major_axis_std"]["mean"][0])\
+                                              if file_res["probe0_ngroups"] > 0 else 0),
+                                         "median" :  
+                                            "{:.4f}".format(float(agg_df["pca_major_axis_std"]["median"][0])\
+                                              if file_res["probe0_ngroups"] > 0 else 0)},
+                                   "pca_minor_axis_std" : 
+                                        {"mean" :    
+                                            "{:.4f}".format(float(agg_df["pca_minor_axis_std"]["mean"][0])\
+                                              if file_res["probe0_ngroups"] > 0 else 0),
+                                         "median" :  
+                                            "{:.4f}".format(float(agg_df["pca_minor_axis_std"]["median"][0])\
+                                              if file_res["probe0_ngroups"] > 0 else 0)},
+                                   "pca_size" : 
+                                        {"mean" :    
+                                            "{:.4f}".format(float(agg_df["pca_size"]["mean"][0])\
+                                              if file_res["probe0_ngroups"] > 0 else 0),
+                                         "median" :  
+                                            "{:.4f}".format(float(agg_df["pca_size"]["median"][0])\
+                                              if file_res["probe0_ngroups"] > 0 else 0)},
+                                   "polygon_size" : 
+                                        {"mean" :    
+                                            "{:.4f}".format(float(agg_df["polygon_size"]["mean"][0])\
+                                              if file_res["probe0_ngroups"] > 0 else 0),
+                                         "median" :  
+                                            "{:.4f}".format(float(agg_df["polygon_size"]["median"][0])\
+                                              if file_res["probe0_ngroups"] > 0 else 0)},
+                                   "polygon_density" : 
+                                        {"mean" :    
+                                            "{:.4f}".format(float(agg_df["polygon_density"]["mean"][0])\
+                                              if file_res["probe0_ngroups"] > 0 else 0),
+                                         "median" :  
+                                            "{:.4f}".format(float(agg_df["polygon_density"]["median"][0])\
+                                              if file_res["probe0_ngroups"] > 0 else 0)},
+                                   "reduced_polygon_density" : 
+                                        {"mean" :    
+                                            "{:.4f}".format(float(agg_df["reduced_polygon_density"]["mean"][0])\
+                                              if file_res["probe0_ngroups"] > 0 else 0),
+                                         "median" :  
+                                            "{:.4f}".format(float(agg_df["reduced_polygon_density"]["median"][0])\
+                                              if file_res["probe0_ngroups"] > 0 else 0)},
+                                   "polygon_perimeter" : 
+                                        {"mean" :    
+                                            "{:.4f}".format(float(agg_df["polygon_perimeter"]["mean"][0])\
+                                              if file_res["probe0_ngroups"] > 0 else 0),
+                                         "median" :  
+                                            "{:.4f}".format(float(agg_df["polygon_perimeter"]["median"][0])\
+                                              if file_res["probe0_ngroups"] > 0 else 0)},
+                                   "polygon_radius" : 
+                                        {"mean" :    
+                                            "{:.4f}".format(float(agg_df["polygon_radius"]["mean"][0])\
+                                              if file_res["probe0_ngroups"] > 0 else 0),
+                                         "median" :  
+                                            "{:.4f}".format(float(agg_df["polygon_radius"]["median"][0])\
+                                              if file_res["probe0_ngroups"] > 0 else 0)} }
 
               # probe 1 information
-              if file_res["probe1_num_of_points"] > 0:
-                if self.clusters_df is not None:
-                  q = "(filename == \"%s\") and (probe == 1)" % self.original_df.loc[i].filename
-                  df = self.clusters_df.query(q).copy()
-                  agg_df = df.groupby('filename').agg({'num_of_points': ['sum', 'mean', 'median'],
-                                                       'pca_major_axis_std': ['mean', 'median'],
-                                                       'pca_minor_axis_std': ['mean', 'median'],
-                                                       'pca_size': ['mean', 'median']}).reset_index()
+            if file_res["probe1_num_of_points"] > 0:
+              if self.clusters_df is not None:
+                q = "(filename == \"%s\") and (probe == 1)" % self.original_df.loc[i].filename
+                df = self.clusters_df.query(q).copy()
+                agg_df = df.groupby('filename').agg({'num_of_points': ['sum', 'mean', 'median'],
+                                                     'pca_major_axis_std': ['mean', 'median'],
+                                                     'pca_minor_axis_std': ['mean', 'median'],
+                                                     'pca_size': ['mean', 'median']}).reset_index()
 
-                  file_res["probe_1"] = {"num_of_points" :                                      
-                                          {"total":
-                                              int(self.original_df.loc[i].probe0_num_of_points)\
-                                              if self.clusters_df is not None else 0,
-                                           "cluster_sum":
-                                              int(agg_df["num_of_points"]["sum"][0])\
-                                              if self.clusters_df is not None else 0,
-                                           "mean" :    
-                                              "{:.4f}".format(float(agg_df["num_of_points"]["mean"][0]))\
-                                              if self.clusters_df is not None else 0,
+              file_res["probe_1"] = {"num_of_points" :                                      
+                                      {"total":
+                                          int(self.original_df.loc[i].probe0_num_of_points)\
+                                          if file_res["probe0_ngroups"] > 0 else 0,
+                                       "cluster_sum":
+                                          int(agg_df["num_of_points"]["sum"][0])\
+                                          if file_res["probe0_ngroups"] > 0 else 0,
+                                       "mean" :    
+                                          "{:.4f}".format(float(agg_df["num_of_points"]["mean"][0]))\
+                                          if file_res["probe0_ngroups"] > 0 else 0,
+                                       "median" :  
+                                          "{:.4f}".format(float(agg_df["num_of_points"]["median"][0]))}\
+                                          if file_res["probe0_ngroups"] > 0 else 0,
+                                     "pca_major_axis_std" : 
+                                          {"mean" :    
+                                              "{:.4f}".format(float(agg_df["pca_major_axis_std"]["mean"][0]))\
+                                              if file_res["probe0_ngroups"] > 0 else 0,
                                            "median" :  
-                                              "{:.4f}".format(float(agg_df["num_of_points"]["median"][0]))}\
-                                              if self.clusters_df is not None else 0,
-                                         "pca_major_axis_std" : 
-                                              {"mean" :    
-                                                  "{:.4f}".format(float(agg_df["pca_major_axis_std"]["mean"][0]))\
-                                                  if self.clusters_df is not None else 0,
-                                               "median" :  
-                                                  "{:.4f}".format(float(agg_df["pca_major_axis_std"]["median"][0]))}\
-                                                  if self.clusters_df is not None else 0,
-                                         "pca_minor_axis_std" : 
-                                              {"mean" :    
-                                                  "{:.4f}".format(float(agg_df["pca_minor_axis_std"]["mean"][0]))\
-                                                  if self.clusters_df is not None else 0,
-                                               "median" :  
-                                                  "{:.4f}".format(float(agg_df["pca_minor_axis_std"]["median"][0]))}\
-                                                  if self.clusters_df is not None else 0,
-                                         "pca_size" : 
-                                              {"mean" :    
-                                                  "{:.4f}".format(float(agg_df["pca_size"]["mean"][0]))\
-                                                  if self.clusters_df is not None else 0,
-                                               "median" :  
-                                                  "{:.4f}".format(float(agg_df["pca_size"]["median"][0])\
-                                                  if self.clusters_df is not None else 0)}}
+                                              "{:.4f}".format(float(agg_df["pca_major_axis_std"]["median"][0]))}\
+                                              if file_res["probe0_ngroups"] > 0 else 0,
+                                     "pca_minor_axis_std" : 
+                                          {"mean" :    
+                                              "{:.4f}".format(float(agg_df["pca_minor_axis_std"]["mean"][0]))\
+                                              if file_res["probe0_ngroups"] > 0 else 0,
+                                           "median" :  
+                                              "{:.4f}".format(float(agg_df["pca_minor_axis_std"]["median"][0]))}\
+                                              if file_res["probe0_ngroups"] > 0 else 0,
+                                     "pca_size" : 
+                                          {"mean" :    
+                                              "{:.4f}".format(float(agg_df["pca_size"]["mean"][0]))\
+                                              if file_res["probe0_ngroups"] > 0 else 0,
+                                           "median" :  
+                                              "{:.4f}".format(float(agg_df["pca_size"]["median"][0])\
+                                              if file_res["probe0_ngroups"] > 0 else 0)}}
+            # In case no groups generated
+            if (file_res["probe0_ngroups"] <= 0):
+              # plots
+              file_res["dbscan_html"] = None
+              file_res["threeD_dbscan_html"] =  None
+              file_res["dbscan_compare_html"] = None
+              file_res["probevis_html"] = None
+              file_res["kdist_html"] = None
+              file_res["lower_half_num_of_points_html"] = None
+              file_res["upper_halfnum_of_points_html"] = None
+              file_res["num_of_points_html"] = None
+              file_res["lower_half_major_axis_html"] = None
+              file_res["upper_halfmajor_axis_html"] = None
+              file_res["major_axis_html"] = None
+              file_res["lower_half_minor_axis_html"] = None
+              file_res["upper_halfminor_axis_html"] = None
+              file_res["minor_axis_html"] = None
+              file_res["lower_half_density_html"] = None
+              file_res["upper_half_density_html"] = None
+              file_res["density_html"] = None
+              file_res["lower_half_pca_size_html"] = None
+              file_res["upper_halfpca_size_html"] = None
+              file_res["pca_size_html"] = None
+              file_res["lower_half_poly_size_html"] = None
+              file_res["upper_halfpoly_size_html"] = None
+              file_res["poly_size_html"] = None
+              file_res["lower_half_poly_perimeter_html"] = None
+              file_res["upper_halfpoly_perimeter_html"] = None
+              file_res["poly_perimeter_html"] = None
+              file_res["lower_half_poly_radius_html"] = None
+              file_res["upper_halfpoly_radius_html"] = None
+              file_res["poly_radius_html"] = None
+            else:          
+              # plots
+              dbscan_res = self.generate_db_scan_plot_html(conf, i)
+              file_res["dbscan_html"] = dbscan_res[0]
+              file_res["threeD_dbscan_html"] = dbscan_res[1]
+              file_res["dbscan_compare_html"] = dbscan_res[2]
+                      
+              file_res["probevis_html"] = self.generate_probe_visualization_plot_html(conf, i)
+              file_res["kdist_html"] = self.generate_kdist_plot_html(conf, i)
+                      
+              histograms_res = self.generate_histograms_html(conf, i)
+              file_res["lower_half_num_of_points_html"] = histograms_res[0][0]
+              file_res["upper_halfnum_of_points_html"] = histograms_res[0][1]
+              file_res["num_of_points_html"] = histograms_res[0][2]
+              file_res["lower_half_major_axis_html"] = histograms_res[1][0]
+              file_res["upper_halfmajor_axis_html"] = histograms_res[1][1]
+              file_res["major_axis_html"] = histograms_res[1][2]
+              file_res["lower_half_minor_axis_html"] = histograms_res[2][0]
+              file_res["upper_halfminor_axis_html"] = histograms_res[2][1]
+              file_res["minor_axis_html"] = histograms_res[2][2]
+              file_res["lower_half_density_html"] = histograms_res[6][0]
+              file_res["upper_half_density_html"] = histograms_res[6][1]
+              file_res["density_html"] = histograms_res[6][2]
+              file_res["lower_half_pca_size_html"] = histograms_res[4][0]
+              file_res["upper_halfpca_size_html"] = histograms_res[4][1]
+              file_res["pca_size_html"] = histograms_res[4][2]
+              file_res["lower_half_poly_size_html"] = histograms_res[5][0]
+              file_res["upper_halfpoly_size_html"] = histograms_res[5][1]
+              file_res["poly_size_html"] = histograms_res[5][2]            
+              file_res["lower_half_poly_perimeter_html"] = histograms_res[7][0]
+              file_res["upper_halfpoly_perimeter_html"] = histograms_res[7][1]
+              file_res["poly_perimeter_html"] = histograms_res[7][2]
+              file_res["lower_half_poly_radius_html"] = histograms_res[8][0]
+              file_res["upper_halfpoly_radius_html"] = histograms_res[8][1]
+              file_res["poly_radius_html"] = histograms_res[8][2]            
+
             file_res["completed"] = True
           except BaseException as be:
             file_res["completed"] = False

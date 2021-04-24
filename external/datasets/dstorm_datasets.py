@@ -447,6 +447,8 @@ class _ColocDstormDataset(_DstormDataset):
 
             if (df_row['probe0_ngroups'] == 0):
                 print("##################No groups found")
+            else:
+             print("##################%d groups found" % df_row['probe0_ngroups'])
 
             if df_row['probe1_num_of_points'] > 0:
                 df_row['probe1_groups_df'], df_row['probe1_ngroups'], df_row['probe1_max_npoints'],\

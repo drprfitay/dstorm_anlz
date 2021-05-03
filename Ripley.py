@@ -28,13 +28,13 @@ def Ripleys_H(pnts_df):
     H_vals = dict()
     L_vals = dict()
     K_vals = dict()
-    rg = np.arange(1, max_dist, 10)
+    rg = np.arange(1, max_dist, 0.05 * max_dist)
     for t in rg:
         filtered = t_from_centroid(pnt_lst, t, centroid)
         if len(filtered) > 2:
             K_score = Ripleys_K(filtered, t, area)
             L_score = math.sqrt(K_score / (math.pi))
-            H_score = t - L_score
+            H_score = L_score - t
             #print("L_score = ", L_score)
             #print("H_score = ", H_score)
             K_vals[t] = K_score

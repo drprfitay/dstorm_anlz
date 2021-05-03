@@ -28,7 +28,7 @@ def Ripleys_H(pnts_df):
     H_vals = dict()
     L_vals = dict()
     K_vals = dict()
-    rg = np.arange(1, max_dist, 30)
+    rg = np.arange(1, max_dist, 10)
     for t in rg:
         filtered = t_from_centroid(pnt_lst, t, centroid)
         if len(filtered) > 2:

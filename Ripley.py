@@ -19,22 +19,23 @@ def Ripleys_H(pnts_df):
     pnts = pnts_df[["x", "y"]]
     pnt_lst = pnts.values.tolist()
     area = Measure_area(pnt_lst)
-    #print("area = ", area)
+    print("area = ", area)
     n = len(pnt_lst)
     centroid = calc_centroid(pnt_lst, n)
-    #print("centroid = ",centroid)
+    print("centroid = ",centroid)
     max_dist = calc_max_dist(pnt_lst, centroid)
-    #print("max dist = ", max_dist)
+    print("max dist = ", max_dist)
     H_vals = dict()
     L_vals = dict()
     K_vals = dict()
-    rg = np.arange(1, max_dist, 10)
+    rg = np.arange(0, max_dist / 2, 5)
+    print(rg)
     for t in rg:
         filtered = t_from_centroid(pnt_lst, t, centroid)
-        if len(filtered) > 2:
-            K_score = Ripleys_K(filtered, t, area)
+        if len(filtered) >= 0:
+            K_score = Ripleys_K(filtered, t, area, n)
             L_score = math.sqrt(K_score / (math.pi))
-            H_score = t - L_score
+            H_score = L_score - t
             #print("L_score = ", L_score)
             #print("H_score = ", H_score)
             K_vals[t] = K_score
@@ -46,7 +47,7 @@ def Ripleys_H(pnts_df):
     df = pd.DataFrame(df_list, columns = ['t', 'H(t)'])
     df['L(t)'] = L_vals.values()
     df['K(t)'] = K_vals.values()
-    fig = make_subplots(rows=1, cols=3,
+    fig = make_subplots(rows=2, cols=3,
                         subplot_titles=("Ripley's K", "Ripley's L", "Ripley's H"))
     fig.add_trace(
     go.Scatter(x=df['t'], y=df['K(t)'], mode = 'lines + markers'),
@@ -60,11 +61,16 @@ def Ripleys_H(pnts_df):
     go.Scatter(x=df['t'], y=df['H(t)'], mode = 'lines + markers'),
     row=1, col=3
     )
+
+    fig.add_trace(
+        go.Scatter(x=pnts_df[["x", "y"]].to_numpy()[:,0].tolist(), y=pnts_df[["x", "y"]].to_numpy()[:,1].tolist(), mode = 'markers'),
+        row=2, col=1)
+
     fig.update_layout(height=800, width=1400, title_text="Side By Side Subplots")
     fig.show()
 
 
-def Ripleys_K(pnts, t, area):
+def Ripleys_K(pnts, t, area, total_pts):
     """ This function returns a scatter-based score within some radius
     Args:
         pnts - a list of points in a suspected cluster
@@ -75,7 +81,7 @@ def Ripleys_K(pnts, t, area):
     #print("n = ", n)
     #print("t = ", t)
     
-    lmbda = n / area
+    lmbda = total_pts / area
     temp_sum = 0
     i = 0
     for p1 in pnts:
@@ -84,7 +90,7 @@ def Ripleys_K(pnts, t, area):
             if j > i:
                 dist = calc_ed(p1, p2)
                 if dist < t: # Else indicator function is 0 and no addition is required
-                    temp_sum += (1 / n)
+                    temp_sum += (1 / total_pts)
             j -= 1
         i += 1
     K_score = temp_sum / lmbda
@@ -187,7 +193,7 @@ def t_from_centroid(pnt_lst, t, centroid):
 ################################################## DBSCAN Implementation ##################################################
 
 cols_list = ["photon-count", "x", "y"]
-df = pd.read_csv("CTRL abdomen WAKO 13 CS2 647.csv", usecols = cols_list)
+df = pd.read_csv("./experimentfiles/CTRL_abdomen_WAKO/CTRL abdomen WAKO 13 CS2 647.csv", usecols = cols_list)
 #df = pd.read_csv("CTRL abd Wako 18 CS3 647 csv.csv", usecols = cols_list)
 rslt_df = df[df["photon-count"] > 1000]
 xy_pts = rslt_df[["x", "y"]]
@@ -219,17 +225,3 @@ for (key, value) in sorted_clusters.items():
     print('Current Cluster: ', key)
     print(r)
     Ripleys_H(r)
-
-
-########################################################### PLOT ###########################################################
-"""
-fig = px.scatter(non_noisy_points, x='x', y='y', color='Label', opacity = 0.3, size_max=0.1)
-fig.update_layout(legend=dict(
-    yanchor="top",
-    y=0.99,
-    xanchor="left",
-    x=0.01
-))
-fig.show()
-"""
-

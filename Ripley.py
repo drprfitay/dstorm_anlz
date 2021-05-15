@@ -90,7 +90,7 @@ def Ripleys_K(pnts, t, area, total_pts):
             if j > i:
                 dist = calc_ed(p1, p2)
                 if dist < t: # Else indicator function is 0 and no addition is required
-                    temp_sum += (1 / total_pts)
+                    temp_sum += (1 / n) # This gives a very good estimation for weight factor
             j -= 1
         i += 1
     K_score = temp_sum / lmbda

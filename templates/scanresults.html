@@ -151,7 +151,13 @@
               <svg class="side-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bar-chart-2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
               DBscan comparsions
             </a>
-          </li>                              
+          </li>    
+          <li class="nav-item">
+            <a class="nav-link" onclick="generateGlobalPlots(1)" href="#">
+              <svg class="side-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bar-chart-2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+              Average histograms
+            </a>
+          </li>  
         </ul>
       </div>
     </nav>
@@ -323,9 +329,13 @@ function findGetParameter(parameterName) {
 (function () {
    if (findGetParameter("p") == "info") {
    generalClusterInformationInternal();
-  } else if (parseInt(findGetParameter("pn")) != NaN) {
+  } else if (findGetParameter("p") == "pl" && parseInt(findGetParameter("pn")) != NaN) {
     generatePlotsInternal(parseInt(findGetParameter("pn")));
-  }  else {
+  } else if (findGetParameter("p") == "gpl" && parseInt(findGetParameter("pn")) != NaN) {
+    generateGlobalPlotsInternal(parseInt(findGetParameter("pn")));
+  } else if (findGetParameter("p") == "gpl") {
+    generateGlobalPlotsInternal(1);
+  } else {
     generatePlotsInternal(1)
   }
 })();
@@ -540,9 +550,85 @@ function generateProbeStats(probe_num) {
     http_request.open("GET", "/scanresults", true);
     http_request.send()
 };
-function generatePlots(plot_id) {
-  location.search="?p=pl&pn=" + plot_id.toString();
+
+function generateGlobalPlots(plot_id) {
+  //const url = new URL(window.location);
+  //url.searchParams.set('p', "pl");
+  //url.searchParams.set('pn', plot_id.toString());
+  //window.history.pushState({}, '', url);;
+
+    location.search="?p=gpl&pn=" + plot_id.toString();
+
 }
+
+function generatePlots(plot_id) {
+  //const url = new URL(window.location);
+  //url.searchParams.set('p', "pl");
+  //url.searchParams.set('pn', plot_id.toString());
+  //window.history.pushState({}, '', url);;
+  if (findGetParameter("history") != null){
+      location.search="?p=pl&pn=" + plot_id.toString() +"&history=" + findGetParameter("history");
+  } else {
+    location.search="?p=pl&pn=" + plot_id.toString();
+  }
+
+}
+
+function generateGlobalPlotsInternal(plot_id) {
+    var http_request = new XMLHttpRequest();
+    http_request.onreadystatechange = function() {        
+        if (http_request.readyState == 4  ) {   
+
+            document.getElementById("sidebarMenu").style = "";
+            var jsonObj = JSON.parse(http_request.responseText);
+            var content = "";
+            var first = true;
+            content += "<div class=\"row mt-5\">";
+            content += "<div class=\"col-lg-2\"></div>";
+            content += "<div class=\"col-lg-8\">";
+            content += "<select onchange=\"embedPlot()\" class=\"custom-select mr-sm-2\" id=\"plot_select\">";
+            select_content = ""
+
+            select_content += "<option value='" + jsonObj.global_num_of_points_html + "'> &nbsp&nbsp <b>" + "Average num of localizations" + "</b>" + "</option>"; 
+
+            select_content += "<option value='" + jsonObj.global_poly_size_html + "'> &nbsp&nbsp <b>" + "Average polygon size" + "</b>" + "</option>"; 
+
+            select_content += "<option value='" + jsonObj.global_poly_perimeter_html + "'> &nbsp&nbsp <b>" + "Average polygon perimeter" + "</b>" + "</option>"; 
+
+            select_content += "<option value='" + jsonObj.global_poly_radius_html + "'> &nbsp&nbsp <b>" + "Average polygon radius" + "</b>" + "</option>";
+
+            select_content += "<option value='" + jsonObj.global_density_html + "'> &nbsp&nbsp <b>" + "Average polygon density"+ "</b>" + "</option>"; 
+            select_content += "<option value='" + jsonObj.global_major_axis_html + "'> &nbsp&nbsp <b>" + "Average PCA major axis" + "</b>" + "</option>"; 
+
+            select_content += "<option value='" + jsonObj.global_minor_axis_html + "'> &nbsp&nbsp <b>" + "Average PCA minor axis" + "</b>" + "</option>"; 
+
+            select_content += "<option value='" + jsonObj.global_pca_size_html + "'> &nbsp&nbsp <b>" + "Average PCA size" + "</b>" + "</option>"; 
+
+            content += select_content + "</select>";
+            content += "</div><div class=\"col-lg-2\"></div>";
+            content += "</div>";
+            content += "<div class=\"row mt-3\">";
+            content += "<div class=\"col-lg-2\"></div>";
+            content += "<div class=\"col-lg-8\">";   
+            content += "<span type=\"button\" class=\"badge badge-secondary\" onclick=\"embedPlot()\">Entire data histogram (all clusters measured) </span> &nbsp";
+            content += "<span type=\"button\" class=\"badge badge-secondary\" onclick=\"embedLower()\"> Lower half histogram (clusters up to median)</span> &nbsp";
+            content += "<span type=\"button\" class=\"badge badge-secondary\" onclick=\"embedUpper()\"> Upper half histogram (clusters above median)</span>";
+            content += "</div>";
+            content += "</div>";
+            content += "</div>";      
+            content += "<div class=\"row mt-2\"><div class=\"col-lg-2\"></div><div id=\"plot_params\" class=\"col-lg-8\">";
+            content += "</div></div>";
+            content += "<div id=\"embed_plot\">";
+            content += "</div>";
+
+            document.getElementById("main-content").innerHTML = content;
+            embedPlot();
+        }
+    };
+
+    http_request.open("GET", "/scanresults", true);
+    http_request.send()
+};
 
 function generatePlotsInternal(plot_id) {
     var http_request = new XMLHttpRequest();
@@ -557,6 +643,7 @@ function generatePlotsInternal(plot_id) {
             content += "<div class=\"col-lg-2\"></div>";
             content += "<div class=\"col-lg-8\">";
             content += "<select onchange=\"embedPlot()\" class=\"custom-select mr-sm-2\" id=\"plot_select\">";
+            select_content = ""
 
             var all_null = true;
 
@@ -653,26 +740,52 @@ function generatePlotsInternal(plot_id) {
                   all_null = false;
                 }
 
-                if (first == true) {
-                  first = false;
-                  first_url = html_url;
-                }
-              
-              if(html_url != null && html_url.search("compare") == -1) {
-                param_str = html_url.split("EEE")[0]
-                params = parseScanParams(param_str)
-                content += "<option value='" + html_url + "'> &nbsp&nbsp <b>" + f.titlename + "</b> &nbsp&nbsp&nbsp&nbsp";
-                content += " (Alg: " + params.alg + ", Z-Axis: " + params.zaxis +", Noise reduce: " + params.noisered;
-                if (params.alg == "HDBscan") { 
-                  content += ", Minnpoints: " + params.specific.minnpoints + "....)";
+                // In case user have already browsed this file, make sure it is the first one to appear
+                if (findGetParameter("history") != null) {
+                var history_var = findGetParameter("history").substring(0, findGetParameter("history").lastIndexOf("csv"));
+                var current_url = html_url.replaceAll(' ', '+').substring(0, html_url.replaceAll(' ', '+').lastIndexOf("csv"));
                 } else {
-                  content += ", Epsilon: " + params.specific.eps + "....)";
+                  history = ""
+
                 }
-                content += "</option>";
-              } else {
-                content += "<option value='" + html_url + "'> &nbsp&nbsp <b>" + f.titlename + "</b> &nbsp&nbsp&nbsp&nbsp";
-                content += "</option>";
-              }
+                if (history_var == current_url) {
+
+                    history_content = ""
+                    if(html_url != null && html_url.search("compare") == -1) {
+                      param_str = html_url.split("EEE")[0]
+                      params = parseScanParams(param_str)
+                      history_content += "<option value='" + html_url + "'> &nbsp&nbsp <b>" + f.titlename + "</b> &nbsp&nbsp&nbsp&nbsp";
+                      history_content += " (Alg: " + params.alg + ", Z-Axis: " + params.zaxis +", Noise reduce: " + params.noisered;
+                      if (params.alg == "HDBscan") { 
+                        history_content += ", Minnpoints: " + params.specific.minnpoints + "....)";
+                      } else {
+                        history_content += ", Epsilon: " + params.specific.eps + "....)";
+                      }
+                      history_content += "</option>";
+                    } else {
+                      history_content += "<option value='" + html_url + "'> &nbsp&nbsp <b>" + f.titlename + "</b> &nbsp&nbsp&nbsp&nbsp";
+                      history_content += "</option>";
+                    }
+
+                    // Push to begining
+                    select_content = history_content + select_content
+              } else {              
+                  if(html_url != null && html_url.search("compare") == -1) {
+                    param_str = html_url.split("EEE")[0]
+                    params = parseScanParams(param_str)
+                    select_content += "<option value='" + html_url + "'> &nbsp&nbsp <b>" + f.titlename + "</b> &nbsp&nbsp&nbsp&nbsp";
+                    select_content += " (Alg: " + params.alg + ", Z-Axis: " + params.zaxis +", Noise reduce: " + params.noisered;
+                    if (params.alg == "HDBscan") { 
+                      select_content += ", Minnpoints: " + params.specific.minnpoints + "....)";
+                    } else {
+                      select_content += ", Epsilon: " + params.specific.eps + "....)";
+                    }
+                    select_content += "</option>";
+                  } else {
+                    select_content += "<option value='" + html_url + "'> &nbsp&nbsp <b>" + f.titlename + "</b> &nbsp&nbsp&nbsp&nbsp";
+                    select_content += "</option>";
+                  }
+              }    
             }
 
             // In case all plots for all files returned from scan are null, no plots were generated
@@ -686,7 +799,7 @@ function generatePlotsInternal(plot_id) {
               return; 
             }            
 
-            content += "</select>";
+            content += select_content + "</select>";
             content += "</div><div class=\"col-lg-2\"></div>";
             content += "</div>";
             if ((plot_id >= 5 && plot_id <=9) || plot_id >= 10) {
@@ -804,7 +917,7 @@ function getParamsHTML(params) {
 function embedPlot() {
             content = "";
             html_url = document.getElementById("plot_select").value
-            if(html_url != "null" && html_url.search("compare") == -1) {
+            if(html_url != "null" && html_url.search("compare") == -1 && html_url.search("EEE") != -1) {
               content += getParamsHTML(parseScanParams(document.getElementById("plot_select").value.split("EEE")[0]));
             }
             content += "<br/> ";
@@ -822,6 +935,10 @@ function embedPlot() {
             content += "<iframe class=\"embed-responsive-item\" src=\"static/scan_results/" + document.getElementById("plot_select").value  + "?rand='" + Math.round(Math.random() * 10000000)  +"'\" allowfullscreen></iframe>";
             content += "</div>";
             document.getElementById("embed_plot").innerHTML = content;
+
+            const url = new URL(window.location);
+            url.searchParams.set('history', document.getElementById("plot_select").value);
+            window.history.pushState({}, '', url);;
 };
 
 String.prototype.reverse = function () {
@@ -835,7 +952,7 @@ String.prototype.replaceLast = function (what, replacement) {
 function embedLower() {
             content = "";
             html_url = document.getElementById("plot_select").value
-            if(html_url != "null" && html_url.search("compare") == -1) {
+            if(html_url != "null" && html_url.search("compare") == -1 && html_url.search("EEE") != -1) {
               content += getParamsHTML(parseScanParams(document.getElementById("plot_select").value.split("EEE")[0]));
             }
             content += "<br/> ";
@@ -849,20 +966,28 @@ function embedLower() {
               document.getElementById("embed_plot").innerHTML = res_str;
               return;
             }
-            selected_url = selected_url.replaceLast("csv", "csv_lower_half");
+
+            if (selected_url == selected_url.replaceLast("csv", "csv_lower_half")) {
+              selected_url = selected_url.replaceLast("histogram", "histogram_lower_half");
+            } else {
+              selected_url = selected_url.replaceLast("csv", "csv_lower_half");
+            }
 
             content = "";
             content += "<br><div class=\"embed-responsive embed-responsive-16by9\">";
             content += "<iframe class=\"embed-responsive-item\" src=\"static/scan_results/" + selected_url + "?rand='" + Math.round(Math.random() * 10000000)  +"'\" allowfullscreen></iframe>";
             content += "</div>";
             document.getElementById("embed_plot").innerHTML = content;
-
+            
+            const url = new URL(window.location);
+            url.searchParams.set('history', document.getElementById("plot_select").value);
+            window.history.pushState({}, '', url);;
 };
 
 function embedUpper() {
             content = "";
             html_url = document.getElementById("plot_select").value
-            if(html_url != "null" && html_url.search("compare") == -1) {
+            if(html_url != "null" && html_url.search("compare") == -1 && html_url.search("EEE") != -1) {
               content += getParamsHTML(parseScanParams(document.getElementById("plot_select").value.split("EEE")[0]));
             }
             content += "<br/> ";
@@ -876,13 +1001,21 @@ function embedUpper() {
               document.getElementById("embed_plot").innerHTML = res_str;
               return;
             }
+            if (selected_url == selected_url.replaceLast("csv", "csv_upper_half")) {
+              selected_url = selected_url.replaceLast("histogram", "histogram_upper_half");
+            } else {
+              selected_url = selected_url.replaceLast("csv", "csv_upper_half");
+            }
 
-            selected_url = selected_url.replaceLast("csv", "csv_upper_half");
             content = "";
             content += "<br><div class=\"embed-responsive embed-responsive-16by9\">";
             content += "<iframe class=\"embed-responsive-item\" src=\"static/scan_results/" + selected_url + "?rand='" + Math.round(Math.random() * 10000000)  +"'\" allowfullscreen></iframe>";
             content += "</div>";
             document.getElementById("embed_plot").innerHTML = content;
+            
+            const url = new URL(window.location);
+            url.searchParams.set('history', document.getElementById("plot_select").value);
+            window.history.pushState({}, '', url);;            
 };
 function openConfigScanParamsModal() {
     var http_request = new XMLHttpRequest();

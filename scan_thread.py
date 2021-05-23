@@ -15,7 +15,7 @@ from plotly.subplots import make_subplots
 from external.datasets.dstorm_datasets import DstormDatasetDBSCAN
 from matplotlib import cm, colors
 from shutil import rmtree
-from scipy import spatial
+from scipy import spatial, stats
 from csv import writer
 
 export_file = "data.csv"
@@ -124,6 +124,8 @@ class scanThread(threading.Thread):
         self.status = scanThread.scanStatus.SCAN_NOT_STARTED;
         self.original_df = None
         self.clusters_df = None
+        self.global_df = pd.DataFrame([])
+        self.global_clusters_df = pd.DataFrame([])
         self.result_json = {}
         self.temp_result_holder = None
         self.export_csv_rows = None
@@ -168,6 +170,106 @@ class scanThread(threading.Thread):
 
     def get_scan_status(self):
         return self.status
+
+    def generate_pca_correlation(self):
+      try:
+        if (self.clusters_df is None or self.original_df is None):
+            return None
+
+        get_point = lambda intercept, slope, x: (max(x), (slope * max(x) + intercept)) 
+        df = self.clusters_df.query(f"(probe == 0)")
+        num_of_points = df.num_of_points.to_numpy()
+        num_of_points = [float(n) for n in num_of_points]
+        polygon_radius = df.polygon_radius.to_numpy()
+        stdev = np.stack(df.pca_std.to_numpy())
+
+        density = num_of_points/(np.pi*stdev[:,0]*stdev[:,1])
+        polygon_density = df.polygon_density.to_numpy()
+
+        pca_size = df.pca_size.to_numpy()
+        polygon_size = df.polygon_size.to_numpy()
+        
+        stddev_major = stdev[:,0]
+
+        fig = make_subplots(rows=1, 
+                    cols=3,   
+                    horizontal_spacing=0.05)
+
+        slope, intercept, r_value, p_value, std_err = stats.linregress(stddev_major,polygon_radius)
+        xf, yf = get_point(intercept, slope, stddev_major) 
+        fig.add_trace(go.Scattergl(x=stddev_major,
+                                   y=polygon_radius,
+                                   mode='markers',
+                                   marker=dict(color="red", opacity=0.8)),
+                      row=1,
+                      col=1)
+
+        fig.add_shape(type="line",
+                      x0=0,
+                      y0=intercept,
+                      x1=xf,
+                      y1=yf,
+                      line=dict(color="blue", width=2),
+                      opacity=0.8,
+                      row=1,
+                      col=1)
+
+        fig.update_xaxes(title_text="PCA major axis", row=1, col=1)
+        fig.update_yaxes(title_text="polygon radius (R squared: %f)" % r_value, row=1, col=1)
+
+
+        slope, intercept, r_value, p_value, std_err = stats.linregress(density,polygon_density)
+        xf, yf = get_point(intercept, slope, density) 
+        fig.add_trace(go.Scattergl(x=density,
+                                   y=polygon_density,
+                                   mode='markers',
+                                   marker=dict(color="red", opacity=0.8)),
+                      row=1,
+                      col=2)
+
+        fig.add_shape(type="line",
+                      x0=0,
+                      y0=intercept,
+                      x1=xf,
+                      y1=yf,
+                      line=dict(color="blue", width=2),
+                      opacity=0.8,
+                      row=1,
+                      col=2)
+        fig.update_xaxes(title_text="PCA density", row=1, col=2)
+        fig.update_yaxes(title_text="polygon density (R squared: %f)" % r_value, row=1, col=2)
+
+        slope, intercept, r_value, p_value, std_err = stats.linregress(pca_size,polygon_size)
+        xf, yf = get_point(intercept, slope, pca_size)
+        fig.add_trace(go.Scattergl(x=pca_size,
+                                   y=polygon_size,
+                                   mode='markers',
+                                   marker=dict(color="red", opacity=0.8)),
+                      row=1,
+                      col=3)   
+
+        fig.add_shape(type="line",
+                      x0=0,
+                      y0=intercept,
+                      x1=xf,
+                      y1=yf,
+                      line=dict(color="blue", width=2),
+                      opacity=0.8,
+                      row=1,
+                      col=3)
+        fig.update_xaxes(title_text="PCA size", row=1, col=3)
+        fig.update_yaxes(title_text="polygon size (R squared: %f)" % r_value, row=1, col=3)
+
+
+
+        fig.write_html(scan_results_folder + "pca_correlation.html")
+        return "pca_correlation.html"    
+
+      except BaseException as be:
+        print("WTFFFF")
+        print(be)
+        format_exception(be)
+        raise(be)    
 
     def generate_db_scan_plot_html(self, conf, original_df_row_index):
         try:
@@ -270,7 +372,7 @@ class scanThread(threading.Thread):
                                  y=y_val,
                                  hoverinfo='text',
                                  mode='markers',
-                                 marker=dict(color=color_palette[i], opacity=0.8),
+                                 marker=dict(color_palette[i], opacity=0.8), #color="red", opacity=0.8),
                                  hovertext=hover_text,
                                  text=hover_text)
               if gen_compare_plot:
@@ -286,7 +388,7 @@ class scanThread(threading.Thread):
                                    y=convex_hull_pair[:,1],
                                    mode='lines',
                                    opacity=0.2,
-                                   marker=dict(color=color_palette[i], opacity=0.05))
+                                   marker=dict(color_palette[i], opacity=0.05)) #color="red", opacity=0.05))
                 fig.add_trace(vrt,
                 row=1,
                 col=1)
@@ -317,7 +419,66 @@ class scanThread(threading.Thread):
           format_exception(be)
           raise(be)                   
 
-    def generate_histograms_html(self, conf, original_df_row_index):
+    def generate_global_histograms(self):
+      self.prefix = ""
+      # In case no groups generated
+      if (self.global_clusters_df.empty):
+        print("No clusters found at all!")
+        # plots
+        self.result_json["global_lower_half_num_of_points_html"] = None
+        self.result_json["global_upper_halfnum_of_points_html"] = None
+        self.result_json["global_num_of_points_html"] = None
+        self.result_json["global_lower_half_major_axis_html"] = None
+        self.result_json["global_upper_halfmajor_axis_html"] = None
+        self.result_json["global_major_axis_html"] = None
+        self.result_json["global_lower_half_minor_axis_html"] = None
+        self.result_json["global_upper_halfminor_axis_html"] = None
+        self.result_json["global_minor_axis_html"] = None
+        self.result_json["global_lower_half_density_html"] = None
+        self.result_json["global_upper_half_density_html"] = None
+        self.result_json["global_density_html"] = None
+        self.result_json["global_lower_half_pca_size_html"] = None
+        self.result_json["global_upper_halfpca_size_html"] = None
+        self.result_json["global_pca_size_html"] = None
+        self.result_json["global_lower_half_poly_size_html"] = None
+        self.result_json["global_upper_halfpoly_size_html"] = None
+        self.result_json["global_poly_size_html"] = None
+        self.result_json["global_lower_half_poly_perimeter_html"] = None
+        self.result_json["global_upper_halfpoly_perimeter_html"] = None
+        self.result_json["global_poly_perimeter_html"] = None
+        self.result_json["global_lower_half_poly_radius_html"] = None
+        self.result_json["global_upper_halfpoly_radius_html"] = None
+        self.result_json["global_poly_radius_html"] = None
+      else:                        
+        print("Generating global histograms!")
+        df = self.global_clusters_df.query(f"(probe == 0)")
+        histograms_res = self.generate_histograms_html(df, "Average histogram")
+        self.result_json["global_lower_half_num_of_points_html"] = histograms_res[0][0]
+        self.result_json["global_upper_halfnum_of_points_html"] = histograms_res[0][1]
+        self.result_json["global_num_of_points_html"] = histograms_res[0][2]
+        self.result_json["global_lower_half_major_axis_html"] = histograms_res[1][0]
+        self.result_json["global_upper_halfmajor_axis_html"] = histograms_res[1][1]
+        self.result_json["global_major_axis_html"] = histograms_res[1][2]
+        self.result_json["global_lower_half_minor_axis_html"] = histograms_res[2][0]
+        self.result_json["global_upper_halfminor_axis_html"] = histograms_res[2][1]
+        self.result_json["global_minor_axis_html"] = histograms_res[2][2]
+        self.result_json["global_lower_half_density_html"] = histograms_res[6][0]
+        self.result_json["global_upper_half_density_html"] = histograms_res[6][1]
+        self.result_json["global_density_html"] = histograms_res[6][2]
+        self.result_json["global_lower_half_pca_size_html"] = histograms_res[4][0]
+        self.result_json["global_upper_halfpca_size_html"] = histograms_res[4][1]
+        self.result_json["global_pca_size_html"] = histograms_res[4][2]
+        self.result_json["global_lower_half_poly_size_html"] = histograms_res[5][0]
+        self.result_json["global_upper_halfpoly_size_html"] = histograms_res[5][1]
+        self.result_json["global_poly_size_html"] = histograms_res[5][2]            
+        self.result_json["global_lower_half_poly_perimeter_html"] = histograms_res[7][0]
+        self.result_json["global_upper_halfpoly_perimeter_html"] = histograms_res[7][1]
+        self.result_json["global_poly_perimeter_html"] = histograms_res[7][2]
+        self.result_json["global_lower_half_poly_radius_html"] = histograms_res[8][0]
+        self.result_json["global_upper_halfpoly_radius_html"] = histograms_res[8][1]
+        self.result_json["global_poly_radius_html"] = histograms_res[8][2]                  
+
+    def generate_histograms_html(self, df, row_title):
         try:
           range_split = lambda min, max, pctg: [(min + (0 if p == 0 else 1) + int(((max - min) * p  )/pctg),\
                                                  min + int(((max - min) * (p + 1)/pctg)))\
@@ -334,13 +495,17 @@ class scanThread(threading.Thread):
           find_float_item = lambda item, rng: [i for i, a in enumerate(rng) if item >= a[0] and item < a[1]][0]
           avg = lambda l: float(sum(l)) / float(len(l))
 
-          ind = original_df_row_index
+          #ind = original_df_row_index
 
-          if (self.clusters_df is None or self.original_df is None):
-              return None
+          # if (self.clusters_df is None or self.original_df is None):
+          #     return None
 
-          # filter clusters found specifically for our working file
-          df = self.clusters_df.query(f"(full_path == '{self.original_df.loc[ind].full_path}') and (probe == 0)")
+          # # filter clusters found specifically for our working file
+          # df = self.clusters_df.query(f"(full_path == '{self.original_df.loc[ind].full_path}') and (probe == 0)")
+
+          if df is None:
+            return None
+
           num_of_points = df.num_of_points.to_numpy()
           num_of_points = [float(n) for n in num_of_points]
           stdev = np.stack(df.pca_std.to_numpy())
@@ -402,8 +567,7 @@ class scanThread(threading.Thread):
                 fig = make_subplots(rows=1, 
                                     cols=1, 
                                     vertical_spacing=0.05,
-                                    row_titles=[self.original_df.loc[ind].filename+\
-                                      self.histograms_title_prefix],
+                                    row_titles=[row_title],
                                     column_titles=[hist_title])
 
                 if is_float:
@@ -477,8 +641,7 @@ class scanThread(threading.Thread):
                                   yaxis_title_text=yaxis_title + " - (Total: %d)" % sum(counted_clusters),
                                   bargap=0.015)
 
-                fig_name = self.prefix +\
-                  self.original_df.loc[ind].filename.replace(".", "_") +\
+                fig_name = self.prefix + row_title +\
                   ("%s_%s.html" % (data_prefix,hist_prefix)) 
                 fig.write_html(scan_results_folder + fig_name)
                 fig_names.append(fig_name)
@@ -647,8 +810,10 @@ class scanThread(threading.Thread):
       dataset = dataset_result
       self.original_df = dataset.orig_df
       self.clusters_df = dataset.groups_df
+      self.global_df = pd.concat([self.global_df, dataset.orig_df])
       self.result_json["num_of_files"] = 0 
       if self.clusters_df is not None:
+        self.global_clusters_df = pd.concat([self.global_clusters_df, dataset.groups_df])
         self.clusters_df['pca_major_axis_std'] = self.clusters_df['pca_std'].apply(lambda x: x[0])
         self.clusters_df['pca_minor_axis_std'] = self.clusters_df['pca_std'].apply(lambda x: x[1])
 
@@ -847,8 +1012,10 @@ class scanThread(threading.Thread):
                       
               file_res["probevis_html"] = self.generate_probe_visualization_plot_html(conf, i)
               file_res["kdist_html"] = self.generate_kdist_plot_html(conf, i)
-                      
-              histograms_res = self.generate_histograms_html(conf, i)
+              
+              # # filter clusters found specifically for our working file
+              df = self.clusters_df.query(f"(full_path == '{self.original_df.loc[i].full_path}') and (probe == 0)")
+              histograms_res = self.generate_histograms_html(df, self.original_df.loc[i].filename.replace(".", "_"))
               file_res["lower_half_num_of_points_html"] = histograms_res[0][0]
               file_res["upper_halfnum_of_points_html"] = histograms_res[0][1]
               file_res["num_of_points_html"] = histograms_res[0][2]
@@ -883,6 +1050,9 @@ class scanThread(threading.Thread):
           self.temp_result_holder.append(file_res)
           self.result_json["file_results"].append(file_res)
           self.result_json["file_results"].sort(key=lambda f: f["titlename"])
+          if (self.result_json["pca_correlation"] == False):
+            self.result_json["pca_correlation"] = True
+            self.result_json["pca_correlation_dir"] = self.generate_pca_correlation()
           self.scan_progress_percentage = self.counter / (len(self.original_df.index) * len(self.conf))
           self.counter += 1.0
       self.result_json["num_of_files"] += len(self.original_df.index)
@@ -927,74 +1097,74 @@ class scanThread(threading.Thread):
         self.export_csv_rows.append(row)
 
     def scan_main(self):
-        self.status = scanThread.scanStatus.SCAN_RUNNING
-        self.result_json["file_results"] = []
-        self.counter = 1.0
+        try:
+          self.status = scanThread.scanStatus.SCAN_RUNNING
+          self.result_json["file_results"] = []
+          self.counter = 1.0
 
-        rmtree(scan_results_folder, ignore_errors=True)
-        os.mkdir(scan_results_folder)
+          rmtree(scan_results_folder, ignore_errors=True)
+          os.mkdir(scan_results_folder)
 
-        rmtree(export_folder)
-        os.mkdir(export_folder)
-        self.result_json["errors"] = 0
+          rmtree(export_folder)
+          os.mkdir(export_folder)
+          self.result_json["errors"] = 0
 
-        if (len(self.conf) > 1):
-          self.dbscan_compare_dict = {}
+          if (len(self.conf) > 1):
+            self.dbscan_compare_dict = {}
 
-        self.export_csv_rows = [["Filename",\
-                                "Number of clusters",
-                                "Number of localizations",
-                                "Number of localizations assigned to clusters",
-                                "Mean localizations per cluster",
-                                "Median localizations per cluster",
-                                "Polygon surronding flat cluster mean size (nm)",
-                                "Polygon surronding flat cluster median size (nm)",
-                                "Polygon mean density",
-                                "Polygon median density",
-                                "Reduced polygon (Including Z-Axis) mean density",
-                                "Reduced polygon (Including Z-Axis) median density",
-                                "PCA mean size",
-                                "PCA median size",
-                                "PCA major axis (per cluster) mean std",
-                                "PCA major axis (per cluster) median std",
-                                "PCA minor axis (per cluster) mean std",
-                                "PCA minor axis (per cluster) median std",
-                                "Algorithm used",
-                                "Z-Axis included"
-                                "Noise reduction",
-                                "Standard score for noise reduction",
-                                "Density threshold",
-                                "Z-axis included desnity threshold",
-                                "HDBscan Min num of points (K)",
-                                "HDBscan Min samples",
-                                "HDBscan Epsilon", 
-                                "HDBscan Alpha",
-                                "HDBscan Extracting alg",
-                                "DBscan Min samples (K)",
-                                "DBscan Epsilon",
-                                "DBscan Min Num of points"]]
-          # run DBScan
-        for conf in self.conf:
-          self.prefix = make_prefix(conf)
-          self.histograms_title_prefix = ""
-          
-          # if conf["general"]["use_hdbscan"] is False:            
-          #   self.histograms_title_prefix = "%s Eps(%d), K(%d)%s" % ("F%f" % conf["general"]["density_drop_threshold"] if conf["general"]["density_drop_threshold"] > 0.0 else "",
-          #                                                         conf["dbscan"]["dbscan_eps"],\
-          #                                                         conf["dbscan"]["dbscan_min_samples"],
-          #                                                         (", NR STD(%s)" % conf["general"]["stddev_num"]) if\
-          #                                                             conf["general"]["noise_reduce"] else "")         
-          # else:             
-          #   self.histograms_title_prefix = "%s N(%d), S(%d), Alg(%s), a(%s)%s%s" % ("F%f" % conf["general"]["density_drop_threshold"] if conf["general"]["density_drop_threshold"] > 0.0 else "",
-          #                                                                         conf["hdbscan"]["hdbscan_min_npoints"],\
-          #                                                                         conf["hdbscan"]["hdbscan_min_samples"],
-          #                                                                         conf["hdbscan"]["hdbscan_extracting_alg"],
-          #                                                                         conf["hdbscan"]["hdbscan_alpha"],
-          #                                                                         (", Eps(%d)" % conf["hdbscan"]["hdbscan_eps"]) if\
-          #                                                                           conf["hdbscan"]["hdbscan_eps"] != -9999 else "",
-          #                                                                         (", NR STD(%s)" % conf["general"]["stddev_num"]) if\
-          #                                                                           conf["general"]["noise_reduce"] else "")
-          try:
+          self.export_csv_rows = [["Filename",\
+                                  "Number of clusters",
+                                  "Number of localizations",
+                                  "Number of localizations assigned to clusters",
+                                  "Mean localizations per cluster",
+                                  "Median localizations per cluster",
+                                  "Polygon surronding flat cluster mean size (nm)",
+                                  "Polygon surronding flat cluster median size (nm)",
+                                  "Polygon mean density",
+                                  "Polygon median density",
+                                  "Reduced polygon (Including Z-Axis) mean density",
+                                  "Reduced polygon (Including Z-Axis) median density",
+                                  "PCA mean size",
+                                  "PCA median size",
+                                  "PCA major axis (per cluster) mean std",
+                                  "PCA major axis (per cluster) median std",
+                                  "PCA minor axis (per cluster) mean std",
+                                  "PCA minor axis (per cluster) median std",
+                                  "Algorithm used",
+                                  "Z-Axis included"
+                                  "Noise reduction",
+                                  "Standard score for noise reduction",
+                                  "Density threshold",
+                                  "Z-axis included desnity threshold",
+                                  "HDBscan Min num of points (K)",
+                                  "HDBscan Min samples",
+                                  "HDBscan Epsilon", 
+                                  "HDBscan Alpha",
+                                  "HDBscan Extracting alg",
+                                  "DBscan Min samples (K)",
+                                  "DBscan Epsilon",
+                                  "DBscan Min Num of points"]]
+            # run DBScan
+          for conf in self.conf:
+            self.prefix = make_prefix(conf)
+            self.histograms_title_prefix = ""
+            
+            # if conf["general"]["use_hdbscan"] is False:            
+            #   self.histograms_title_prefix = "%s Eps(%d), K(%d)%s" % ("F%f" % conf["general"]["density_drop_threshold"] if conf["general"]["density_drop_threshold"] > 0.0 else "",
+            #                                                         conf["dbscan"]["dbscan_eps"],\
+            #                                                         conf["dbscan"]["dbscan_min_samples"],
+            #                                                         (", NR STD(%s)" % conf["general"]["stddev_num"]) if\
+            #                                                             conf["general"]["noise_reduce"] else "")         
+            # else:             
+            #   self.histograms_title_prefix = "%s N(%d), S(%d), Alg(%s), a(%s)%s%s" % ("F%f" % conf["general"]["density_drop_threshold"] if conf["general"]["density_drop_threshold"] > 0.0 else "",
+            #                                                                         conf["hdbscan"]["hdbscan_min_npoints"],\
+            #                                                                         conf["hdbscan"]["hdbscan_min_samples"],
+            #                                                                         conf["hdbscan"]["hdbscan_extracting_alg"],
+            #                                                                         conf["hdbscan"]["hdbscan_alpha"],
+            #                                                                         (", Eps(%d)" % conf["hdbscan"]["hdbscan_eps"]) if\
+            #                                                                           conf["hdbscan"]["hdbscan_eps"] != -9999 else "",
+            #                                                                         (", NR STD(%s)" % conf["general"]["stddev_num"]) if\
+            #                                                                           conf["general"]["noise_reduce"] else "")
             dataset = DstormDatasetDBSCAN(root=self.ex_files, 
                                           min_npoints=conf["dbscan"]["min_npoints"], 
                                           dbscan_eps=conf["dbscan"]["dbscan_eps"],
@@ -1014,27 +1184,25 @@ class scanThread(threading.Thread):
                                           density_drop_threshold=conf["general"]["density_drop_threshold"],
                                           z_density_drop_threshold=conf["general"]["threed_drop_threshold"],
                                           photon_count=conf["general"]["photon_count"])
-
-
-
             print("Completed storm scan, generating results.")
-
+            self.result_json["pca_correlation"] = False;
             self.generate_output_from_scan(conf, dataset)
-
             self.generate_export_csv_row(conf)
 
-          except BaseException as be:
-            format_exception(be)
-            self.result_json["errors"] = 2
-            print("Fatal error here!\n")  
 
-        # generate csv
-        with open('%s/%s' % (export_folder, export_file), 'w', newline='') as file:
-            wrt = writer(file)
-            wrt.writerows(self.export_csv_rows)
 
-        self.status = scanThread.scanStatus.SCAN_FINISHED_SUCCESSFULLY
+          # generate csv
+          with open('%s/%s' % (export_folder, export_file), 'w', newline='') as file:
+              wrt = writer(file)
+              wrt.writerows(self.export_csv_rows)
 
+          self.generate_global_histograms()
+          self.status = scanThread.scanStatus.SCAN_FINISHED_SUCCESSFULLY
+
+        except BaseException as be:
+          format_exception(be)
+          print("Fatal error here!\n")
+          self.result_json["errors"] = 2
 
     def prescan_main(self):
         self.status = scanThread.scanStatus.SCAN_RUNNING

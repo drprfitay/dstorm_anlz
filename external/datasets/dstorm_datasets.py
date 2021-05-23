@@ -360,7 +360,6 @@ class _ColocDstormDataset(_DstormDataset):
                 groups_df_row['convex_hull'] = xy_plane_pc[convex_hull.simplices]
                 corners = list(set(functools.reduce(lambda x,y: x+y, [[(a,b) for a,b in x] for x in xy_plane_pc[convex_hull.simplices]])))
                 groups_df_row['polygon_size'] = PolygonArea(PolygonSort(corners))
-                accumulative_size += groups_df_row['polygon_size']
 
                 groups_df_row["polygon_perimeter"] = sum([np.linalg.norm(p[0] - p[1]) for p in groups_df_row['convex_hull']])
                 groups_df_row["polygon_radius"] = (2 * groups_df_row['polygon_size']) / groups_df_row["polygon_perimeter"]
@@ -394,6 +393,7 @@ class _ColocDstormDataset(_DstormDataset):
                 groups_df_row['pca_mean'] = pca.mean_
                 groups_df_row['pca_std'] = np.sqrt(pca.explained_variance_)
                 groups_df_row['pca_size'] = np.sqrt(np.prod(groups_df_row['pca_std']))
+                accumulative_size += groups_df_row['polygon_size']
 
             except Exception as e:
                 print("Error ocurred during analysis of pc:")

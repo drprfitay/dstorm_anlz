@@ -372,7 +372,7 @@ class scanThread(threading.Thread):
                                  y=y_val,
                                  hoverinfo='text',
                                  mode='markers',
-                                 marker=dict(color_palette[i], opacity=0.8), #color="red", opacity=0.8),
+                                 marker=dict(color=color_palette[i], opacity=0.8), #color="red", opacity=0.8),
                                  hovertext=hover_text,
                                  text=hover_text)
               if gen_compare_plot:
@@ -388,7 +388,7 @@ class scanThread(threading.Thread):
                                    y=convex_hull_pair[:,1],
                                    mode='lines',
                                    opacity=0.2,
-                                   marker=dict(color_palette[i], opacity=0.05)) #color="red", opacity=0.05))
+                                   marker=dict(color=color_palette[i], opacity=0.05))#color="red", opacity=0.05))
                 fig.add_trace(vrt,
                 row=1,
                 col=1)

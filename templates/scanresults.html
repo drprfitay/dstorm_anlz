@@ -349,12 +349,14 @@ function generalClusterInformationInternal() {
     http_request.onreadystatechange = function() {        
         if (http_request.readyState == 4  ) {
 
-            /// Fix sidebar height:
-            // document.getElementById("sidebarMenu").style = "height:100%;position:absolute;display:block;";
-            // document.getElementById("sidebarMenu").style = "height:100%;position:absolute;display:block;";
             var jsonObj = JSON.parse(http_request.responseText);
             var probe1_exists = false;
 
+            /// Fix sidebar height:
+            if (jsonObj.file_results.length < 10) {
+              document.getElementById("sidebarMenu").style = "height:100%;position:absolute;display:block;";
+            }
+            
             for (f of jsonObj.file_results) {
               if (f.completed == false) {
                 continue;

@@ -42,16 +42,19 @@
     <div class="input-group-prepend">
     <span class="input-group-text" id="basic-addon1"> Choose folder </span>
     </div>
-        <select class="custom-select" onclick=search() id="folderselect">
+        <select class="custom-select" oninput=search() id="folderselect">
         </select>
     </div>
     </div>
     <div class="row mb-3 mt-1">
         <div class="input-group mb-3">
           <div class="input-group-prepend">
-            <span class="input-group-text" id="basic-addon1"> Search </span>
+            <span class="input-group-text" id="basic-addon1"> Search </span>            
           </div>
           <input id="search" oninput=search() type="text" class="form-control" placeholder="Enter experiment file name" aria-label="Username" aria-describedby="basic-addon1">
+          <div class="input-group-prepend">
+            <button class="input-group-text" onclick="selectAllFiles()"> Select all files </button>
+          </div> 
         </div>
     </div>
 
@@ -391,6 +394,30 @@ function setFolders() {
     http_request.send();
 }
 
+function selectAllFiles() {
+   var dir = document.getElementById("folderselect").value;
+   var http_request = new XMLHttpRequest();
+    http_request.onreadystatechange = function() {
+            
+        if (http_request.readyState == 4  ) {
+            var jsonObj = JSON.parse(http_request.responseText);
+            var dir = jsonObj.folder;
+            var files = jsonObj.exfiles
+            for (f of files) {
+                addFile(dir, f);
+            }
+
+        }
+
+    };
+    var get_url = "/exfiles";
+    get_url += "?folder=" + dir;
+
+    http_request.open("GET", get_url, true);
+    http_request.send();
+};     
+
+
 function setExperimentFiles(dir=null, searchKey=null, pageNum=null) {
     var http_request = new XMLHttpRequest();
     http_request.onreadystatechange = function() {
@@ -583,7 +610,9 @@ function resetFiles() {
 
     if( typeof addFile.files != 'undefined') {
         for (f of addFile.files) {
-            document.getElementById(f[1]).className = "btn btn-secondary btn-xs btn-block";
+            if (document.getElementById(f[1]) != null) {
+                    document.getElementById(f[1]).className = "btn btn-secondary btn-xs btn-block";
+            }
         }
         
         addFile.files = [];

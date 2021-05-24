@@ -53,7 +53,7 @@
 </nav>
 <div class="container-fluid">
   <div class="row">
-    <nav style="height:100%;position:absolute;display:block;"; id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+    <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
       <div class="sidebar-sticky pt-3">
         <ul class="nav flex-column">
           <li class="nav-item active">
@@ -350,8 +350,8 @@ function generalClusterInformationInternal() {
         if (http_request.readyState == 4  ) {
 
             /// Fix sidebar height:
-            document.getElementById("sidebarMenu").style = "height:100%;position:absolute;display:block;";
-            document.getElementById("sidebarMenu").style = "height:100%;position:absolute;display:block;";
+            // document.getElementById("sidebarMenu").style = "height:100%;position:absolute;display:block;";
+            // document.getElementById("sidebarMenu").style = "height:100%;position:absolute;display:block;";
             var jsonObj = JSON.parse(http_request.responseText);
             var probe1_exists = false;
 

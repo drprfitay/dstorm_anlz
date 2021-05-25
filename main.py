@@ -1,7 +1,8 @@
-from flask import Flask, redirect, url_for, request, render_template, jsonify
+from flask import Flask, redirect, url_for, request, render_template, jsonify, send_from_directory, send_file
 from os import listdir, path, walk, mkdir, unlink, environ
-from shutil import rmtree
+from shutil import rmtree, copyfile
 from scan_thread import scanThread
+from datetime import datetime
 import json
 import threading
 
@@ -57,6 +58,18 @@ def exfiles():
 	 				 "search_key" : searchkey, "items_in_page": num_of_files_in_page, "folder": folder}	
 
 	return jsonify(response_json)
+
+@app.route('/export/', methods=['GET', 'POST'])
+def download():
+    now = datetime.now() 
+    prefix = now.strftime("_%Y_%m_%d__%H_%M_%S")
+    upload = path.abspath("./static/export/data.csv")
+    upload_final = upload.replace(".csv", "%s.csv" % prefix)
+    copyfile(upload, upload_final)
+
+    print("Downloading %s" % (upload_final))
+
+    return send_file(upload_final, as_attachment=True, cache_timeout=0)
 
 @app.route('/results',methods = ['POST', 'GET']) 
 def resultpage():
@@ -206,6 +219,8 @@ def doscan():
 			user_config["hdbscan"]["hdbscan_extracting_alg"] = "leaf"
 		user_config["hdbscan"]["hdbscan_alpha"] = 		   float(request.form["hdbscan_alpha"].split(";")[i])
 		user_config["general"]["density_drop_threshold"] = float(request.form["density_drop_threshold"].split(";")[i])
+		user_config["general"]["threed_drop_threshold"] =  float(request.form["threed_drop_threshold"].split(";")[i])
+		user_config["general"]["photon_count"] =           float(request.form["photon_count"].split(";")[i])
 		user_config["k-dist"]["is_3D"] =				   scanThread.default_configuration["k-dist"]["is_3D"]
 		user_config["k-dist"]["k"] = 					   scanThread.default_configuration["k-dist"]["k"]
 		user_config["k-dist"]["n_neighbors"] = 			   scanThread.default_configuration["k-dist"]["n_neighbors"]

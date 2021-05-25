@@ -219,6 +219,8 @@ class _ColocDstormDataset(_DstormDataset):
                  noise_reduce=False,
                  stddev_num=1.5,
                  density_drop_threshold=0.0,
+                 z_density_drop_threshold=0.0,
+                 photon_count=0.0,
                  **kwargs):
 
         self.coordinates_vector = ['x', 'y', 'z'] if use_z else ['x', 'y']
@@ -233,6 +235,8 @@ class _ColocDstormDataset(_DstormDataset):
         self.noise_reduce = noise_reduce
         self.stddev_num = stddev_num
         self.density_drop_threshold = density_drop_threshold
+        self.z_density_drop_threshold = z_density_drop_threshold
+        self.photon_count = photon_count
         # kwargs.pop("use_z") # If some how you are reading this, my god I didn't find any other way to pass parameters to father constructor lol
 
         super(_ColocDstormDataset, self).__init__(*args, **kwargs)
@@ -317,8 +321,10 @@ class _ColocDstormDataset(_DstormDataset):
         print(points)
         print("\n\n#####################################\n\n")
         print("Calculating xy plane convex hull, PCA")
+        print("Photon filter: %f", self.photon_count)
         print("Noise reducing with PCA" if self.noise_reduce else "No noise reduction")
         centroids, groups, unassigned = self.grouping_function(points)
+        accumulative_size= 0
 
         if len(groups) > 0:
             max_npoints = max([len(g) for g in groups])
@@ -354,7 +360,10 @@ class _ColocDstormDataset(_DstormDataset):
                 groups_df_row['convex_hull'] = xy_plane_pc[convex_hull.simplices]
                 corners = list(set(functools.reduce(lambda x,y: x+y, [[(a,b) for a,b in x] for x in xy_plane_pc[convex_hull.simplices]])))
                 groups_df_row['polygon_size'] = PolygonArea(PolygonSort(corners))
-                groups_df_row['polygon_density'] = float((groups_df_row['num_of_points'] * 10)) / groups_df_row['polygon_size']
+
+                groups_df_row["polygon_perimeter"] = sum([np.linalg.norm(p[0] - p[1]) for p in groups_df_row['convex_hull']])
+                groups_df_row["polygon_radius"] = (2 * groups_df_row['polygon_size']) / groups_df_row["polygon_perimeter"]
+                groups_df_row['polygon_density'] = float((groups_df_row['num_of_points'] * 1000)) / groups_df_row['polygon_size']
 
                 if (self.density_drop_threshold > 0.0):
                     if (groups_df_row['polygon_density'] < self.density_drop_threshold):
@@ -366,10 +375,16 @@ class _ColocDstormDataset(_DstormDataset):
                     reduced_convex_hull = ConvexHull(reduced_cluster)
                     corners = list(set(functools.reduce(lambda x,y: x+y,[[(a.tolist()[0][0], a.tolist()[0][1]) for a in x] for x in reduced_cluster[reduced_convex_hull.simplices]])))
                     groups_df_row['reduced_polygon_size'] = PolygonArea(PolygonSort(corners))
-                    groups_df_row['reduced_polygon_density'] = float((groups_df_row['num_of_points'] * 10)) / groups_df_row['reduced_polygon_size']
+                    groups_df_row['reduced_polygon_density'] = float((groups_df_row['num_of_points'] * 1000)) / groups_df_row['reduced_polygon_size']
+
+                    if (self.z_density_drop_threshold > 0.0):
+                        if (groups_df_row['reduced_polygon_density'] < self.z_density_drop_threshold):
+                            print("Dropping cluster due to 3D density (%f < %f)" % (groups_df_row['reduced_polygon_density'], self.z_density_drop_threshold))
+                            unassigned = pd.concat([unassigned, groups_df_row['pointcloud']])
+                            continue
                 else:
                     groups_df_row['reduced_polygon_size'] = None
-                    groups_df_row['reduced_polygon_density'] = None
+                    groups_df_row['reduced_polygon_density'] = -9999
 
 
                 pca = PCA()
@@ -378,6 +393,7 @@ class _ColocDstormDataset(_DstormDataset):
                 groups_df_row['pca_mean'] = pca.mean_
                 groups_df_row['pca_std'] = np.sqrt(pca.explained_variance_)
                 groups_df_row['pca_size'] = np.sqrt(np.prod(groups_df_row['pca_std']))
+                accumulative_size += groups_df_row['polygon_size']
 
             except Exception as e:
                 print("Error ocurred during analysis of pc:")
@@ -388,7 +404,7 @@ class _ColocDstormDataset(_DstormDataset):
 
             groups_df_rows.append(groups_df_row)
 
-        return (pd.DataFrame(groups_df_rows), len(groups_df_rows), max_npoints, unassigned)
+        return (pd.DataFrame(groups_df_rows), len(groups_df_rows), max_npoints, unassigned, accumulative_size)
 
     @staticmethod
     def colocalization(df0, df1, min_distance=50, min_neighbors=1):
@@ -412,6 +428,10 @@ class _ColocDstormDataset(_DstormDataset):
         return 100.0 * colocalization_vector.sum() / colocalization_total
 
     def process_pointcloud_df(self, pc):
+        if (self.photon_count > 0.0):
+            print("Dropping due to photon intensity filter (%f)" % self.photon_count)
+            pc = pc.loc[pc["photon-count"] >= self.photon_count]
+
         df_row = super(_ColocDstormDataset, self).process_pointcloud_df(pc)
         try:
             pc_probe0 = pc.query('probe == 0')
@@ -422,12 +442,25 @@ class _ColocDstormDataset(_DstormDataset):
 
             ### Grouping ###
             if df_row['probe0_num_of_points'] > 0:
-                df_row['probe0_groups_df'], df_row['probe0_ngroups'], df_row['probe0_max_npoints'], df_row['probe_0_unassigned'] = \
-                    self.find_groups(pc_probe0)
+                df_row['probe0_groups_df'], df_row['probe0_ngroups'], df_row['probe0_max_npoints'],\
+                 df_row['probe_0_unassigned'], probe0_acc_size = self.find_groups(pc_probe0)
+
+            if (df_row['probe0_ngroups'] == 0):
+                print("##################No groups found")
+            else:
+             print("##################%d groups found" % df_row['probe0_ngroups'])
 
             if df_row['probe1_num_of_points'] > 0:
-                df_row['probe1_groups_df'], df_row['probe1_ngroups'], df_row['probe1_max_npoints'], df_row['probe_1_unassigned'] = \
-                    self.find_groups(pc_probe1)
+                df_row['probe1_groups_df'], df_row['probe1_ngroups'], df_row['probe1_max_npoints'],\
+                 df_row['probe_1_unassigned'], probe1_acc_size = self.find_groups(pc_probe1)
+
+
+
+            prob0_np_pc = pc_probe0[["x", "y"]].to_numpy()
+            probe0_convex_hull = ConvexHull(prob0_np_pc)
+            corners = list(set(functools.reduce(lambda x,y: x+y, [[(a,b) for a,b in x] for x in prob0_np_pc[probe0_convex_hull.simplices]])))
+            df_row["probe0_area"] = PolygonArea(PolygonSort(corners))
+            df_row["probe0_cluster_density"] = float(probe0_acc_size) / float(df_row["probe0_area"])
 
             ### Colocalization analysis ###
             if df_row['probe0_num_of_points'] == 0 or df_row['probe1_num_of_points'] == 0:

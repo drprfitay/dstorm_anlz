@@ -419,7 +419,7 @@ class scanThread(threading.Thread):
           format_exception(be)
           raise(be)                   
 
-    def generate_global_histograms(self):
+    def generate_global_histograms(self, **kwargs):
       self.prefix = ""
       # In case no groups generated
       if (self.global_clusters_df.empty):
@@ -452,7 +452,13 @@ class scanThread(threading.Thread):
       else:                        
         print("Generating global histograms!")
         df = self.global_clusters_df.query(f"(probe == 0)")
-        histograms_res = self.generate_histograms_html(df, "Average histogram")
+        if ("possible_confs" in kwargs and  len(kwargs["possible_confs"]) == 1):
+          histograms_res = self.generate_histograms_html(df, 
+                                                         "Average histogram",
+                                                         density_drop=kwargs["possible_confs"][0]["general"]["density_drop_threshold"],
+                                                         z_density_drop=kwargs["possible_confs"][0]["general"]["threed_drop_threshold"])          
+        else:
+          histograms_res = self.generate_histograms_html(df, "Average histogram")
         self.result_json["global_lower_half_num_of_points_html"] = histograms_res[0][0]
         self.result_json["global_upper_halfnum_of_points_html"] = histograms_res[0][1]
         self.result_json["global_num_of_points_html"] = histograms_res[0][2]
@@ -478,7 +484,7 @@ class scanThread(threading.Thread):
         self.result_json["global_upper_halfpoly_radius_html"] = histograms_res[8][1]
         self.result_json["global_poly_radius_html"] = histograms_res[8][2]                  
 
-    def generate_histograms_html(self, df, row_title):
+    def generate_histograms_html(self, df, row_title, **kwargs):
         try:
           range_split = lambda min, max, pctg: [(min + (0 if p == 0 else 1) + int(((max - min) * p  )/pctg),\
                                                  min + int(((max - min) * (p + 1)/pctg)))\
@@ -518,35 +524,163 @@ class scanThread(threading.Thread):
           polygon_radius = df.polygon_radius.to_numpy()
 
           histnames = []
-          hists = [(num_of_points, "Number of points in clusters", "num_of_pts", True),
-           (stdev[:,0], "Cluster Major axis", "maj_ax_stdev", True),
-           (stdev[:,1], "Cluster Minor axis", "min_ax_stdev", True),
-           (density, "Density", "density", True),
-           (pca_size, "PCA Size", "pca_size", True),
-           (polygon_size, "Polygon Size", "poly_size", True),
-           (polygon_density, "Polygon Density", "poly_density", True),
-           (polygon_perimeter, "Polygon Perimeter", "poly_perim", True),
-           (polygon_radius, "Polygon Radius", "poly_radius", True)]
+
+          density_min = 0.0
+          density_center = 3.0
+          red_density_min = 0.0
+          red_density_center = 1.5
+          polysize_center=60000.0
+
+          if ("density_drop" in kwargs and kwargs["density_drop"] >= 1.0):
+            density_min = 1.0
+            polysize_center=22500.0
+            density_center = 4.0
+
+          if ("z_density_drop" in kwargs and kwargs["z_density_drop"] >= 1.0):
+            red_density_min = 1.0
+            red_density_center = 2.5
+
+
+          hists = [(num_of_points, "Number of points in clusters", "num_of_pts", 0, 105.0, True),
+           (stdev[:,0], "Cluster Major axis", "maj_ax_stdev", 0, 50.0, True),
+           (stdev[:,1], "Cluster Minor axis", "min_ax_stdev", 0, 50.0, True),
+           (density, "Density", "density", 0, 3.0, True),
+           (pca_size, "PCA Size", "pca_size", 0, 50, True),
+           (polygon_size, "Polygon Size", "poly_size", 0, polysize_center, True),
+           (polygon_density, "Polygon Density", "poly_density", density_min, density_center, True),
+           (polygon_perimeter, "Polygon Perimeter", "poly_perim", 0, 300.0, True),
+           (polygon_radius, "Polygon Radius", "poly_radius", 0, 160.0, True)]
 
 
           if reduced_polygon_density[0] != -9999:
-            hists.append((reduced_polygon_density, "Reduced Polygon density", "reduced_poly_density", True))
+            hists.append((reduced_polygon_density, "Reduced Polygon density", "reduced_poly_density", red_density_min, red_density_center, True))
 
 
 
-          for hist_data, hist_title, hist_prefix, is_float in hists:
+          for hist_data, hist_title, hist_prefix, min_val, center, is_float in hists:
               fig_names = []
               htdt = [float(a) if is_float else int(a) for a in hist_data]
               htdt.sort()
               med = median(htdt)
               mean = avg(htdt)
 
+              # hist_data_and_halfs = [([a for a in htdt if a <= med], "_lower_half", "Probability - Lower half"),
+              #                        ([a for a in htdt if a > med], "_upper_half", "Probability - Upper half"),
+              #                        (htdt, "", "Probability")]
+              # a = hist_data_and_halfs[0][0]
+              # a.sort()
+              # print("\nLower half:")
+              # print(a)
+              # a = hist_data_and_halfs[1][0]
+              # a.sort()
+              # print("\nUpper half:")
+              # print(a)        
+              # for data, data_prefix, yaxis_title in hist_data_and_halfs:
+              #   if len(data) == 0:
+              #     fig_names.append(None)
+              #     continue
+
+              #   rs =[]
+              #   counted_clusters = []
+              #   titles = []
+              #   fig = make_subplots(rows=1, 
+              #                       cols=1, 
+              #                       vertical_spacing=0.05,
+              #                       row_titles=[self.original_df.loc[ind].filename+\
+              #                         self.histograms_title_prefix],
+              #                       column_titles=[hist_title])
+
+              #   if is_float:
+              #     rs = float_range_split(min(data), max(data) * 1.05 , 20)
+              #     titles = ["%f - %f" % (rng[0], rng[1]) for rng in rs]
+              #     counted_clusters = [count_float_elements_in_range(rng, data) for rng in rs]
+              #   else:
+              #     rs = range_split(min(data), max(data) + 1, 20)
+              #     titles = ["%d - %d" % (rng[0], rng[1]) for rng in rs]
+
+              #     counted_clusters = [count_elements_in_range(rng, data) for rng in rs]
+                  
+              #   print("\nRange split for data:")
+              #   print(titles)
+
+              #   print("\nCounted data data:")
+              #   print(counted_clusters)
+
+              #   fig.add_trace(go.Histogram(histfunc="sum", histnorm="probability", y=counted_clusters, x=titles, name="sum"))
+              #   if data_prefix is "":
+              #     if is_float:
+              #       median_idx = find_float_item(med, rs)
+              #     else:
+              #       print("Median: ", med)
+              #       print("Rs: ", rs)
+              #       median_idx = find_item(med, rs)
+              #     if is_float:
+              #       mean_idx = find_float_item(mean, rs)
+              #     else:
+              #       mean_idx = find_item(int(mean), rs)
+
+              #     mean_coeff = 1
+              #     med_coeff = -1
+              #     if mean_idx < median_idx:
+              #       mean_coeff = -1
+              #       med_coeff = 1
+
+              #     height = max(counted_clusters) / sum(counted_clusters) + 0.05
+              #     fig.add_shape(type="line",
+              #                   x0=median_idx,
+              #                   y0=0,
+              #                   x1=median_idx,
+              #                   y1=height,
+              #                   line=dict(color=self.theme[2], width=2, dash="dot"),
+              #                   opacity=1)
+
+              #     fig.add_annotation(x=median_idx,
+              #                        y=height,
+              #                        text=("Median = %f" if is_float else "Median = %d") % med ,
+              #                        showarrow=False,
+              #                        xshift= med_coeff * 65 if is_float else med_coeff * 50,
+              #                        yshift=-10)
+
+                  
+              #     fig.add_shape(type="line",
+              #                   x0=mean_idx,
+              #                   y0=0,
+              #                   x1=mean_idx,
+              #                   y1=height,
+              #                   line=dict(color=self.theme[2], width=2, dash="dot"),
+              #                   opacity=1)
+
+              #     fig.add_annotation(x=mean_idx,
+              #                        y=height,
+              #                        text=("Mean = %f" if is_float else "Mean = %d") % mean,
+              #                        showarrow=False,
+              #                        xshift= mean_coeff * 60 if is_float else mean_coeff * 45,
+              #                        yshift=-10)              
+
+              #   fig.update_layout(template=self.theme[0],
+              #                     xaxis_title_text='Range',
+              #                     yaxis_title_text=yaxis_title + " - (Total: %d)" % sum(counted_clusters),
+              #                     bargap=0.015)
+
+              #   fig_name = self.prefix +\
+              #     self.original_df.loc[ind].filename.replace(".", "_") +\
+              #     ("%s_%s.html" % (data_prefix,hist_prefix)) 
+              #   fig.write_html(scan_results_folder + fig_name)
+              #   fig_names.append(fig_name)
+              # histnames.append(fig_names)
+
+              n_bins = 15
+              bin_size = (center - min_val)/float(n_bins)
+              upper_range = [(center + i * (center - min_val)/float(n_bins), center + (i + 1) * (center - min_val)/float(n_bins))   for i in range(0, n_bins)]
+              lower_range = [(min_val + i * (center - min_val)/float(n_bins), min_val + (i + 1) * (center - min_val)/float(n_bins))   for i in range(0, n_bins)]
+              total_range = lower_range + upper_range
+
               print("\n\n\n\n\n\n%s %f" % (hist_prefix, float(med)))
               print("\nTotal data:")
               print(htdt)
-              hist_data_and_halfs = [([a for a in htdt if a <= med], "_lower_half", "Probability - Lower half"),
-                                     ([a for a in htdt if a > med], "_upper_half", "Probability - Upper half"),
-                                     (htdt, "", "Probability")]
+              hist_data_and_halfs = [([a for a in htdt if a < center], "_lower_half", "Probability - Lower half", lower_range, False),
+                                     ([a for a in htdt if a >= center], "_upper_half", "Probability - Upper half", upper_range, False),
+                                     (htdt, "", "Probability", total_range, True)]
 
               a = hist_data_and_halfs[0][0]
               a.sort()
@@ -556,12 +690,11 @@ class scanThread(threading.Thread):
               a.sort()
               print("\nUpper half:")
               print(a)        
-              for data, data_prefix, yaxis_title in hist_data_and_halfs:
+              for data, data_prefix, yaxis_title, rs, is_total_hist in hist_data_and_halfs:
                 if len(data) == 0:
                   fig_names.append(None)
                   continue
 
-                rs =[]
                 counted_clusters = []
                 titles = []
                 fig = make_subplots(rows=1, 
@@ -571,75 +704,41 @@ class scanThread(threading.Thread):
                                     column_titles=[hist_title])
 
                 if is_float:
-                  rs = float_range_split(min(data), max(data) * 1.05 , 20)
                   titles = ["%f - %f" % (rng[0], rng[1]) for rng in rs]
+
+                  if is_total_hist:
+                    rs[-1] = (rs[-1][0], sorted(data)[-1] + 1.0)
+                    titles[-1] = ">%f" % rs[-1][0]
+
                   counted_clusters = [count_float_elements_in_range(rng, data) for rng in rs]
+
                 else:
-                  rs = range_split(min(data), max(data) + 1, 20)
                   titles = ["%d - %d" % (rng[0], rng[1]) for rng in rs]
+
+                  if is_total_hist:
+                    rs[-1] = (rs[-1][0], sorted(data)[-1] + 1)
+                    titles[-1] = ">%d" % rs[-1][0]
+
                   counted_clusters = [count_elements_in_range(rng, data) for rng in rs]
+
                   
                 print("\nRange split for data:")
                 print(titles)
 
-                print("\nCounted data data:")
+                print("\nCounted data data %f:" % bin_size)
                 print(counted_clusters)
 
-                fig.add_trace(go.Histogram(histfunc="sum", histnorm="probability", y=counted_clusters, x=titles, name="sum"))
-                if data_prefix is "":
-                  if is_float:
-                    median_idx = find_float_item(med, rs)
-                  else:
-                    print("Median: ", med)
-                    print("Rs: ", rs)
-                    median_idx = find_item(med, rs)
-                  if is_float:
-                    mean_idx = find_float_item(mean, rs)
-                  else:
-                    mean_idx = find_item(int(mean), rs)
-
-                  mean_coeff = 1
-                  med_coeff = -1
-                  if mean_idx < median_idx:
-                    mean_coeff = -1
-                    med_coeff = 1
-
-                  height = max(counted_clusters) / sum(counted_clusters) + 0.05
-                  fig.add_shape(type="line",
-                                x0=median_idx,
-                                y0=0,
-                                x1=median_idx,
-                                y1=height,
-                                line=dict(color=self.theme[2], width=2, dash="dot"),
-                                opacity=1)
-
-                  fig.add_annotation(x=median_idx,
-                                     y=height,
-                                     text=("Median = %f" if is_float else "Median = %d") % med ,
-                                     showarrow=False,
-                                     xshift= med_coeff * 65 if is_float else med_coeff * 50,
-                                     yshift=-10)
-
-                  
-                  fig.add_shape(type="line",
-                                x0=mean_idx,
-                                y0=0,
-                                x1=mean_idx,
-                                y1=height,
-                                line=dict(color=self.theme[2], width=2, dash="dot"),
-                                opacity=1)
-
-                  fig.add_annotation(x=mean_idx,
-                                     y=height,
-                                     text=("Mean = %f" if is_float else "Mean = %d") % mean,
-                                     showarrow=False,
-                                     xshift= mean_coeff * 60 if is_float else mean_coeff * 45,
-                                     yshift=-10)              
-
+                mn_bin = rs[0][0] 
+                mx_bin = rs[-1][1]                
+                fig.add_trace(go.Histogram(histfunc="sum", histnorm="probability density", xbins=dict(start=mn_bin, end=mx_bin), y=counted_clusters, x=titles, name="sum"))
                 fig.update_layout(template=self.theme[0],
                                   xaxis_title_text='Range',
                                   yaxis_title_text=yaxis_title + " - (Total: %d)" % sum(counted_clusters),
-                                  bargap=0.015)
+                                  bargap=0.0075)
+                if is_total_hist:
+                  fig.update_xaxes(range=[0,30])
+                else: 
+                  fig.update_xaxes(range=[0,15])
 
                 fig_name = self.prefix + row_title +\
                   ("%s_%s.html" % (data_prefix,hist_prefix)) 
@@ -1015,7 +1114,10 @@ class scanThread(threading.Thread):
               
               # # filter clusters found specifically for our working file
               df = self.clusters_df.query(f"(full_path == '{self.original_df.loc[i].full_path}') and (probe == 0)")
-              histograms_res = self.generate_histograms_html(df, self.original_df.loc[i].filename.replace(".", "_"))
+              histograms_res = self.generate_histograms_html(df,
+                                                             self.original_df.loc[i].filename.replace(".", "_"),
+                                                             density_drop=conf["general"]["density_drop_threshold"],
+                                                             z_density_drop=conf["general"]["threed_drop_threshold"])
               file_res["lower_half_num_of_points_html"] = histograms_res[0][0]
               file_res["upper_halfnum_of_points_html"] = histograms_res[0][1]
               file_res["num_of_points_html"] = histograms_res[0][2]
@@ -1196,7 +1298,7 @@ class scanThread(threading.Thread):
               wrt = writer(file)
               wrt.writerows(self.export_csv_rows)
 
-          self.generate_global_histograms()
+          self.generate_global_histograms(possible_confs=self.conf)
           self.status = scanThread.scanStatus.SCAN_FINISHED_SUCCESSFULLY
 
         except BaseException as be:

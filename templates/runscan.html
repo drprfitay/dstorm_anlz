@@ -748,7 +748,7 @@ function pollScanResults (){
     else {
         pollScanResults.retries_count += 1
     }
-    if (pollScanResults.retries_count >= 800) {
+    if (pollScanResults.retries_count >= 8000000) {
         alert("Scan request timed out, try again later\n");
         window.location.href = "/runscan";
     }

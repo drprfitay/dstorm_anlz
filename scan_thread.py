@@ -526,22 +526,22 @@ class scanThread(threading.Thread):
           histnames = []
 
           density_min = 0.0
-          density_center = 3.0
+          density_center = 7.5
           red_density_min = 0.0
           red_density_center = 1.5
-          polysize_center=60000.0
+          polysize_center=150000.0
 
           if ("density_drop" in kwargs and kwargs["density_drop"] >= 1.0):
             density_min = 1.0
-            polysize_center=22500.0
-            density_center = 4.0
+            polysize_center=150000.0
+            density_center = 8.5
 
           if ("z_density_drop" in kwargs and kwargs["z_density_drop"] >= 1.0):
             red_density_min = 1.0
             red_density_center = 2.5
 
 
-          hists = [(num_of_points, "Number of points in clusters", "num_of_pts", 0, 105.0, True),
+          hists = [(num_of_points, "Number of points in clusters", "num_of_pts", 0, 225.0, True),
            (stdev[:,0], "Cluster Major axis", "maj_ax_stdev", 0, 50.0, True),
            (stdev[:,1], "Cluster Minor axis", "min_ax_stdev", 0, 50.0, True),
            (density, "Density", "density", 0, 3.0, True),

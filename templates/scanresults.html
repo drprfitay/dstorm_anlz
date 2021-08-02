@@ -605,6 +605,8 @@ function generateGlobalPlotsInternal(plot_id) {
             select_content += "<option value='" + jsonObj.global_minor_axis_html + "'> &nbsp&nbsp <b>" + "Average PCA minor axis" + "</b>" + "</option>"; 
 
             select_content += "<option value='" + jsonObj.global_pca_size_html + "'> &nbsp&nbsp <b>" + "Average PCA size" + "</b>" + "</option>"; 
+            select_content += "<option value='" + jsonObj.global_poly_size_density_html + "'> &nbsp&nbsp <b>" + "Density against size scatter plot" + "</b>" + "</option>"; 
+
 
             content += select_content + "</select>";
             content += "</div><div class=\"col-lg-2\"></div>";

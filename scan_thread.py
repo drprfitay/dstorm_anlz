@@ -449,6 +449,7 @@ class scanThread(threading.Thread):
         self.result_json["global_lower_half_poly_radius_html"] = None
         self.result_json["global_upper_halfpoly_radius_html"] = None
         self.result_json["global_poly_radius_html"] = None
+        self.result_json["global_poly_size_density_html"] = None
       else:                        
         print("Generating global histograms!")
         df = self.global_clusters_df.query(f"(probe == 0)")
@@ -483,6 +484,7 @@ class scanThread(threading.Thread):
         self.result_json["global_lower_half_poly_radius_html"] = histograms_res[8][0]
         self.result_json["global_upper_halfpoly_radius_html"] = histograms_res[8][1]
         self.result_json["global_poly_radius_html"] = histograms_res[8][2]                  
+        self.result_json["global_poly_size_density_html"] = histograms_res[9]
 
     def generate_histograms_html(self, df, row_title, **kwargs):
         try:
@@ -746,6 +748,27 @@ class scanThread(threading.Thread):
                 fig_names.append(fig_name)
               histnames.append(fig_names)
 
+              fig = make_subplots(rows=1, 
+                    cols=1, 
+                    vertical_spacing=0.05)
+
+              fig.add_trace(go.Scattergl(x=polygon_size,
+                                         y=polygon_density,
+                                         mode='markers',
+                                         marker=dict(color='purple', opacity=1)),
+                            row=1, 
+                            col=1)
+
+              fig.update_layout(template=self.theme[0],
+                                xaxis_title_text='Polygon size',
+                                yaxis_title_text='Polygon density')
+
+              fig_name = self.prefix + row_title +\
+                ("%s.html" % ("size_in_dependence_of_density")) 
+
+              fig.write_html(scan_results_folder + fig_name)
+
+              histnames.append(fig_name)
           return histnames
         except BaseException as be:
           format_exception(be)

@@ -484,7 +484,7 @@ class scanThread(threading.Thread):
         self.result_json["global_lower_half_poly_radius_html"] = histograms_res[8][0]
         self.result_json["global_upper_halfpoly_radius_html"] = histograms_res[8][1]
         self.result_json["global_poly_radius_html"] = histograms_res[8][2]                  
-        self.result_json["global_poly_size_density_html"] = histograms_res[9]
+        self.result_json["global_poly_size_density_html"] = histograms_res[10]
 
     def generate_histograms_html(self, df, row_title, **kwargs):
         try:
@@ -748,27 +748,27 @@ class scanThread(threading.Thread):
                 fig_names.append(fig_name)
               histnames.append(fig_names)
 
-              fig = make_subplots(rows=1, 
-                    cols=1, 
-                    vertical_spacing=0.05)
 
-              fig.add_trace(go.Scattergl(x=polygon_size,
-                                         y=polygon_density,
-                                         mode='markers',
-                                         marker=dict(color='purple', opacity=1)),
-                            row=1, 
-                            col=1)
+          fig = make_subplots(rows=1, 
+                cols=1, 
+                vertical_spacing=0.05)
 
-              fig.update_layout(template=self.theme[0],
-                                xaxis_title_text='Polygon size',
-                                yaxis_title_text='Polygon density')
+          fig.add_trace(go.Scattergl(x=polygon_size,
+                                     y=polygon_density,
+                                     mode='markers',
+                                     marker=dict(color='purple', opacity=1)),
+                        row=1, 
+                        col=1)
 
-              fig_name = self.prefix + row_title +\
-                ("%s.html" % ("size_in_dependence_of_density")) 
+          fig.update_layout(template=self.theme[0],
+                            xaxis_title_text='Polygon size',
+                            yaxis_title_text='Polygon density')
 
-              fig.write_html(scan_results_folder + fig_name)
+          different_name = self.prefix + row_title +\
+            ("%s.html" % ("size_in_dependence_of_density")) 
 
-              histnames.append(fig_name)
+          fig.write_html(scan_results_folder + different_name)
+          histnames.append(different_name)              
           return histnames
         except BaseException as be:
           format_exception(be)
@@ -1141,6 +1141,7 @@ class scanThread(threading.Thread):
                                                              self.original_df.loc[i].filename.replace(".", "_"),
                                                              density_drop=conf["general"]["density_drop_threshold"],
                                                              z_density_drop=conf["general"]["threed_drop_threshold"])
+
               file_res["lower_half_num_of_points_html"] = histograms_res[0][0]
               file_res["upper_halfnum_of_points_html"] = histograms_res[0][1]
               file_res["num_of_points_html"] = histograms_res[0][2]

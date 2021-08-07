@@ -568,7 +568,7 @@ class _ColocDstormDataset(_DstormDataset):
                groups_df_row['pointcloud'] = pointcloud
 
                ## OFIR'S ADDITION 5/8/21
-               # Need to add a conditional for only applying Ripley's when user specified - how?
+               # Need to add a conditional for applying Ripley's only when user specified
                temp_lst, boo, c_num, cluster_label = run_ripley(pointcloud, cluster_label)
                if boo == -1:
                   temp_pc = temp_lst[0]

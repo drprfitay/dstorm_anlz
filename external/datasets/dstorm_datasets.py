@@ -569,36 +569,38 @@ class _ColocDstormDataset(_DstormDataset):
 
                ## OFIR'S ADDITION 5/8/21
                # Need to add a conditional for applying Ripley's only when user specified
-               temp_lst, boo, c_num, cluster_label = run_ripley(pointcloud, cluster_label)
-               if boo == -1:
-                  temp_pc = temp_lst[0]
-                  print("Ripley dropped group of size ", len(temp_pc.index))
-                  unassigned = pd.concat([unassigned, temp_pc])
-                  continue
-               else:
-                  if c_num < len(temp_lst):  # if label -1 was given, c_num = len(temp_lst) - 1, else c_num = len(temp_lst).
+               if use_ripley:
+                  temp_lst, boo, c_num, cluster_label = run_ripley(pointcloud, cluster_label)
+                  if boo == -1:
                      temp_pc = temp_lst[0]
-                     noise = temp_pc.loc[temp_pc["Label"] == -1]
-                     print("Ripley dropped group of size ", len(noise.index))
-                     unassigned = pd.concat([unassigned, noise])
-                     j = 1
+                     print("Ripley dropped group of size ", len(temp_pc.index))
+                     unassigned = pd.concat([unassigned, temp_pc])
+                     continue
                   else:
-                     j = 0
-                  groups_lst = []
-                  for k in range(j,len(temp_lst)):
-                     dic = {}
-                     temp_pc = temp_lst[k]
-                     new_pc = temp_pc.loc[temp_pc["Label"] != -1]
-                     #print("New Pointcloud tagged by Ripley:\n", new_pc[['x','y','z','Label']])
-                     inds = new_pc.index.tolist()
-                     pnts_df = new_pc[['x','y','z']]
-                     pnts_lst = pnts_df.values.tolist()
-                     cent = calc_centroid(pnts_lst, len(pnts_lst))
-                     dic['centroid'] = cent
-                     dic['group'] = inds
-                     dic['pointcloud'] = new_pc
-                     groups_lst.append(dic)
-                     
+                     if c_num < len(temp_lst):  # if label -1 was given, c_num = len(temp_lst) - 1, else c_num = len(temp_lst).
+                        temp_pc = temp_lst[0]
+                        noise = temp_pc.loc[temp_pc["Label"] == -1]
+                        print("Ripley dropped group of size ", len(noise.index))
+                        unassigned = pd.concat([unassigned, noise])
+                        j = 1
+                     else:
+                        j = 0
+                     groups_lst = []
+                     for k in range(j,len(temp_lst)):
+                        dic = {}
+                        temp_pc = temp_lst[k]
+                        new_pc = temp_pc.loc[temp_pc["Label"] != -1]
+                        #print("New Pointcloud tagged by Ripley:\n", new_pc[['x','y','z','Label']])
+                        inds = new_pc.index.tolist()
+                        pnts_df = new_pc[['x','y','z']]
+                        pnts_lst = pnts_df.values.tolist()
+                        cent = calc_centroid(pnts_lst, len(pnts_lst))
+                        dic['centroid'] = cent
+                        dic['group'] = inds
+                        dic['pointcloud'] = new_pc
+                        groups_lst.append(dic)
+               else:
+                  groups_lst = [groups_df_row]
                for groups_df_row in groups_lst:
                   new_pc = groups_df_row['pointcloud']
                   #pca_pc = pointcloud[self.coordinates_vector].to_numpy()

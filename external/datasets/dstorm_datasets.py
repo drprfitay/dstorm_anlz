@@ -12,8 +12,230 @@ import os
 from tqdm import tqdm
 from multiprocessing.pool import ThreadPool as Pool
 from traceback import format_exc
+from collections import Counter
+from sklearn.cluster import DBSCAN
+from sklearn import metrics
+import math
+import scipy
 
 from external.utils.numpy_pointcloud_utils import sample_and_group, dbscan_cluster_and_group
+
+################################################# Ripley's Optimization Functions ################################################
+
+
+def is_concave(H_vals_lst):
+   """
+   This function finds all local maximum points (t, H(t)) and counts them.
+   Args:
+      H_vals_lst - a list of points which were identified as a cluster by the clustering algorithm.
+   Ret:
+      max_pts - a list of all maximum points found in H_vals_lst
+      boo - True if there is only one maximum point, indicating that the graph is concave.
+            False if there isn't a maximum point or there is more than one - indicating that the graph isn't concave.
+   """
+   sorted_list = sorted(H_vals_lst, key = lambda x: x[0])
+   a = sorted_list[0]
+   b = sorted_list[1]
+   c = sorted_list[2]
+   ctr = 0
+   max_rs = []
+   boo = True
+   for i in range(3, len(sorted_list)):
+      if(a[1] < b[1]) & (b[1] > c[1]):
+         ctr += 1
+         max_rs.append([b[0], b[1]])
+      elif(a[1] < b[1]) & (b[1] == c[1]):
+         ctr += 1
+         av = (b[0] + c[0]) / 2
+         max_rs.append([av, b[1]])
+      a = b
+      b = c
+      c = sorted_list[i]
+   opt_r = -1
+   if(ctr < 1):
+      boo = False
+   else:
+      peak = -1
+      for r in max_rs:
+         if r[0] > opt_r:
+            peak = r[1]
+            opt_r = r[0]
+   return opt_r, boo
+
+####################################### 3D Implementation of Ripley's Functions #######################################
+def Ripleys_H(pnts_df):
+   """This function calculates t - L(t) and plots the results
+   Args:
+   pnts_df - a dataframe of points in a cluster found by DBSCAN
+   """
+   #pnts = pnts_df[["x", "y", "z"]]
+   pnt_lst = pnts_df.values.tolist()
+   vol = measure_vol(pnt_lst)
+   n = len(pnt_lst)
+   centroid = calc_centroid(pnt_lst, n)
+   max_dist = calc_max_dist(pnt_lst, centroid)
+   H_vals = dict()
+   L_vals = dict()
+   K_vals = dict()
+   step = 0.02 * max_dist
+   rg = np.arange(0, max_dist, step)
+   for r in rg:
+      filtered = t_from_centroid(pnt_lst, r, centroid)
+      if len(filtered) >= 0:
+         K_score = Ripleys_K(filtered, r, vol, n)
+         L_score = math.sqrt(K_score / (math.pi))
+         H_score = L_score - r
+         K_vals[r] = K_score
+         H_vals[r] = H_score
+         L_vals[r] = L_score
+   df_Hlist = []
+   #df_Klist = []
+   #df_Llist = []
+   for key, value in H_vals.items():
+      df_Hlist.append((key, value))
+   """for key, value in K_vals.items():
+      df_Klist.append((key, value))
+   for key, value in L_vals.items():
+      df_Llist.append((key, value))"""
+   max_r = None
+   boo = False
+   if len(df_Hlist) > 2:                   # Otherwise the function cannot be concave
+      max_r, boo = is_concave(df_Hlist)
+   """df = pd.DataFrame(df_Hlist, columns = ['r', 'H(r)'])
+   dfK = pd.DataFrame(df_Klist, columns = ['r', 'K(r)'])
+   dfL = pd.DataFrame(df_Llist, columns = ['r', 'L(r)'])"""
+   return max_r, boo#, df, dfK, dfL
+
+
+def Ripleys_K(pnts, r, vol, total_pts):
+    """ This function returns a scatter-based score within some radius
+    Args:
+        pnts - a list of points in a suspected cluster
+        t - a radius between 0 and the maximal distance between centroid and some point in pnts
+        area - the area of the convex hull containing pnts
+    """
+    n = len(pnts)
+    lmbda = total_pts / vol
+    temp_sum = 0
+    i = 0
+    for p1 in pnts:
+        j = len(pnts)
+        for p2 in pnts[::-1]:
+            if j > i:
+                dist = calc_ed(p1, p2)
+                if dist <= r: # Else indicator function is 0 and no addition is required
+                    temp_sum += (1 / n) # This gives a very good estimation for weight factor
+            j -= 1
+        i += 1
+    K_score = temp_sum / lmbda
+    return K_score
+
+def calc_ed(pnt1, pnt2):
+    """ This function calculates the Euclidean distance between 2 points
+    Args:
+        pnt1, pnt2 - two points with coordinates x,y
+    """
+    x_d = (pnt1[0] - pnt2[0])
+    x_s = x_d ** 2
+    y_d = (pnt1[1] - pnt2[1])
+    y_s = y_d ** 2
+    # 3D Version
+    z_d = (pnt1[2] - pnt2[2])
+    z_s = z_d ** 2
+    dist = math.sqrt(x_s + y_s + z_s)
+    return dist
+
+def calc_centroid(pnt_lst, n):
+    """ This function averages all points and returns the centroid of the bunch
+    Args:
+        pnt_lst - a list of points in a suspected cluster
+        n - number of points in pnts
+    """
+    x_sum = 0
+    y_sum = 0
+    z_sum = 0
+    for point in pnt_lst:
+       x_sum += point[0]
+       y_sum += point[1]
+       z_sum += point[2]
+
+    avg_x = x_sum / n
+    avg_y = y_sum / n
+    avg_z = z_sum / n
+    centroid = [avg_x, avg_y, avg_z]
+    return centroid
+
+def calc_max_dist(pnt_lst, centroid):
+    """
+    This function finds the maximal distance from the centroid of the cluster to an existing point in pnts
+    Args:
+        pnts - a list of points, a suspected "cluster"
+        centroid - the central point of the "cluster"
+    """
+    max_dist = 0
+    for point in pnt_lst:
+        dist = calc_ed(centroid, point)
+        if dist > max_dist:
+            max_dist = dist
+    return max_dist
+
+# 3D CASE
+def measure_vol(pnt_lst):
+    points = np.array(pnt_lst)
+    hull = scipy.spatial.ConvexHull(points)
+    vol = hull.volume
+    #print("\nVolume: ", vol)
+    return vol
+
+def t_from_centroid(pnt_lst, r, centroid):
+    """ This function filters the points list to points within distance t from the centroid
+    Args:
+        pnt_lst - a list of points
+        t - the radius of the circle that contains all filtered points
+        centroid - the central point of the "cluster"
+    """
+    filtered = []
+    for point in pnt_lst:
+        dist = calc_ed(centroid, point)
+        if dist <= r:
+            filtered.append(point)
+    return filtered
+
+
+def run_ripley(pointcloud, cluster_label):
+   cluster_df = pointcloud[['x', 'y', 'z']]
+   opt_r, boo = Ripleys_H(cluster_df)
+   epsi = opt_r
+   b = 0     # some labels != -1
+   pnt_lst = []
+   if boo == True and epsi > 0:
+      clstr = DBSCAN(eps = epsi, min_samples = 20, metric = 'euclidean',
+                     metric_params = None, algorithm = 'auto', leaf_size = 30,
+                     p = None, n_jobs = None).fit(cluster_df)
+      labels = clstr.labels_
+      m = len(np.unique(labels))    # The number of clusters found within the original cluster
+      if -1 in labels:
+         m -= 1
+      for lab in np.unique(labels):
+         if lab != -1:
+            for i in range(len(labels)):
+               if labels[i] == lab:
+                  labels[i] = cluster_label
+            cluster_label += 1
+      pointcloud["Label"] = labels
+      for lab in np.unique(labels):
+         #print("Cluster Label: ", lab)
+         temp = pointcloud.loc[pointcloud["Label"] == lab].copy()            
+         pnt_lst.append(temp)   
+   else:
+      m = 0
+      b = -1    # all labels == -1
+      pointcloud["Label"] = -1
+      pnt_lst.append(pointcloud)
+   return pnt_lst, b, m, cluster_label
+
+####################################### ORIGINAL Functions #######################################
+
 
 def get_outliers_and_axis_reduction_pca(np_array, stddev_factor=1.5):
     try:
@@ -324,6 +546,7 @@ class _ColocDstormDataset(_DstormDataset):
         print("Photon filter: %f", self.photon_count)
         print("Noise reducing with PCA" if self.noise_reduce else "No noise reduction")
         centroids, groups, unassigned = self.grouping_function(points)
+        
         accumulative_size= 0
 
         if len(groups) > 0:
@@ -334,66 +557,102 @@ class _ColocDstormDataset(_DstormDataset):
         unassigned = pc.iloc[unassigned].copy()
 
         groups_df_rows = []
+        cluster_label = 0
         for centroid, group in zip(centroids, groups):
             groups_df_row = {}
             groups_df_row['centroid'] = centroid
             groups_df_row['group'] = group
 
             try:
-                pointcloud = pc.iloc[group].copy()
-                groups_df_row['pointcloud'] = pointcloud
+               pointcloud = pc.iloc[group].copy()
+               groups_df_row['pointcloud'] = pointcloud
 
-                pca_pc = pointcloud[self.coordinates_vector].to_numpy()
-                nr, reduced_cluster = get_outliers_and_axis_reduction_pca(pca_pc, stddev_factor=self.stddev_num)
+               ## OFIR'S ADDITION 5/8/21
+               # Need to add a conditional for only applying Ripley's when user specified - how?
+               temp_lst, boo, c_num, cluster_label = run_ripley(pointcloud, cluster_label)
+               if boo == -1:
+                  temp_pc = temp_lst[0]
+                  print("Ripley dropped group of size ", len(temp_pc.index))
+                  unassigned = pd.concat([unassigned, temp_pc])
+                  continue
+               else:
+                  if c_num < len(temp_lst):  # if label -1 was given, c_num = len(temp_lst) - 1, else c_num = len(temp_lst).
+                     temp_pc = temp_lst[0]
+                     noise = temp_pc.loc[temp_pc["Label"] == -1]
+                     print("Ripley dropped group of size ", len(noise.index))
+                     unassigned = pd.concat([unassigned, noise])
+                     j = 1
+                  else:
+                     j = 0
+                  groups_lst = []
+                  for k in range(j,len(temp_lst)):
+                     dic = {}
+                     temp_pc = temp_lst[k]
+                     new_pc = temp_pc.loc[temp_pc["Label"] != -1]
+                     #print("New Pointcloud tagged by Ripley:\n", new_pc[['x','y','z','Label']])
+                     inds = new_pc.index.tolist()
+                     pnts_df = new_pc[['x','y','z']]
+                     pnts_lst = pnts_df.values.tolist()
+                     cent = calc_centroid(pnts_lst, len(pnts_lst))
+                     dic['centroid'] = cent
+                     dic['group'] = inds
+                     dic['pointcloud'] = new_pc
+                     groups_lst.append(dic)
+                     
+               for groups_df_row in groups_lst:
+                  new_pc = groups_df_row['pointcloud']
+                  #pca_pc = pointcloud[self.coordinates_vector].to_numpy()
+                  pca_pc = new_pc[self.coordinates_vector].to_numpy()
+                  nr, reduced_cluster = get_outliers_and_axis_reduction_pca(pca_pc, stddev_factor=self.stddev_num)
 
-                if (self.noise_reduce):                    
-                    groups_df_row['noise_reduced_clusters'] = nr
-                    pca_pc = nr
-                    xy_plane_pc = nr[:,[0,1]]
-                else: 
-                    groups_df_row['noise_reduced_clusters'] = []
-                    xy_plane_pc = pointcloud[["x","y"]].to_numpy()
-                
-                groups_df_row['num_of_points'] = pca_pc.shape[0]
+                  if (self.noise_reduce):
+                     groups_df_row['noise_reduced_clusters'] = nr
+                     pca_pc = nr
+                     xy_plane_pc = nr[:,[0,1]]
+                  else: 
+                     groups_df_row['noise_reduced_clusters'] = []
+                     xy_plane_pc = pointcloud[["x","y"]].to_numpy()
+                   
+                  groups_df_row['num_of_points'] = pca_pc.shape[0]
 
-                convex_hull = ConvexHull(xy_plane_pc)
-                groups_df_row['convex_hull'] = xy_plane_pc[convex_hull.simplices]
-                corners = list(set(functools.reduce(lambda x,y: x+y, [[(a,b) for a,b in x] for x in xy_plane_pc[convex_hull.simplices]])))
-                groups_df_row['polygon_size'] = PolygonArea(PolygonSort(corners))
+                  convex_hull = ConvexHull(xy_plane_pc)
+                  groups_df_row['convex_hull'] = xy_plane_pc[convex_hull.simplices]
+                  corners = list(set(functools.reduce(lambda x,y: x+y, [[(a,b) for a,b in x] for x in xy_plane_pc[convex_hull.simplices]])))
+                  groups_df_row['polygon_size'] = PolygonArea(PolygonSort(corners))
+                  accumulative_size += groups_df_row['polygon_size']
 
-                groups_df_row["polygon_perimeter"] = sum([np.linalg.norm(p[0] - p[1]) for p in groups_df_row['convex_hull']])
-                groups_df_row["polygon_radius"] = (2 * groups_df_row['polygon_size']) / groups_df_row["polygon_perimeter"]
-                groups_df_row['polygon_density'] = float((groups_df_row['num_of_points'] * 1000)) / groups_df_row['polygon_size']
+                  groups_df_row["polygon_perimeter"] = sum([np.linalg.norm(p[0] - p[1]) for p in groups_df_row['convex_hull']])
+                  groups_df_row["polygon_radius"] = (2 * groups_df_row['polygon_size']) / groups_df_row["polygon_perimeter"]
+                  groups_df_row['polygon_density'] = float((groups_df_row['num_of_points'] * 1000)) / groups_df_row['polygon_size']
 
-                if (self.density_drop_threshold > 0.0):
-                    if (groups_df_row['polygon_density'] < self.density_drop_threshold):
+                  if (self.density_drop_threshold > 0.0):
+                     if (groups_df_row['polygon_density'] < self.density_drop_threshold):
                         print("Dropping cluster due to density (%f < %f)" % (groups_df_row['polygon_density'], self.density_drop_threshold))
                         unassigned = pd.concat([unassigned, groups_df_row['pointcloud']])
                         continue
 
-                if reduced_cluster is not None:
-                    reduced_convex_hull = ConvexHull(reduced_cluster)
-                    corners = list(set(functools.reduce(lambda x,y: x+y,[[(a.tolist()[0][0], a.tolist()[0][1]) for a in x] for x in reduced_cluster[reduced_convex_hull.simplices]])))
-                    groups_df_row['reduced_polygon_size'] = PolygonArea(PolygonSort(corners))
-                    groups_df_row['reduced_polygon_density'] = float((groups_df_row['num_of_points'] * 1000)) / groups_df_row['reduced_polygon_size']
+                  if reduced_cluster is not None:
+                     reduced_convex_hull = ConvexHull(reduced_cluster)
+                     corners = list(set(functools.reduce(lambda x,y: x+y,[[(a.tolist()[0][0], a.tolist()[0][1]) for a in x] for x in reduced_cluster[reduced_convex_hull.simplices]])))
+                     groups_df_row['reduced_polygon_size'] = PolygonArea(PolygonSort(corners))
+                     groups_df_row['reduced_polygon_density'] = float((groups_df_row['num_of_points'] * 1000)) / groups_df_row['reduced_polygon_size']
 
-                    if (self.z_density_drop_threshold > 0.0):
+                     if (self.z_density_drop_threshold > 0.0):
                         if (groups_df_row['reduced_polygon_density'] < self.z_density_drop_threshold):
-                            print("Dropping cluster due to 3D density (%f < %f)" % (groups_df_row['reduced_polygon_density'], self.z_density_drop_threshold))
-                            unassigned = pd.concat([unassigned, groups_df_row['pointcloud']])
-                            continue
-                else:
-                    groups_df_row['reduced_polygon_size'] = None
-                    groups_df_row['reduced_polygon_density'] = -9999
+                           print("Dropping cluster due to 3D density (%f < %f)" % (groups_df_row['reduced_polygon_density'], self.z_density_drop_threshold))
+                           unassigned = pd.concat([unassigned, groups_df_row['pointcloud']])
+                           continue
+                  else:
+                     groups_df_row['reduced_polygon_size'] = None
+                     groups_df_row['reduced_polygon_density'] = -9999
 
 
-                pca = PCA()
-                pca.fit(pca_pc)
-                groups_df_row['pca_components'] = pca.components_
-                groups_df_row['pca_mean'] = pca.mean_
-                groups_df_row['pca_std'] = np.sqrt(pca.explained_variance_)
-                groups_df_row['pca_size'] = np.sqrt(np.prod(groups_df_row['pca_std']))
-                accumulative_size += groups_df_row['polygon_size']
+                  pca = PCA()
+                  pca.fit(pca_pc)
+                  groups_df_row['pca_components'] = pca.components_
+                  groups_df_row['pca_mean'] = pca.mean_
+                  groups_df_row['pca_std'] = np.sqrt(pca.explained_variance_)
+                  groups_df_row['pca_size'] = np.sqrt(np.prod(groups_df_row['pca_std']))
 
             except Exception as e:
                 print("Error ocurred during analysis of pc:")
@@ -402,7 +661,8 @@ class _ColocDstormDataset(_DstormDataset):
                 print(e, exc_type, fname, exc_tb.tb_lineno)
                 groups_df_row['Exception'] = format_exc()
 
-            groups_df_rows.append(groups_df_row)
+            for groups_df_row in groups_lst:
+               groups_df_rows.append(groups_df_row)
 
         return (pd.DataFrame(groups_df_rows), len(groups_df_rows), max_npoints, unassigned, accumulative_size)
 
@@ -538,6 +798,8 @@ class DstormDatasetDBSCAN(_ColocDstormDataset):
             hdbscan_alpha=self.hdbscan_alpha)
         
         return centroids, groups, unassigned
+
+
 
 #
 # class _NoasDstormDataset3D(_NoasDstormDataset):

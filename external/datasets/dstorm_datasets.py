@@ -443,6 +443,7 @@ class _ColocDstormDataset(_DstormDataset):
                  density_drop_threshold=0.0,
                  z_density_drop_threshold=0.0,
                  photon_count=0.0,
+                 use_ripley=False,
                  **kwargs):
 
         self.coordinates_vector = ['x', 'y', 'z'] if use_z else ['x', 'y']
@@ -459,6 +460,7 @@ class _ColocDstormDataset(_DstormDataset):
         self.density_drop_threshold = density_drop_threshold
         self.z_density_drop_threshold = z_density_drop_threshold
         self.photon_count = photon_count
+        self.use_ripley = use_ripley
         # kwargs.pop("use_z") # If some how you are reading this, my god I didn't find any other way to pass parameters to father constructor lol
 
         super(_ColocDstormDataset, self).__init__(*args, **kwargs)
@@ -569,7 +571,8 @@ class _ColocDstormDataset(_DstormDataset):
 
                ## OFIR'S ADDITION 5/8/21
                # Need to add a conditional for applying Ripley's only when user specified
-               if use_ripley:
+               #use_ripley = True
+               if self.use_ripley:
                   temp_lst, boo, c_num, cluster_label = run_ripley(pointcloud, cluster_label)
                   if boo == -1:
                      temp_pc = temp_lst[0]

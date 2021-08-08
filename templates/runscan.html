@@ -267,7 +267,9 @@
                         <input type="checkbox" class="form-check-input" onclick="flipStdDevNum()" id="noise_reduce">
                         <label class="form-check-label" for="a">Reduce noise with PCA</label>
                     </div>      
-                    <div class="col-md-2 mb-3 mt-3 ">
+                    <div class="col-md-2 mb-3 mt-3 pl-4">
+                        <input type="checkbox" class="form-check-input" onclick="" id="use_ripley">
+                        <label class="form-check-label" for="a">Use Ripley</label>                        
                     </div>               
                     <div class="col-md-2 mb-3 mt-3">
                         <input type="checkbox" class="form-check-input" onclick="flipDbScanConf()" id="use_hdbscan">
@@ -278,7 +280,7 @@
                         <label class="form-check-label" for="a">Use Z axis</label>
                     </div>                     
        
-                </div>                                           
+                </div>                                         
                 <div class="row">
                     <div class="col-md-3 mb-1 mt-3">
                     <span class="badge badge-info">Colocolization configuration</span><br/>
@@ -346,7 +348,8 @@ function addConfiguration()
     new_conf.push(document.getElementById("dbscan_min_samples").value);
     new_conf.push(document.getElementById("min_npoints").value);
     new_conf.push(document.getElementById("workers").value);
-    new_conf.push(document.getElementById("use_hdbscan").checked);
+    new_conf.push(document.getElementById("use_hdbscan").checked);;
+    new_conf.push(document.getElementById("use_ripley").checked);
     new_conf.push(document.getElementById("use_z").checked);
     new_conf.push(document.getElementById("noise_reduce").checked);
     new_conf.push(document.getElementById("stddev_num").value);       
@@ -653,6 +656,7 @@ function runScan() {
     dbscan_min_npoints="&dbscan_min_npoints=" + document.getElementById("min_npoints").value + ";";
     coloc_workers="&coloc_workers=" + document.getElementById("workers").value + ";";
     use_hdbscan = "&use_hdbscan=" + document.getElementById("use_hdbscan").checked + ";";
+    use_ripley = "&use_ripley=" + document.getElementById("use_ripley").checked + ";";
     use_z = "&use_z=" + document.getElementById("use_z").checked + ";";
     noise_reduce = "&noise_reduce=" + document.getElementById("noise_reduce").checked + ";";
     stddev_num = "&stddev_num=" + document.getElementById("stddev_num").value + ";";
@@ -680,18 +684,19 @@ function runScan() {
             dbscan_min_npoints += conf[4] + ";";
             coloc_workers += conf[5] + ";";
             use_hdbscan += conf[6] + ";"
-            use_z += conf[7] + ";"
-            noise_reduce += conf[8] + ";"
-            stddev_num += conf[9] + ";"
-            hdbscan_min_npoints += conf[10] + ";"
-            hdbscan_min_samples += conf[11] + ";"
-            hdbscan_epsilon += conf[12] + ";"
-            hdbscan_extracting_alg += conf[13] + ";"
-            hdbscan_alpha += conf[14] + ";"
-            density_drop_threshold  += conf[15] + ";"
-            threed_drop_threshold  += conf[16] + ";"
-            photon_count  += conf[17] + ";"
-            theme += conf[18] + ";";
+            use_ripley += conf[7] + ";"
+            use_z += conf[8] + ";"
+            noise_reduce += conf[9] + ";"
+            stddev_num += conf[10] + ";"
+            hdbscan_min_npoints += conf[12] + ";"
+            hdbscan_min_samples += conf[12] + ";"
+            hdbscan_epsilon += conf[13] + ";"
+            hdbscan_extracting_alg += conf[14] + ";"
+            hdbscan_alpha += conf[15] + ";"
+            density_drop_threshold  += conf[16] + ";"
+            threed_drop_threshold  += conf[17] + ";"
+            photon_count  += conf[18] + ";"
+            theme += conf[19] + ";";
 //          k_dist_algorithm += conf[6] + ";";
 //          k_dist_is_3D += conf[7] + ";" 
 //          k_dist_k += conf[8] + ";";
@@ -705,7 +710,8 @@ function runScan() {
     post_payload += dbscan_dbscan_min_samples;
     post_payload += dbscan_min_npoints;
     post_payload += coloc_workers;
-    post_payload += use_hdbscan
+    post_payload += use_hdbscan;
+    post_payload += use_ripley;
     post_payload += use_z
     post_payload += noise_reduce
     post_payload += stddev_num    
@@ -893,7 +899,8 @@ function loadInitialScanParams() {
             document.getElementById("density_drop_threshold").value = jsonObj.general.density_drop_threshold;
             document.getElementById("threed_drop_threshold").value = jsonObj.general.threed_drop_threshold;
             document.getElementById("photon_count").value = jsonObj.general.photon_count;
-            document.getElementById("use_hdbscan").checked = jsonObj.general.use_hdbscan;        
+            document.getElementById("use_hdbscan").checked = jsonObj.general.use_hdbscan;
+            document.getElementById("use_ripley").checked = jsonObj.general.use_ripley;  
             document.getElementById("use_z").checked = jsonObj.general.use_z;
             document.getElementById("noise_reduce").checked = jsonObj.general.noise_reduce;
             document.getElementById("stddev_num").value = jsonObj.general.stddev_num;

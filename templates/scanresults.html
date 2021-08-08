@@ -759,7 +759,7 @@ function generatePlotsInternal(plot_id) {
                       param_str = html_url.split("EEE")[0]
                       params = parseScanParams(param_str)
                       history_content += "<option value='" + html_url + "'> &nbsp&nbsp <b>" + f.titlename + "</b> &nbsp&nbsp&nbsp&nbsp";
-                      history_content += " (Alg: " + params.alg + ", Z-Axis: " + params.zaxis +", Noise reduce: " + params.noisered;
+                      history_content += " (Alg: " + params.alg + ", Z-Axis: " + params.zaxis + ", Ripley: " + params.ripley + ", Noise reduce: " + params.noisered;
                       if (params.alg == "HDBscan") { 
                         history_content += ", Minnpoints: " + params.specific.minnpoints + "....)";
                       } else {
@@ -778,7 +778,7 @@ function generatePlotsInternal(plot_id) {
                     param_str = html_url.split("EEE")[0]
                     params = parseScanParams(param_str)
                     select_content += "<option value='" + html_url + "'> &nbsp&nbsp <b>" + f.titlename + "</b> &nbsp&nbsp&nbsp&nbsp";
-                    select_content += " (Alg: " + params.alg + ", Z-Axis: " + params.zaxis +", Noise reduce: " + params.noisered;
+                    select_content += " (Alg: " + params.alg + ", Z-Axis: " + params.zaxis + ", Ripley: " + params.ripley + ", Noise reduce: " + params.noisered;
                     if (params.alg == "HDBscan") { 
                       select_content += ", Minnpoints: " + params.specific.minnpoints + "....)";
                     } else {
@@ -838,7 +838,7 @@ function generatePlotsInternal(plot_id) {
 };
 
 function parseScanParams(param_str) {
-  //var filename = "H_zT_nrT1.500000_ddt0.000000_zddt0.000000SSSalgleaf_mn50_ms1_eps-9999_alp1.0EEE"
+  //var filename = "H_zT_nrT1.500000_ddt0.000000_zddt0.000000_riTSSSalgleaf_mn50_ms1_eps-9999_alp1.0EEE"
   var tmp = param_str.split("SSS");
   var general = tmp[0];
   var specific = tmp[1];
@@ -858,6 +858,8 @@ function parseScanParams(param_str) {
   results.densitythreshold = general[3].slice(3,general[3].length);
   results.zdensitythreshold = general[4].slice(4,general[4].length);
   results.photoncount = general[5].slice(2,general[5].length);
+  tmp = general[6].slice(2,general[6].length);
+  if (tmp == "T") { results.ripley = true; } else {results.ripley = false; }
 
   if (general[0] == "H") {
     results.alg = "HDBscan";
@@ -882,6 +884,10 @@ function getParamsHTML(params) {
   if (params.alg == "HDBscan") {alg = params.alg + " (" + params.specific.alg + ")";} else {alg = params.alg;}
   content += "<span class=\"badge badge-info\">" + alg + "</span> ";
   
+
+  if (params.ripley) {
+    content += "<span class=\"badge badge-info\"> Ripley included </span> ";
+  }
   if (params.zaxis) {
     content += "<span class=\"badge badge-info\"> Z-Axis included </span> ";
   }

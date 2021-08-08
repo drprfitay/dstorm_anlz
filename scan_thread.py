@@ -36,14 +36,15 @@ color_palette = [make_clr(l) for l in clrsx]
 
 def make_prefix(conf):
   strbool = lambda b: "T" if b else "F"
-  prefix_str = "%s_z%s_nr%s%f_ddt%f_zddt%f_pc%fSSS" %\
+  prefix_str = "%s_z%s_nr%s%f_ddt%f_zddt%f_pc%f_ri%sSSS" %\
     ("H" if conf["general"]["use_hdbscan"] else "D",
      strbool(conf["general"]["use_z"]),
      strbool(conf["general"]["noise_reduce"]),
      conf["general"]["stddev_num"],
      conf["general"]["density_drop_threshold"],
      conf["general"]["threed_drop_threshold"],
-     conf["general"]["photon_count"])
+     conf["general"]["photon_count"], 
+     "T" if conf["general"]["use_ripley"] else "F")
 
   hdbscan_prefix = "alg%s_mn%d_ms%d_eps%d_alp%s" %\
     (conf["hdbscan"]["hdbscan_extracting_alg"],
@@ -105,6 +106,7 @@ class scanThread(threading.Thread):
      "general" :
         { "use_z": True,
           "use_hdbscan": True,
+          "use_ripley" : False,
           "noise_reduce": True,
           "stddev_num": 1.5,
           "photon_count" : 1000.0,
@@ -1298,7 +1300,7 @@ class scanThread(threading.Thread):
                                           coloc_distance=conf["coloc"]["coloc_distance"],
                                           coloc_neighbors=conf["coloc"]["coloc_neighbors"],
                                           workers=conf["coloc"]["workers"],
-                                          use_hdbscan=conf["general"]["use_hdbscan"],
+                                          use_hdbscan=conf["general"]["use_hdbscan"],                                        
                                           use_z=conf["general"]["use_z"],
                                           noise_reduce=conf["general"]["noise_reduce"],
                                           stddev_num=conf["general"]["stddev_num"],
@@ -1309,7 +1311,8 @@ class scanThread(threading.Thread):
                                           hdbscan_alpha=conf["hdbscan"]["hdbscan_alpha"],
                                           density_drop_threshold=conf["general"]["density_drop_threshold"],
                                           z_density_drop_threshold=conf["general"]["threed_drop_threshold"],
-                                          photon_count=conf["general"]["photon_count"])
+                                          photon_count=conf["general"]["photon_count"],
+                                          use_ripley=conf["general"]["use_ripley"])
             print("Completed storm scan, generating results.")
             self.result_json["pca_correlation"] = False;
             self.generate_output_from_scan(conf, dataset)

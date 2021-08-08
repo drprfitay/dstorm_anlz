@@ -208,6 +208,7 @@ def doscan():
 		user_config["general"]["noise_reduce"] = 		   True if request.form["noise_reduce"].split(";")[i] == "true" else False
 		user_config["general"]["use_z"] = 				   True if request.form["use_z"].split(";")[i] == "true" else False
 		user_config["general"]["use_hdbscan"] = 		   True if request.form["use_hdbscan"].split(";")[i] == "true" else False
+		user_config["general"]["use_ripley"] = 			   True if request.form["use_ripley"].split(";")[i] == "true" else False
 		user_config["general"]["stddev_num"] = 			   float(request.form["stddev_num"].split(";")[i])	
 		user_config["hdbscan"]["hdbscan_min_npoints"] =    int(request.form["hdbscan_min_npoints"].split(";")[i])
 		user_config["hdbscan"]["hdbscan_min_samples"] =    int(request.form["hdbscan_min_samples"].split(";")[i])

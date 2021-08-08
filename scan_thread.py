@@ -1273,7 +1273,7 @@ class scanThread(threading.Thread):
                                   "DBscan Epsilon",
                                   "DBscan Min Num of points"]]
             # run DBScan
-          for conf in self.conf:
+          for i, conf in enumerate(self.conf):
             self.prefix = make_prefix(conf)
             self.histograms_title_prefix = ""
             

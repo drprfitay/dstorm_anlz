@@ -407,8 +407,7 @@ class _ColocDstormDataset(_DstormDataset):
                 print(e, exc_type, fname, exc_tb.tb_lineno)
                 groups_df_row['Exception'] = format_exc()
 
-            for groups_df_row in groups_lst:
-               groups_df_rows.append(groups_df_row)
+            groups_df_rows.append(groups_df_row)
 
         return (pd.DataFrame(groups_df_rows), len(groups_df_rows), max_npoints, unassigned, accumulative_size)
 

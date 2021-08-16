@@ -18,6 +18,8 @@ from shutil import rmtree
 from scipy import spatial, stats
 from csv import writer
 
+
+export_clusters_file = "clusters.csv"
 export_file = "data.csv"
 export_folder = "./static/export/"
 scan_results_folder = "./static/scan_results/"
@@ -1321,6 +1323,9 @@ class scanThread(threading.Thread):
           with open('%s/%s' % (export_folder, export_file), 'w', newline='') as file:
               wrt = writer(file)
               wrt.writerows(self.export_csv_rows)
+
+          exported_clusters_df = self.clusters_df.drop(["convex_hull", "full_path", "zone", "coprotein", "label", "noise_reduced_clusters", "pointcloud", "group", "centroid"], axis="columns")
+          exported_clusters_df.to_csv('%s/%s' % (export_folder, export_clusters_file))
 
           self.generate_global_histograms(possible_confs=self.conf)
           self.status = scanThread.scanStatus.SCAN_FINISHED_SUCCESSFULLY

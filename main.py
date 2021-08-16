@@ -71,6 +71,18 @@ def download():
 
     return send_file(upload_final, as_attachment=True, cache_timeout=0)
 
+@app.route('/exportclusters/', methods=['GET', 'POST'])
+def download_clusters():
+    now = datetime.now() 
+    prefix = now.strftime("_%Y_%m_%d__%H_%M_%S")
+    upload = path.abspath("./static/export/clusters.csv")
+    upload_final = upload.replace(".csv", "%s.csv" % prefix)
+    copyfile(upload, upload_final)
+
+    print("Downloading %s" % (upload_final))
+
+    return send_file(upload_final, as_attachment=True, cache_timeout=0)
+
 @app.route('/results',methods = ['POST', 'GET']) 
 def resultpage():
 	return render_template("scanresults.html")

@@ -52,7 +52,7 @@ def exfiles():
 		requested_page = pagenum
 		modified_experimentfiles =\
 			modified_experimentfiles[(pagenum - 1) * num_of_files_in_page : pagenum * num_of_files_in_page]
-
+		modified_experimentfiles.sort()
 	response_json = {"exfiles" : modified_experimentfiles, "total_files" :total_files,\
 	 				 "total_file_in_response": len(modified_experimentfiles), "requested_page": requested_page,\
 	 				 "search_key" : searchkey, "items_in_page": num_of_files_in_page, "folder": folder}	
